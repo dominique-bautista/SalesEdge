@@ -66,7 +66,7 @@ public class LoginForm {
 
         // Group 5: Configure loginPanel
         // Set the position and size of the login panel
-        loginPanel.setBounds((int) (maxWidth *.66), 0, (int) (maxWidth *.34), maxHeight);
+        loginPanel.setBounds((int) (maxWidth *.58), 0, (int) (maxWidth *.42), maxHeight);
         // Set the layout manager for the login panel
         loginPanel.setLayout(new BorderLayout());
 
