@@ -44,7 +44,7 @@ public class LoginForm {
         // Set the background color of the left panel
         leftPanel.setBackground(new Color(0xF47130));
         // Set the position and size of the left panel
-        leftPanel.setBounds(0, 0, (int) (maxWidth *.66), maxHeight);
+        leftPanel.setBounds(0, 0, (int) (maxWidth *.58), maxHeight);
         // Set the layout manager for the left panel
         leftPanel.setLayout(new BorderLayout());
 
@@ -62,7 +62,7 @@ public class LoginForm {
         // Position the vertical text relative to the icon
         logoLabel.setVerticalTextPosition(JLabel.BOTTOM);
         // Set the font for the logo label
-        logoLabel.setFont(new Font("Inter", Font.BOLD, 14));
+        logoLabel.setFont(new Font("Inter", Font.BOLD, 26));
 
         // Group 5: Configure loginPanel
         // Set the position and size of the login panel
