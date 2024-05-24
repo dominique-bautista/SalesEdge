@@ -1,13 +1,15 @@
 package com.example;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
     
-
-    public static void main(String[] args) {
+    private static void on_start()
+    {
         // Group 1: Initialize components
         // Load the logo image
         ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
@@ -130,6 +132,22 @@ public class LoginForm {
         loginButton.setOpaque(true); // Make the background color visible
         loginButton.setBorderPainted(false); // Remove the default border
         loginPanel.add(loginButton, gbc);
+        loginButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword()); // Convert char array to string
+        
+                // Check credentials (this is a placeholder, replace with actual validation logic)
+                if ("admin".equals(username) && "admin".equals(password)) {
+                    // Login successful, proceed to Dashboard
+                    DashBoard.initializeDashboard(loginFrame.getMainFrame());
+                } else {
+                    // Handle failed login attempt
+                    JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         // Group 6: Assembly
         // Add the logo label to the left panel
@@ -138,5 +156,10 @@ public class LoginForm {
         loginFrame.getMainFrame().add(leftPanel, BorderLayout.WEST);
         // Add the login panel to the login frame
         loginFrame.getMainFrame().add(loginPanel, BorderLayout.CENTER);
+    }
+
+    public static void main(String[] args) {
+        on_start();
+        
     }
 }

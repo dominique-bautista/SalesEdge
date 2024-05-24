@@ -9,7 +9,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 
-public class MainFrame {
+public class MainFrame  {
     private Toolkit tk = Toolkit.getDefaultToolkit();
     private Dimension ssize = tk.getScreenSize(); // screen size getter
     private int maxWidth = (int) (ssize.width * .75);
