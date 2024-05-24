@@ -43,8 +43,10 @@ public class LoginForm {
         // Group 3: Configure leftPanel
         // Set the background color of the left panel
         leftPanel.setBackground(new Color(0xF47130));
+        // Calculate the width of the left panel
+        int leftPanelWidth = (int) (maxWidth * 0.58);
         // Set the position and size of the left panel
-        leftPanel.setBounds(0, 0, (int) (maxWidth *.58), maxHeight);
+        leftPanel.setBounds(0, 0, leftPanelWidth, maxHeight);
         // Set the layout manager for the left panel
         leftPanel.setLayout(new BorderLayout());
 
@@ -65,8 +67,11 @@ public class LoginForm {
         logoLabel.setFont(new Font("Inter", Font.BOLD, 26));
 
         // Group 5: Configure loginPanel
+        loginPanel.setBackground(new Color(0x656D72));
+        // Calculate the remaining width for the login panel
+        int loginPanelWidth = maxWidth - leftPanelWidth;
         // Set the position and size of the login panel
-        loginPanel.setBounds((int) (maxWidth *.66), 0, (int) (maxWidth *.34), maxHeight);
+        loginPanel.setBounds(leftPanelWidth, 0, loginPanelWidth, maxHeight);
         // Set the layout manager for the login panel
         loginPanel.setLayout(new BorderLayout());
 
