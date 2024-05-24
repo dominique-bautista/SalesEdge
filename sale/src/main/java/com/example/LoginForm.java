@@ -27,11 +27,7 @@ public class LoginForm {
         JLabel passwordLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField();
         // Create a login button
-        JButton loginButton = new JButton("Login");
-        // Get the default toolkit to access system-wide resources
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        // Get the screen size to dynamically set the window size
-        Dimension screenSize = toolkit.getScreenSize();
+        JButton loginButton = new JButton("Login");        
         // Calculate the maximum width and height for the window
         int maxWidth = loginFrame.getMaxWidth();
         int maxHeight = loginFrame.getMaxHeight();
