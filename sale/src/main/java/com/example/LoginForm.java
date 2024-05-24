@@ -5,29 +5,7 @@ import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
-    private static GridBagConstraints createGBC(int gridx, int gridy, int gridwidth, double weightx, double weighty,
-            int fill) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = gridx;
-        gbc.gridy = gridy;
-        gbc.gridwidth = gridwidth;
-        gbc.weightx = weightx;
-        gbc.weighty = weighty;
-        gbc.fill = fill;
-        return gbc;
-    }
-    private static GridBagConstraints createGBC(int gridx, int gridy, int gridwidth, double weightx, double weighty,
-            int fill, int anchor) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = gridx;
-        gbc.gridy = gridy;
-        gbc.gridwidth = gridwidth;
-        gbc.weightx = weightx;
-        gbc.weighty = weighty;
-        gbc.fill = fill;
-        gbc.anchor = anchor;
-        return gbc;
-    }
+    
 
     public static void main(String[] args) {
         // Group 1: Initialize components
