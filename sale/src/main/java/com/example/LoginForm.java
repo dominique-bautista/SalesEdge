@@ -31,7 +31,7 @@ public class LoginForm {
     public static void main(String[] args) {
         // Group 1: Initialize components
         ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");// Load the logo image
-        JFrame loginFrame = new JFrame();// Create the main window frame
+        MainFrame mF = new MainFrame();// Create the main window frame
         JLabel logoLabel = new JLabel();// Create a label to display the logo text
         JPanel leftPanel = new JPanel();// Create a panel for the left side of the window
         JPanel loginPanel = new JPanel();// Create a panel for the login details on the right side
@@ -39,15 +39,15 @@ public class LoginForm {
         Dimension screenSize = toolkit.getScreenSize();// Get the screen size to dynamically set the window size
         int maxWidth = (int) (screenSize.width * .75);// Calculate the maximum width and height for the window
         int maxHeight = (int) (screenSize.height * .75);
-
-        // Group 2: Configure loginFrame
-        loginFrame.setSize(maxWidth, maxHeight);// Set the size of the login frame based on the calculated dimensions
-        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// Specify the operation to perform when the window is closed
-        loginFrame.setResizable(false);// Prevent resizing of the window
-        loginFrame.setLayout(null);// Set the layout manager for the frame to null for manual positioning
-        loginFrame.setLocationRelativeTo(null);// Center the window on the screen
-        loginFrame.setIconImage(logo.getImage());// Set the icon image for the windowd
-        loginFrame.setVisible(true);// Make the frame visible
+        mF.showMainFrame();
+        // Group 2: Configure mF
+        // mF.setSize(maxWidth, maxHeight);// Set the size of the login frame based on the calculated dimensions
+        // mF.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// Specify the operation to perform when the window is closed
+        // mF.setResizable(false);// Prevent resizing of the window
+        // mF.setLayout(null);// Set the layout manager for the frame to null for manual positioning
+        // mF.setLocationRelativeTo(null);// Center the window on the screen
+        // Set the icon image for the windowd
+        // mF.setVisible(true);// Make the frame visible
         
         // Group 3: Configure leftPanel
         leftPanel.setBackground(new Color(0xF47130));// Set the background color of the left panel
@@ -72,23 +72,23 @@ public class LoginForm {
         
         // Group 6: Assembly
         leftPanel.add(logoLabel);// Add the logo label to the left panel
-        loginFrame.add(leftPanel);// Add the left panel to the login frame
+        mF.getMainFrame().getContentPane().add(leftPanel);// Add the left panel to the login frame
         JPanel topPanel = new JPanel(new GridBagLayout());// Add the login panel to the login frame
         
         JPanel middlePanel = new JPanel();
         JPanel bottomPanel = new JPanel();
-        topPanel.setBackground(Color.green); // Set the background color to visualize the top panel
+        topPanel.setBackground(new Color(0x656D72)); // Set the background color to visualize the top panel
         loginPanel.add(topPanel, createGBC(0, 0, 2, 1.0, 1.0, GridBagConstraints.BOTH));// Configure GridBagConstraints for the topPanel
 
-        middlePanel.setBackground(Color.blue); // Set the background color to visualize the middle panel
+        middlePanel.setBackground(new Color(0x656D72)); // Set the background color to visualize the middle panel
         loginPanel.add(middlePanel, createGBC(0, 1, 2, 1.0, 2.0, GridBagConstraints.BOTH));// Configure GridBagConstraints for the middlePanel
 
-        bottomPanel.setBackground(Color.red); // Set the background color to visualize the bottom panel
+        bottomPanel.setBackground(new Color(0x656D72)); // Set the background color to visualize the bottom panel
         loginPanel.add(bottomPanel, createGBC(0, 2, 2, 1.0, 2.0, GridBagConstraints.BOTH));// Configure GridBagConstraints for the bottomPanel
 
         JLabel topLabel = new JLabel("Sales Edge");
         topLabel.setFont(new Font("Times New Roman", Font.BOLD, 19));
         topPanel.add(topLabel, createGBC(0, 0, 0, 0,0,GridBagConstraints.BOTH,GridBagConstraints.CENTER));// Configure GridBagConstraints for the topLabel
-        loginFrame.add(loginPanel);
+        mF.getMainFrame().getContentPane().add(loginPanel);
     }
 }
