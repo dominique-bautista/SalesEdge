@@ -73,7 +73,7 @@ public class LoginForm {
         // Set the position and size of the login panel
         loginPanel.setBounds(leftPanelWidth, 0, loginPanelWidth, maxHeight);
         // Set the layout manager for the login panel
-        loginPanel.setLayout(new BorderLayout());
+        loginPanel.setLayout(new GridBagLayout());
 
         // Group 6: Assembly
         // Add the logo label to the left panel
@@ -81,6 +81,43 @@ public class LoginForm {
         // Add the left panel to the login frame
         loginFrame.add(leftPanel);
         // Add the login panel to the login frame
+        JPanel topPanel = new JPanel();
+        JPanel middlePanel = new JPanel();
+        JPanel bottomPanel = new JPanel();
+        // Configure GridBagConstraints for the topPanel
+        topPanel.setBackground(Color.green); // Set the background color
+        GridBagConstraints gbcTop = new GridBagConstraints();
+        gbcTop.gridx = 0;
+        gbcTop.gridy = 0;
+        gbcTop.gridwidth = 2; // Span across the entire width
+        gbcTop.weightx = 1.0;
+        gbcTop.weighty = 1.0;
+        gbcTop.fill = GridBagConstraints.BOTH;
+        loginPanel.add(topPanel, gbcTop);
+
+        // Configure GridBagConstraints for the middlePanel
+        middlePanel.setBackground(Color.blue); // Set the background color
+        GridBagConstraints gbcMiddle = new GridBagConstraints();
+        gbcMiddle.gridx = 0; // Start at the beginning of the row
+        gbcMiddle.gridy = 1; // Place below the topPanel
+        gbcMiddle.gridwidth = 2; // Span across the entire width
+        gbcMiddle.weightx = 1.0; // Allow the panel to expand horizontally
+        gbcMiddle.weighty = 2.0; // Allow the panel to expand vertically
+        gbcMiddle.fill = GridBagConstraints.BOTH; // Resize to fill the cell
+        loginPanel.add(middlePanel, gbcMiddle);
+
+        // Configure GridBagConstraints for the bottomPanel
+        bottomPanel.setBackground(Color.red); // Set the background color
+        GridBagConstraints gbcBottom = new GridBagConstraints();
+        gbcBottom.gridx = 0;
+        gbcBottom.gridy = 2;
+        gbcBottom.gridwidth = 2; // Span across the entire width
+        gbcBottom.weightx = 1.0;
+        gbcBottom.weighty = 1.0;
+        gbcBottom.fill = GridBagConstraints.BOTH;
+        loginPanel.add(bottomPanel, gbcBottom);
+
+ 
         loginFrame.add(loginPanel);
     }
 }
