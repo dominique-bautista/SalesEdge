@@ -12,7 +12,7 @@ public class LoginForm {
         // Load the logo image
         ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
         // Create the main window frame
-        JFrame loginFrame = new JFrame();
+        MainFrame loginFrame = new MainFrame();
         // Create a label to display the logo text
         JLabel logoLabel = new JLabel();
         // Create a panel for the left side of the window
@@ -33,24 +33,11 @@ public class LoginForm {
         // Get the screen size to dynamically set the window size
         Dimension screenSize = toolkit.getScreenSize();
         // Calculate the maximum width and height for the window
-        int maxWidth = (int) (screenSize.width * .75);
-        int maxHeight = (int) (screenSize.height * .75);
+        int maxWidth = loginFrame.getMaxWidth();
+        int maxHeight = loginFrame.getMaxHeight();
 
-        // Group 2: Configure loginFrame
-        // Set the size of the login frame based on the calculated dimensions
-        loginFrame.setSize(maxWidth, maxHeight);
-        // Specify the operation to perform when the window is closed
-        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Prevent resizing of the window
-        loginFrame.setResizable(false);
-        // Set the layout manager for the frame to null for manual positioning
-        loginFrame.setLayout(null);
-        // Center the window on the screen
-        loginFrame.setLocationRelativeTo(null);
-        // Set the icon image for the window
-        loginFrame.setIconImage(logo.getImage());
         // Make the frame visible
-        loginFrame.setVisible(true);
+        loginFrame.showMainFrame();;
 
         // Group 3: Configure leftPanel
         leftPanel.setBackground(new Color(0xF47130));// Set the background color of the left panel
@@ -152,8 +139,8 @@ public class LoginForm {
         // Add the logo label to the left panel
         leftPanel.add(logoLabel, BorderLayout.CENTER);
         // Add the left panel to the login frame
-        loginFrame.add(leftPanel, BorderLayout.WEST);
+        loginFrame.getMainFrame().add(leftPanel, BorderLayout.WEST);
         // Add the login panel to the login frame
-        loginFrame.add(loginPanel, BorderLayout.CENTER);
+        loginFrame.getMainFrame().add(loginPanel, BorderLayout.CENTER);
     }
 }

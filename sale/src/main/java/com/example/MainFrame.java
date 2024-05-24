@@ -14,6 +14,7 @@ public class MainFrame {
     private Dimension ssize = tk.getScreenSize(); // screen size getter
     private int maxWidth = (int) (ssize.width * .75);
     private ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
+    private int maxHeight = (int) (ssize.height * .75);
 
     public int getMaxWidth() {
         return maxWidth;
@@ -23,7 +24,6 @@ public class MainFrame {
         return maxHeight;
     }
 
-    private int maxHeight = (int) (ssize.height * .75);
 
     private JFrame mainFrame;
 
