@@ -13,14 +13,12 @@ public class DashBoard {
     private static final Map<JButton, String> buttonIconPathsWhite = new HashMap<>();
     // Panel to hold the main content
     private static JPanel mainContentPanel;
+    static final MainFrame dashboardFrame = new MainFrame();
+    static final JFrame mainFrame = dashboardFrame.getMainFrame();
 
-    // Method to initialize the dashboard
-    public static void initializeDashboard(JFrame loginFrame) {
-        // Dispose of the login frame
-        loginFrame.dispose();
-        // Create the main dashboard frame
-        MainFrame dashboardFrame = new MainFrame();
-        JFrame mainFrame = dashboardFrame.getMainFrame();
+    public static void UI()
+    {
+        
 
         // Create the sidebar panel
         JPanel sidebar = new JPanel();
@@ -98,13 +96,19 @@ public class DashBoard {
         mainFrame.setLayout(new BorderLayout());
         mainFrame.add(sidebar, BorderLayout.WEST);
         mainFrame.add(mainContentPanel, BorderLayout.CENTER);
+    }
+
+    // Method to initialize the dashboard
+    public static void initializeDashboard(JFrame loginFrame) {
+        // Dispose of the login frame
+        loginFrame.dispose();
+        UI();
+        // Create the main dashboard frame
         dashboardFrame.showMainFrame();
     }
+    // for testing without logging in
     public static void initializeDashboard() {
-        MainFrame dashboardFrame = new MainFrame();
-        JLabel label = new JLabel("Test");
-
-        dashboardFrame.getMainFrame().add(label);
+        UI();
         dashboardFrame.showMainFrame();
     }
 
