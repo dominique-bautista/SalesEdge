@@ -1,13 +1,11 @@
 package com.example;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
-    
+
     private static void on_start()
     {
         // Group 1: Initialize components
@@ -28,10 +26,13 @@ public class LoginForm {
         JPasswordField passwordField = new JPasswordField();
         // Create a login button
         JButton loginButton = new JButton("Login");
+        JButton loginButton = new JButton("Login");
         // Calculate the maximum width and height for the window
         int maxWidth = loginFrame.getMaxWidth();
         int maxHeight = loginFrame.getMaxHeight();
 
+        // Make the frame visible
+        loginFrame.showMainFrame();;
 
         // Group 3: Configure leftPanel
         leftPanel.setBackground(new Color(0xF47130));// Set the background color of the left panel
@@ -128,20 +129,18 @@ public class LoginForm {
         loginButton.setOpaque(true); // Make the background color visible
         loginButton.setBorderPainted(false); // Remove the default border
         loginPanel.add(loginButton, gbc);
-        
-        loginButton.addActionListener(e ->{
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword()); // Convert char array to string
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword()); // Convert a char array to string
 
-                // Check credentials (this is a placeholder, replace with actual validation logic)
-                if ("admin".equals(username) && "admin".equals(password)) {
-                    // Login successful, proceed to Dashboard
-                    DashBoard.initializeDashboard(loginFrame.getMainFrame());
-                } else {
-                    // Handle failed login attempt
-                    JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
-                }
-
+            // Check credentials (this is a placeholder, replace with actual validation logic)
+            if ("admin".equals(username) && "admin".equals(password)) {
+                // Login successful, proceed to Dashboard
+                DashBoard.initializeDashboard(loginFrame.getMainFrame());
+            } else {
+                // Handle failed login attempt
+                JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         // Group 6: Assembly
@@ -157,6 +156,6 @@ public class LoginForm {
 
     public static void main(String[] args) {
         on_start();
-        
+
     }
 }
