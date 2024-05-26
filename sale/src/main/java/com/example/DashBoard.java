@@ -11,8 +11,15 @@ public class DashBoard {
         dashboardFrame.getMainFrame().add(label);
         dashboardFrame.showMainFrame();
     }
+    public static void initializeDashboard() {
+        MainFrame dashboardFrame = new MainFrame();
+        JLabel label = new JLabel("Test");
+
+        dashboardFrame.getMainFrame().add(label);
+        dashboardFrame.showMainFrame();
+    }
 
     public static void main(String[] args) {
-        
+    initializeDashboard();
     }
 }

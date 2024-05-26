@@ -10,11 +10,16 @@ import java.awt.Toolkit;
 
 
 public class MainFrame  {
-    private Toolkit tk = Toolkit.getDefaultToolkit();
-    private Dimension ssize = tk.getScreenSize(); // screen size getter
-    private int maxWidth = (int) (ssize.width * .75);
-    private ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
-    private int maxHeight = (int) (ssize.height * .75);
+    private final Toolkit tk = Toolkit.getDefaultToolkit();
+    private final Dimension ssize = tk.getScreenSize(); // screen size getter
+    private final int maxWidth = (int) (ssize.width * .75);
+
+    public ImageIcon getLogo() {
+        return logo;
+    }
+
+    private final ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
+    private final int maxHeight = (int) (ssize.height * .75);
 
     public int getMaxWidth() {
         return maxWidth;
@@ -25,7 +30,7 @@ public class MainFrame  {
     }
 
 
-    private JFrame mainFrame;
+    private final JFrame mainFrame;
 
     public MainFrame() {
         mainFrame = new JFrame();

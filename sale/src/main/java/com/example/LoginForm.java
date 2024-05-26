@@ -11,8 +11,6 @@ public class LoginForm {
     private static void on_start()
     {
         // Group 1: Initialize components
-        // Load the logo image
-        ImageIcon logo = new ImageIcon("sale\\src\\main\\resources\\SaleEge.png");
         // Create the main window frame
         MainFrame loginFrame = new MainFrame();
         // Create a label to display the logo text
@@ -29,20 +27,18 @@ public class LoginForm {
         JLabel passwordLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField();
         // Create a login button
-        JButton loginButton = new JButton("Login");        
+        JButton loginButton = new JButton("Login");
         // Calculate the maximum width and height for the window
         int maxWidth = loginFrame.getMaxWidth();
         int maxHeight = loginFrame.getMaxHeight();
 
-        // Make the frame visible
-        loginFrame.showMainFrame();;
 
         // Group 3: Configure leftPanel
         leftPanel.setBackground(new Color(0xF47130));// Set the background color of the left panel
         int leftPanelWidth = (int) (maxWidth * 0.58);// Calculate the width of the left panel
         leftPanel.setBounds(0, 0, leftPanelWidth, maxHeight);// Set the position and size of the left panel
         leftPanel.setLayout(new BorderLayout());// Set the layout manager for the left panel
-        
+
         // Group 4: Configure logoLabel
         // Set the text displayed by the logo label to a random greeting
         String[] greetings = {
@@ -54,7 +50,7 @@ public class LoginForm {
         String randomGreeting = greetings[rand.nextInt(greetings.length)];
         logoLabel.setText(randomGreeting);
         // Set the icon for the logo label
-        logoLabel.setIcon(logo);
+        logoLabel.setIcon(loginFrame.getLogo());
         // Align the text vertically at the top of the label
         logoLabel.setVerticalAlignment(JLabel.TOP);
         // Center the text horizontally within the label
@@ -132,12 +128,11 @@ public class LoginForm {
         loginButton.setOpaque(true); // Make the background color visible
         loginButton.setBorderPainted(false); // Remove the default border
         loginPanel.add(loginButton, gbc);
-        loginButton.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        
+        loginButton.addActionListener(e ->{
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword()); // Convert char array to string
-        
+
                 // Check credentials (this is a placeholder, replace with actual validation logic)
                 if ("admin".equals(username) && "admin".equals(password)) {
                     // Login successful, proceed to Dashboard
@@ -146,7 +141,7 @@ public class LoginForm {
                     // Handle failed login attempt
                     JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }
-            }
+
         });
 
         // Group 6: Assembly
@@ -156,6 +151,8 @@ public class LoginForm {
         loginFrame.getMainFrame().add(leftPanel, BorderLayout.WEST);
         // Add the login panel to the login frame
         loginFrame.getMainFrame().add(loginPanel, BorderLayout.CENTER);
+        // Make the frame visible
+        loginFrame.showMainFrame();
     }
 
     public static void main(String[] args) {
