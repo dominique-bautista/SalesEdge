@@ -26,7 +26,6 @@ public class LoginForm {
         JPasswordField passwordField = new JPasswordField();
         // Create a login button
         JButton loginButton = new JButton("Login");
-        JButton loginButton = new JButton("Login");
         // Calculate the maximum width and height for the window
         int maxWidth = loginFrame.getMaxWidth();
         int maxHeight = loginFrame.getMaxHeight();
