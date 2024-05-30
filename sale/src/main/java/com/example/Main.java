@@ -7,9 +7,9 @@ import java.sql.Statement;
 
 public class Main {
     public static void main(String[] args) {
-        String jdbcUrl = "jdbc:mysql://localhost:3306/salesedge?useSSL=false&serverTimezone=UTC";
-        String username = "shyrine";
-        String password = "graduate1";
+        String jdbcUrl = "jdbc:mysql://192.168.1.9:3306/salesedge?useSSL=false&serverTimezone=UTC";
+        String username = "dom";
+        String password = "salesedge302";
 
         try {
             // Load the MySQL Connector/J driver
@@ -28,7 +28,7 @@ public class Main {
             while (resultSet.next()) {
                 System.out.println("ID: " + resultSet.getInt("id"));
                 System.out.println("Name: " + resultSet.getString("name"));
-                System.out.println("Contact: " + resultSet.getString("contact"));
+                System.out.println("Contact: " + resultSet.getString("contacts"));
                 System.out.println("Address: " + resultSet.getString("address"));
                 System.out.println("Age: " + resultSet.getInt("age"));
                 System.out.println("Gender: " + resultSet.getString("gender"));
