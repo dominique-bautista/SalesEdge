@@ -7,9 +7,9 @@ import java.sql.Statement;
 
 public class Main {
     public static void main(String[] args) {
-        String jdbcUrl = "jdbc:mysql://192.168.1.9:3306/salesedge?useSSL=false&serverTimezone=UTC";
-        String username = "dom";
-        String password = "d0minic@123";
+        String jdbcUrl = "jdbc:mysql://localhost:3306/salesedge?useSSL=false&serverTimezone=UTC";
+        String username = "shyrine";
+        String password = "graduate1";
 
         try {
             // Load the MySQL Connector/J driver
