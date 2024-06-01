@@ -41,27 +41,21 @@ public class DashBoard {
         sidebar.add(Box.createVerticalStrut(10));
 
         // Button labels and icons
-        String[] buttonLabels = {"Home", "Customer", "Product", "Cart", "Sales", "Inventory", "Payment", "Data", "Report"};
+        String[] buttonLabels = {"Home", "Customer", "Product", "Sales", "Inventory", "Report"};
         String[] iconPaths = {
                 "sale\\src\\main\\resources\\home.png",
                 "sale\\src\\main\\resources\\customer.png",
                 "sale\\src\\main\\resources\\product.png",
-                "sale\\src\\main\\resources\\cart.png",
                 "sale\\src\\main\\resources\\sales.png",
                 "sale\\src\\main\\resources\\inventory.png",
-                "sale\\src\\main\\resources\\payment.png",
-                "sale\\src\\main\\resources\\data.png",
                 "sale\\src\\main\\resources\\report.png"
         };
         String[] iconPathsWhite = {
                 "sale\\src\\main\\resources\\home-white.png",
                 "sale\\src\\main\\resources\\customer-white.png",
                 "sale\\src\\main\\resources\\product-white.png",
-                "sale\\src\\main\\resources\\cart-white.png",
                 "sale\\src\\main\\resources\\sales-white.png",
                 "sale\\src\\main\\resources\\inventory-white.png",
-                "sale\\src\\main\\resources\\payment-white.png",
-                "sale\\src\\main\\resources\\data-white.png",
                 "sale\\src\\main\\resources\\report-white.png"
         };
 
@@ -162,12 +156,9 @@ public class DashBoard {
         return switch (index) {
             case 1 -> new CustomerPanel();
             case 2 -> new ProductPanel();
-            case 3 -> new CartPanel();
-            case 4 -> new SalesPanel();
-            case 5 -> new InventoryPanel();
-            case 6 -> new PaymentPanel();
-            case 7 -> new DataPanel();
-            case 8 -> new ReportPanel();
+            case 3 -> new SalesPanel();
+            case 4 -> new InventoryPanel();
+            case 5 -> new ReportPanel();
             default -> new HomePanel(); // Default HomePanel
         };
     }
