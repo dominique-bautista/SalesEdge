@@ -18,8 +18,6 @@ public class DashBoard {
 
     public static void UI()
     {
-        
-
         // Create the sidebar panel
         JPanel sidebar = new JPanel();
         sidebar.setBackground(new Color(0xF5F5F5)); // Light gray background
