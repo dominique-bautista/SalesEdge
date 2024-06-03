@@ -1,46 +1,36 @@
 package com.example.panels;
 
+import java.util.List;
 import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
+
 
 public class CustomerPanel extends JPanel {
     private final JTextField searchBar;
     private final JList<String> customerList;
     private final JTextArea customerDetails;
-    private final Map<String, String> customerIDMap; // Map to hold customer names and their IDs
+    private final Map<String, String> customerIDMap; // Map to hold customer
+    // names and their IDs
 
     public CustomerPanel() {
         setLayout(new BorderLayout());
 
         // Initialize the map of customer names and their IDs
-        customerIDMap = new HashMap<>();
-        customerIDMap.put("John Doe", "101");
-        customerIDMap.put("Jane Smith", "102");
-        customerIDMap.put("Alice Johnson", "103");
-        customerIDMap.put("Bob Brown", "104");
-        customerIDMap.put("Charlie Davis", "105");
-        customerIDMap.put("Diana Evans", "106");
-        customerIDMap.put("Frank Green", "107");
-        customerIDMap.put("Grace Harris", "108");
-        customerIDMap.put("Henry James", "109");
-        customerIDMap.put("Isla Kelly", "110");
-        customerIDMap.put("Jack Lewis", "111");
-        customerIDMap.put("Kara Martinez", "112");
-        customerIDMap.put("Leo Nelson", "113");
-        customerIDMap.put("Mia Owens", "114");
-        customerIDMap.put("Noah Parker", "115");
-        customerIDMap.put("Olivia Quinn", "116");
-        customerIDMap.put("Paul Roberts", "117");
-        customerIDMap.put("Quinn Sanchez", "118");
-        customerIDMap.put("Rachel Turner", "119");
-        customerIDMap.put("Sam Underwood", "120");
-        customerIDMap.put("Shyrine Salvador", "121");
-        customerIDMap.put("Sheena Salvador", "122");
-
-        // Set the shared customerIDMap in CustomerManager
-        CustomerManager.setCustomerIDMap(customerIDMap);
+        customerIDMap = Manager.getCustomerNames();
+        
+        // Set the shared customerIDMap in Manager
 
         // Create the search bar
         searchBar = new JTextField("Search...");
@@ -63,7 +53,7 @@ public class CustomerPanel extends JPanel {
                 if (searchBar.getText().isEmpty()) {
                     searchBar.setForeground(Color.GRAY);
                     searchBar.setText("Search...");
-                    updateCustomerList(""); // Show all customers when search is cleared
+                    // Show all customers when search is cleared
                 }
             }
         });
@@ -106,7 +96,8 @@ public class CustomerPanel extends JPanel {
         JScrollPane customerDetailsScrollPane = new JScrollPane(customerDetails);
 
         // Create a split pane to hold the list and details
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, customerListScrollPane, customerDetailsScrollPane);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, customerListScrollPane,
+                customerDetailsScrollPane);
         splitPane.setDividerLocation(300);
         splitPane.setOneTouchExpandable(true);
 
@@ -115,15 +106,23 @@ public class CustomerPanel extends JPanel {
         splitPanePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the split pane
         splitPanePanel.add(splitPane, BorderLayout.CENTER);
 
+        // Add the split pane panel to the CustomerPanel
+        add(splitPanePanel, BorderLayout.CENTER);
         // Add the buttons for creating, updating, and deleting customers
         JButton createButton = createButton("Create");
-        createButton.addActionListener(e -> CustomerManager.createCustomer());
+        createButton.addActionListener(e -> {
+            createCustomer();
+            populateListAndMap();
+            revalidate();
+            repaint();
+            // Refresh the customer list
+        });
 
         JButton updateButton = createButton("Update");
         updateButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
             if (selectedCustomer != null) {
-                CustomerManager.updateCustomer(selectedCustomer);
+                Manager.updateCustomer(selectedCustomer);
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a customer to update.");
             }
@@ -133,10 +132,17 @@ public class CustomerPanel extends JPanel {
         deleteButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
             if (selectedCustomer != null) {
-                int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the customer: " + selectedCustomer + "?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+                int choice = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete the customer: " + selectedCustomer + "?", "Confirm Deletion",
+                        JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
-                    CustomerManager.deleteCustomer(selectedCustomer);
-                    updateCustomerList(""); // Refresh the customer list
+                    int id = Integer.parseInt(customerIDMap.get(selectedCustomer));
+                    
+                    Manager.delete("customer", "customer_id", id, this);
+                    populateListAndMap();
+                    revalidate();
+                    repaint();
+                    // Refresh the customer list
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a customer to delete.");
@@ -155,6 +161,9 @@ public class CustomerPanel extends JPanel {
 
         // Initialize the customer list
         updateCustomerList("");
+        populateListAndMap();
+        revalidate();
+        repaint();
     }
 
     // Method to create a button with specified text and style
@@ -167,42 +176,120 @@ public class CustomerPanel extends JPanel {
     }
 
     // Method to update the customer list based on the search query
-    private void updateCustomerList(String query) {
+    private void updateCustomerList(String searchQuery) {
         DefaultListModel<String> model = (DefaultListModel<String>) customerList.getModel();
         model.clear();
 
-        if (query.isEmpty() || query.equals("Search...")) {
-            for (String customer : customerIDMap.keySet()) {
-                model.addElement(customer);
-            }
-        } else {
-            for (String customer : customerIDMap.keySet()) {
-                if (customer.toLowerCase().contains(query.toLowerCase())) {
-                    model.addElement(customer);
-                }
-            }
-        }
+        customerIDMap.keySet().stream()
+                .filter(name -> name.toLowerCase().contains(searchQuery.toLowerCase()))
+                .forEach(model::addElement);
     }
 
     // Method to display customer details
-    private void showCustomerDetails(String customer) {
-        // Fetch and display details for the selected customer
-        // This is a placeholder implementation.
-        // Replace with actual details fetching logic.
-        String customerID = customerIDMap.get(customer);
-        customerDetails.setText("Customer Information:\n\n" +
-                "Customer ID: " + customerID + "\n" +
-                "Name: " + customer + "\n\n" +
-                "Contact Information:\n" +
-                "Email Address: " + customer.toLowerCase().replace(" ", ".") + "@example.com\n" +
-                "Phone Number: (123) 456-7890\n\n" +
-                "Address:\n" +
-                "Street Address: 123 Main St\n" +
-                "City: Any-town\n" +
-                "State/Province: State\n" +
-                "Postal Code: 12345\n" +
-                "Country: Country\n" +
-                "Age: \n" +
-                "Gender: ");
+    private void showCustomerDetails(String customerName) {
+        String customerID = customerIDMap.get(customerName);
+        String details = Manager.getCustomerDetails(customerID);
+        customerDetails.setText(details);
     }
+
+    public static void createCustomer() {
+        JFrame createFrame = new JFrame("Create Customer");
+        createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        createFrame.setSize(400, 300);
+        createFrame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(12, 2, 10, 10));
+
+        JTextField[] textFields = {
+                Manager.labelField("First Name:", panel),
+                Manager.labelField("Last Name:", panel),
+                Manager.labelField("Age:", panel),
+                Manager.labelField("Gender:", panel),
+                Manager.labelField("Phone:", panel),
+                Manager.labelField("Email:", panel),
+                Manager.labelField("Street Address:", panel),
+                Manager.labelField("City:", panel),
+                Manager.labelField("Province:", panel),
+                Manager.labelField("Postal Code:", panel),
+                Manager.labelField("Country:", panel),
+        };
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            boolean allFieldsFilled = true;
+            for (JTextField textField : textFields) {
+                if (textField.getText().trim().isEmpty()) {
+                    allFieldsFilled = false;
+                    break;
+                }
+            }
+            if (!allFieldsFilled) {
+                JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
+                return;
+            }
+            try (Connection connection = Manager.getConnection()) {
+                String sqlInsert = "INSERT INTO `customer`(`first_name`, `last_name`, `age`, `gender`, `email`, `phone`, `street_address`, `city`, `province`, `postal_code`, `country`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
+                preparedStatement.setString(1, textFields[0].getText()); // fname
+                preparedStatement.setString(2, textFields[1].getText()); // lname
+                try {
+                    preparedStatement.setInt(3, Integer.parseInt(textFields[2].getText())); // age
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(createFrame, "Invalid age format. Please enter a numeric value.");
+                    return;
+                }
+                preparedStatement.setString(4, textFields[3].getText()); // gender
+                preparedStatement.setString(5, textFields[4].getText()); // phone
+                preparedStatement.setString(6, textFields[5].getText()); // email
+                preparedStatement.setString(7, textFields[6].getText()); // street_address
+                preparedStatement.setString(8, textFields[7].getText()); // city
+                preparedStatement.setString(9, textFields[8].getText()); // province
+                preparedStatement.setString(10, textFields[9].getText()); // postal_code
+                preparedStatement.setString(11, textFields[10].getText()); // country
+                preparedStatement.executeUpdate(); // Execute the statement
+                JOptionPane.showMessageDialog(createFrame, "Customer created successfully.");
+                createFrame.dispose();
+
+            } catch (SQLException c) {
+                c.printStackTrace();
+                JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
+                return;
+            }
+        });
+
+        panel.add(new JLabel()); // Empty cell
+        panel.add(saveButton);
+
+        createFrame.add(panel);
+        createFrame.setVisible(true);
+    }
+
+    private void populateListAndMap() {
+        // Clear the list and map
+        DefaultListModel<String> model = (DefaultListModel<String>) customerList.getModel();
+        model.clear();
+
+        // Fetch the updated list of customers from your database
+        // Example: Assuming you have a method in your Manager class that fetches
+        // customer names and IDs
+
+        Map<String, String> customers = Manager.getCustomerNames();
+        List<Map.Entry<String, String>> entryList = new ArrayList<>(customers.entrySet());
+
+        // Reverse the list
+        Collections.reverse(entryList);
+
+        for (Map.Entry<String, String> entry : customers.entrySet()) {
+            String name = entry.getKey();
+            String id = entry.getValue();
+            model.addElement(name);
+            customerIDMap.put(name, id);
+        }
+
+        // Refresh the panel
+        revalidate();
+        repaint();
+    }
+
 }
