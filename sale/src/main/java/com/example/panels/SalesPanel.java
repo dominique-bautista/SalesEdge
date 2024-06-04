@@ -3,6 +3,7 @@ package com.example.panels;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,15 +15,41 @@ public class SalesPanel extends JPanel {
     // Constructor for the SalesPanel
     public SalesPanel() {
         // Set the layout for this panel
-        setLayout(new BorderLayout());
-        setBackground(Color.lightGray); // Set the background color to white
+        setLayout(new BorderLayout(10, 10));
+        setBackground(Color.WHITE); // Set the background color to white
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the panel
+
+        // Create a panel for the title and search components
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBackground(Color.WHITE);
 
         // Title Label
-        JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 24)); // Set font and size
+        JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Serif", Font.BOLD, 28)); // Set font and size
         titleLabel.setForeground(ACCENT_COLOR); // Set text color to the accent color
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding
-        add(titleLabel, BorderLayout.NORTH); // Add the title label to the top of the panel
+        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
+
+        // Create the search panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        searchPanel.setBackground(Color.WHITE);
+
+        // Create the search field and column selector
+        JTextField searchField = new JTextField(20);
+        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "List of Purchased Items", "Total Amount"};
+        JComboBox<String> columnSelector = new JComboBox<>(columns);
+
+        // Add the search field and column selector to the search panel
+        searchPanel.add(new JLabel("Search:"));
+        searchPanel.add(searchField);
+        searchPanel.add(new JLabel(" in "));
+        searchPanel.add(columnSelector);
+
+        // Add the title label and search panel to the top panel
+        topPanel.add(titleLabel, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
+
+        // Add the top panel to the top of the main panel
+        add(topPanel, BorderLayout.NORTH);
 
         // Create the table model for sales transactions
         DefaultTableModel transactionTableModel = new DefaultTableModel();
@@ -42,51 +69,56 @@ public class SalesPanel extends JPanel {
         // Create the table using the transaction table model
         JTable transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30); // Set the height of each row
+        transactionTable.setFont(new Font("Serif", Font.PLAIN, 16));
+        transactionTable.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        transactionTable.getTableHeader().setBackground(ACCENT_COLOR);
+        transactionTable.getTableHeader().setForeground(Color.WHITE);
+        transactionTable.setFillsViewportHeight(true);
+        transactionTable.setGridColor(ACCENT_COLOR);
+        transactionTable.setShowGrid(true);
+        transactionTable.setSelectionBackground(ACCENT_COLOR);
+        transactionTable.setSelectionForeground(Color.WHITE);
 
-        // Create the table model for sales reports
-        DefaultTableModel reportTableModel = new DefaultTableModel();
-        reportTableModel.addColumn("Product ID");
-        reportTableModel.addColumn("Category");
-        reportTableModel.addColumn("Salesperson");
-        reportTableModel.addColumn("Date");
-        reportTableModel.addColumn("Quantity");
-        reportTableModel.addColumn("Price");
-
-        // Add some sample data to the table model
-        reportTableModel.addRow(new Object[]{"P001", "Electronics", "John", "2023-05-01", 5, 300.00});
-        reportTableModel.addRow(new Object[]{"P002", "Books", "Mary", "2023-05-02", 3, 45.00});
-        reportTableModel.addRow(new Object[]{"P003", "Clothing", "Alice", "2023-05-03", 10, 150.00});
-
-        // Create the table using the report table model
-        JTable reportTable = new JTable(reportTableModel);
-        reportTable.setRowHeight(30); // Set the height of each row
-
-        // Create scroll panes for both tables
+        // Create a scroll pane for the table
         JScrollPane transactionScrollPane = new JScrollPane(transactionTable);
-        JScrollPane reportScrollPane = new JScrollPane(reportTable);
+        transactionScrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
 
-        // Initially display the transaction table
+        // Display the transaction table
         add(transactionScrollPane, BorderLayout.CENTER);
 
-        // Create a panel for action buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        // Create a row sorter for the table
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(transactionTableModel);
+        transactionTable.setRowSorter(sorter);
 
-        // Create action buttons for toggling views, refreshing, and exporting sales reports
-        JButton toggleButton = new JButton("View Sales Reports");
+        // Add action listener to the search field
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = searchField.getText();
+                int columnIndex = columnSelector.getSelectedIndex();
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
+                }
+            }
+        });
+
+        // Create a panel for action buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Add padding at the top
+
+        // Create action buttons for refreshing and exporting sales reports
         JButton refreshButton = new JButton("Refresh");
         JButton exportButton = new JButton("Export");
 
         // Set button colors to the accent color and text color to white
-        toggleButton.setBackground(ACCENT_COLOR);
-        toggleButton.setForeground(Color.WHITE);
         refreshButton.setBackground(ACCENT_COLOR);
         refreshButton.setForeground(Color.WHITE);
         exportButton.setBackground(ACCENT_COLOR);
         exportButton.setForeground(Color.WHITE);
 
         // Add action buttons to the button panel
-        buttonPanel.add(toggleButton);
         buttonPanel.add(refreshButton);
         buttonPanel.add(exportButton);
 
@@ -94,26 +126,6 @@ public class SalesPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Action Listeners for buttons
-        toggleButton.addActionListener(new ActionListener() {
-            private boolean showingTransactions = true;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (showingTransactions) {
-                    remove(transactionScrollPane);
-                    add(reportScrollPane, BorderLayout.CENTER);
-                    toggleButton.setText("View Sales Transactions");
-                } else {
-                    remove(reportScrollPane);
-                    add(transactionScrollPane, BorderLayout.CENTER);
-                    toggleButton.setText("View Sales Reports");
-                }
-                showingTransactions = !showingTransactions;
-                revalidate();
-                repaint();
-            }
-        });
-
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
