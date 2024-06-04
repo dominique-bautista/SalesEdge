@@ -2,6 +2,7 @@ package com.example.panels;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,15 +14,41 @@ public class InventoryPanel extends JPanel {
     // Constructor for the InventoryPanel
     public InventoryPanel() {
         // Set the layout for this panel
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE); // Set the background color to white
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the panel
+
+        // Create a panel for the title and search components
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBackground(Color.WHITE);
 
         // Title Label
-        JLabel titleLabel = new JLabel("Inventory Section", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 24)); // Set font and size
+        JLabel titleLabel = new JLabel("Inventory Section", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Serif", Font.BOLD, 28)); // Set font and size
         titleLabel.setForeground(ACCENT_COLOR); // Set text color to the accent color
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding
-        add(titleLabel, BorderLayout.NORTH); // Add the title label to the top of the panel
+        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
+
+        // Create the search panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        searchPanel.setBackground(Color.WHITE);
+
+        // Create the search field and column selector
+        JTextField searchField = new JTextField(20);
+        String[] columns = {"Product Name", "Stock Levels", "Low Stock Alert", "Supplier Information"};
+        JComboBox<String> columnSelector = new JComboBox<>(columns);
+
+        // Add the search field and column selector to the search panel
+        searchPanel.add(new JLabel("Search:"));
+        searchPanel.add(searchField);
+        searchPanel.add(new JLabel(" in "));
+        searchPanel.add(columnSelector);
+
+        // Add the title label and search panel to the top panel
+        topPanel.add(titleLabel, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
+
+        // Add the top panel to the top of the main panel
+        add(topPanel, BorderLayout.NORTH);
 
         // Create the table model for inventory items
         DefaultTableModel tableModel = new DefaultTableModel();
@@ -39,44 +66,42 @@ public class InventoryPanel extends JPanel {
         // Create the table using the table model
         JTable table = new JTable(tableModel);
         table.setRowHeight(30); // Set the height of each row
+        table.setFont(new Font("Serif", Font.PLAIN, 16));
+        table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        table.getTableHeader().setBackground(ACCENT_COLOR);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setFillsViewportHeight(true);
+        table.setGridColor(ACCENT_COLOR);
+        table.setShowGrid(true);
+        table.setSelectionBackground(ACCENT_COLOR);
+        table.setSelectionForeground(Color.WHITE);
 
         // Create a scroll pane and add the table to it
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        scrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2)); // Add border
         add(scrollPane, BorderLayout.CENTER); // Add the scroll pane to the center of the panel
 
-        // Create a panel for search and filter options
-        JPanel searchFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchFilterPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        // Create a row sorter for the table
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
 
-        // Search field
-        JTextField searchField = new JTextField(20); // Create a text field for search input
-        JButton searchButton = new JButton("Search");
-        searchButton.setBackground(ACCENT_COLOR); // Set background color to the accent color
-        searchButton.setForeground(Color.WHITE); // Set text color to white
-
-        // Filter dropdowns for category, stock level, and supplier
-        JComboBox<String> categoryFilter = new JComboBox<>(new String[]{"All Categories", "Clothing", "Electronics"});
-        JComboBox<String> stockFilter = new JComboBox<>(new String[]{"All Stock Levels", "Low Stock", "In Stock"});
-        JComboBox<String> supplierFilter = new JComboBox<>(new String[]{"All Suppliers", "Supplier A", "Supplier B", "Supplier C", "Supplier D"});
-
-        // Add components to the search/filter panel
-        searchFilterPanel.add(new JLabel("Search:"));
-        searchFilterPanel.add(searchField);
-        searchFilterPanel.add(searchButton);
-        searchFilterPanel.add(new JLabel("Category:"));
-        searchFilterPanel.add(categoryFilter);
-        searchFilterPanel.add(new JLabel("Stock Level:"));
-        searchFilterPanel.add(stockFilter);
-        searchFilterPanel.add(new JLabel("Supplier:"));
-        searchFilterPanel.add(supplierFilter);
-
-        // Add the search/filter panel to the top of the main panel
-        add(searchFilterPanel, BorderLayout.NORTH);
+        // Add action listener to the search field
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = searchField.getText();
+                int columnIndex = columnSelector.getSelectedIndex();
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
+                }
+            }
+        });
 
         // Create a panel for action buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Add padding at the top
 
         // Create action buttons for adding, editing, and deleting inventory items
         JButton addButton = new JButton("Add");
@@ -118,34 +143,6 @@ public class InventoryPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to delete the selected product (to be implemented)
-            }
-        });
-
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to search products based on searchField input (to be implemented)
-            }
-        });
-
-        categoryFilter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to filter products by category (to be implemented)
-            }
-        });
-
-        stockFilter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to filter products by stock level (to be implemented)
-            }
-        });
-
-        supplierFilter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to filter products by supplier (to be implemented)
             }
         });
 
