@@ -29,7 +29,7 @@ public class CustomerPanel extends JPanel {
 
         // Initialize the map of customer names and their IDs
         customerIDMap = Manager.getCustomerNames();
-        
+
         // Set the shared customerIDMap in Manager
 
         // Create the search bar
@@ -137,7 +137,7 @@ public class CustomerPanel extends JPanel {
                         JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
                     int id = Integer.parseInt(customerIDMap.get(selectedCustomer));
-                    
+
                     Manager.delete("customer", "customer_id", id, this);
                     populateListAndMap();
                     revalidate();
@@ -195,29 +195,36 @@ public class CustomerPanel extends JPanel {
     public static void createCustomer() {
         JFrame createFrame = new JFrame("Create Customer");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        createFrame.setSize(400, 300);
+        createFrame.setSize(500, 600);
         createFrame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(12, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JTextField[] textFields = {
-                Manager.labelField("First Name:", panel),
-                Manager.labelField("Last Name:", panel),
-                Manager.labelField("Age:", panel),
-                Manager.labelField("Gender:", panel),
-                Manager.labelField("Phone:", panel),
-                Manager.labelField("Email:", panel),
-                Manager.labelField("Street Address:", panel),
-                Manager.labelField("City:", panel),
-                Manager.labelField("Province:", panel),
-                Manager.labelField("Postal Code:", panel),
-                Manager.labelField("Country:", panel),
-        };
+        Font labelFont = new Font("Lato", Font.PLAIN, 20);
+        Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
+
+        JTextField firstNameField = createLabeledTextField("First Name:", panel, labelFont, textFieldFont);
+        JTextField lastNameField = createLabeledTextField("Last Name:", panel, labelFont, textFieldFont);
+        JTextField ageField = createLabeledTextField("Age:", panel, labelFont, textFieldFont);
+        JTextField genderField = createLabeledTextField("Gender:", panel, labelFont, textFieldFont);
+        JTextField phoneField = createLabeledTextField("Phone:", panel, labelFont, textFieldFont);
+        JTextField emailField = createLabeledTextField("Email:", panel, labelFont, textFieldFont);
+        JTextField streetAddressField = createLabeledTextField("Street Address:", panel, labelFont, textFieldFont);
+        JTextField cityField = createLabeledTextField("City:", panel, labelFont, textFieldFont);
+        JTextField provinceField = createLabeledTextField("Province:", panel, labelFont, textFieldFont);
+        JTextField postalCodeField = createLabeledTextField("Postal Code:", panel, labelFont, textFieldFont);
+        JTextField countryField = createLabeledTextField("Country:", panel, labelFont, textFieldFont);
 
         JButton saveButton = new JButton("Save");
+        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(new Font("Lato", Font.BOLD, 14));
+
         saveButton.addActionListener(e -> {
             boolean allFieldsFilled = true;
+            JTextField[] textFields = {firstNameField, lastNameField, ageField, genderField, phoneField, emailField, streetAddressField, cityField, provinceField, postalCodeField, countryField};
             for (JTextField textField : textFields) {
                 if (textField.getText().trim().isEmpty()) {
                     allFieldsFilled = false;
@@ -231,26 +238,25 @@ public class CustomerPanel extends JPanel {
             try (Connection connection = Manager.getConnection()) {
                 String sqlInsert = "INSERT INTO `customer`(`first_name`, `last_name`, `age`, `gender`, `email`, `phone`, `street_address`, `city`, `province`, `postal_code`, `country`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
-                preparedStatement.setString(1, textFields[0].getText()); // fname
-                preparedStatement.setString(2, textFields[1].getText()); // lname
+                preparedStatement.setString(1, firstNameField.getText()); // fname
+                preparedStatement.setString(2, lastNameField.getText()); // lname
                 try {
-                    preparedStatement.setInt(3, Integer.parseInt(textFields[2].getText())); // age
+                    preparedStatement.setInt(3, Integer.parseInt(ageField.getText())); // age
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(createFrame, "Invalid age format. Please enter a numeric value.");
                     return;
                 }
-                preparedStatement.setString(4, textFields[3].getText()); // gender
-                preparedStatement.setString(5, textFields[4].getText()); // phone
-                preparedStatement.setString(6, textFields[5].getText()); // email
-                preparedStatement.setString(7, textFields[6].getText()); // street_address
-                preparedStatement.setString(8, textFields[7].getText()); // city
-                preparedStatement.setString(9, textFields[8].getText()); // province
-                preparedStatement.setString(10, textFields[9].getText()); // postal_code
-                preparedStatement.setString(11, textFields[10].getText()); // country
+                preparedStatement.setString(4, genderField.getText()); // gender
+                preparedStatement.setString(5, phoneField.getText()); // phone
+                preparedStatement.setString(6, emailField.getText()); // email
+                preparedStatement.setString(7, streetAddressField.getText()); // street_address
+                preparedStatement.setString(8, cityField.getText()); // city
+                preparedStatement.setString(9, provinceField.getText()); // province
+                preparedStatement.setString(10, postalCodeField.getText()); // postal_code
+                preparedStatement.setString(11, countryField.getText()); // country
                 preparedStatement.executeUpdate(); // Execute the statement
                 JOptionPane.showMessageDialog(createFrame, "Customer created successfully.");
                 createFrame.dispose();
-
             } catch (SQLException c) {
                 c.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
@@ -258,12 +264,45 @@ public class CustomerPanel extends JPanel {
             }
         });
 
-        panel.add(new JLabel()); // Empty cell
+        panel.add(new JLabel());
         panel.add(saveButton);
 
         createFrame.add(panel);
         createFrame.setVisible(true);
     }
+
+    private static JTextField createLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        panel.add(label);
+
+        JTextField textField = new JTextField();
+        textField.setFont(textFieldFont);
+
+
+        Color orangeBorderColor = new Color(0xF47130);
+
+
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createLineBorder(orangeBorderColor));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textField.setBorder(UIManager.getBorder("TextField.border"));
+            }
+        });
+
+        panel.add(textField);
+
+        return textField;
+    }
+
+
+
+
 
     private void populateListAndMap() {
         // Clear the list and map
