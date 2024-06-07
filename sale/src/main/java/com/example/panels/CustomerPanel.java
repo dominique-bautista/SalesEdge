@@ -1,20 +1,10 @@
 package com.example.panels;
 
-import java.util.List;
 import javax.swing.*;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 public class CustomerPanel extends JPanel {
@@ -119,7 +109,7 @@ public class CustomerPanel extends JPanel {
             // Clear the details panel
             customerDetails.setText("Select a customer to view details.");
 
-            // Optionally, refresh the list to ensure it's up-to-date
+            // Optionally, refresh the list to ensure it's up to date
             populateListAndMap();
             revalidate();
             repaint();
@@ -152,7 +142,7 @@ public class CustomerPanel extends JPanel {
                     // Clear the details panel
                     customerDetails.setText("Select a customer to view details.");
 
-                    // Optionally, refresh the list to ensure it's up-to-date
+                    // Optionally, refresh the list to ensure it's up to date
                     populateListAndMap();
                     revalidate();
                     repaint();
@@ -374,7 +364,7 @@ public class CustomerPanel extends JPanel {
         createFrame.setVisible(true);
     }
 
-    
+
 
 
     private void populateListAndMap() {
@@ -385,12 +375,7 @@ public class CustomerPanel extends JPanel {
         // Fetch the updated list of customers from your database
         // Example: Assuming you have a method in your Manager class that fetches
         // customer names and IDs
-
-        Map<String, String> customers = Manager.getCustomerNames();
-        List<Map.Entry<String, String>> entryList = new ArrayList<>(customers.entrySet());
-
-        // Reverse the list
-        Collections.reverse(entryList);
+        Map<String, String> customers = Manager.getCustomerNamesOrderedByIDAsc();
 
         for (Map.Entry<String, String> entry : customers.entrySet()) {
             String name = entry.getKey();
@@ -403,5 +388,5 @@ public class CustomerPanel extends JPanel {
         revalidate();
         repaint();
     }
-
 }
+

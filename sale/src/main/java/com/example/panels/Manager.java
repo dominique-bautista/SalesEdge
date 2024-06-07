@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Manager {
@@ -157,84 +158,22 @@ public class Manager {
         return textField;
     }
 
-    // Method to update an existing customer
-    public static void updateCustomer(String selectedCustomer) {
-        // String customerID = customerIDMap.get(selectedCustomer);
-
-        // JFrame updateFrame = new JFrame("Update Customer");
-        // updateFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        // updateFrame.setSize(400, 300);
-        // updateFrame.setLocationRelativeTo(null);
-
-        // JPanel panel = new JPanel();
-        // panel.setLayout(new GridLayout(7, 2, 10, 10));
-
-        // JLabel nameLabel = new JLabel("Name:");
-        // JTextField nameField = new JTextField(selectedCustomer);
-
-        // JLabel emailLabel = new JLabel("Email:");
-        // JTextField emailField = new
-        // JTextField(selectedCustomer.toLowerCase().replace(" ", ".") +
-        // "@example.com");
-
-        // JLabel phoneLabel = new JLabel("Phone:");
-        // JTextField phoneField = new JTextField("(123) 456-7890");
-
-        // JLabel addressLabel = new JLabel("Address:");
-        // JTextField addressField = new JTextField("123 Main St");
-
-        // JLabel ageLabel = new JLabel("Age:");
-        // JTextField ageField = new JTextField();
-
-        // JLabel genderLabel = new JLabel("Gender:");
-        // JTextField genderField = new JTextField();
-
-        // JButton saveButton = new JButton("Save");
-        // saveButton.addActionListener(e -> {
-        // String newName = nameField.getText();
-        // if (newName.isEmpty()) {
-        // JOptionPane.showMessageDialog(updateFrame, "Name cannot be empty.");
-        // return;
-        // }
-
-        // // customerIDMap.remove(selectedCustomer);
-        // // customerIDMap.put(newName, customerID);
-
-        // JOptionPane.showMessageDialog(updateFrame, "Customer updated successfully.");
-        // updateFrame.dispose();
-        // });
-
-        // panel.add(nameLabel);
-        // panel.add(nameField);
-        // panel.add(emailLabel);
-        // panel.add(emailField);
-        // panel.add(phoneLabel);
-        // panel.add(phoneField);
-        // panel.add(addressLabel);
-        // panel.add(addressField);
-        // panel.add(ageLabel);
-        // panel.add(ageField);
-        // panel.add(genderLabel);
-        // panel.add(genderField);
-        // panel.add(new JLabel()); // Empty cell
-        // panel.add(saveButton);
-
-        // updateFrame.add(panel);
-        // updateFrame.setVisible(true);
+    public static Map<String, String> getCustomerNamesOrderedByIDAsc() {
+        Map<String, String> customerMap = new LinkedHashMap<>();
+        try (Connection connection = getConnection()) {
+            String sql = "SELECT customer_id, first_name, last_name FROM customer ORDER BY customer_id ASC";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString("customer_id");
+                String name = resultSet.getString("first_name") + " " + resultSet.getString("last_name");
+                customerMap.put(name, id);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customerMap;
     }
 
-    // Method to delete an existing customer
-    public static void deleteCustomer(String selectedCustomer) {
-        // // String customerID = customerIDMap.remove(selectedCustomer);
-        // // if (customerID != null) {
-        // JOptionPane.showMessageDialog(null, "Customer deleted successfully.");
-        // // } else {
-        // JOptionPane.showMessageDialog(null, "Customer not found.");
-        // }
-    }
 
-    // Method to set the initial customer map
-    public static void setCustomerIDMap(Map<String, String> initialMap) {
-        // customerIDMap = initialMap;
-    }
 }
