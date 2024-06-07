@@ -37,6 +37,7 @@ public class MainFrame  {
         mainFrame.setSize(maxWidth, maxHeight);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setIconImage(logo.getImage());
+        mainFrame.setTitle("SalesEdge");
         mainFrame.setResizable(false);
         mainFrame.setLayout(null);
         mainFrame.setLocationRelativeTo(null);
