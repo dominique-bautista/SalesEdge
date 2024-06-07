@@ -61,7 +61,7 @@ public class CreateDatabaseAndTables {
                     "product_id INT AUTO_INCREMENT PRIMARY KEY, " +
                     "product_name VARCHAR(100) NOT NULL, " +
                     "description TEXT NOT NULL, " +
-                    "category ENUM('Clothing', 'Electronics', 'Other') NOT NULL, " +
+                    "category VARCHAR(50) NOT NULL, " +
                     "price DECIMAL(10, 2) NOT NULL, " +
                     "supplier VARCHAR(100) NOT NULL, " +
                     "stock_level INT NOT NULL, " +
