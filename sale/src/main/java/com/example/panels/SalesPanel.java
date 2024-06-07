@@ -27,7 +27,7 @@ public class SalesPanel extends JPanel {
 
         // Title Label
         JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 28));
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 28));
         titleLabel.setForeground(ACCENT_COLOR);
         titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR));
 
@@ -73,19 +73,18 @@ public class SalesPanel extends JPanel {
         transactionTableModel.addColumn("Date");
         transactionTableModel.addColumn("Time");
         transactionTableModel.addColumn("Salesperson ID");
-        transactionTableModel.addColumn("List of Purchased Items");
         transactionTableModel.addColumn("Total Amount");
 
         // Add some sample data to the table model
-        transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "P001, 2, $300.00", "$600.00"});
-        transactionTableModel.addRow(new Object[]{"T002", "C002", "2023-05-02", "11:00 AM", "S002", "P002, 1, $45.00", "$45.00"});
-        transactionTableModel.addRow(new Object[]{"T003", "C003", "2023-05-03", "01:45 PM", "S003", "P003, 5, $30.00", "$150.00"});
+        transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "$600.00"});
+        transactionTableModel.addRow(new Object[]{"T002", "C002", "2023-05-02", "11:00 AM", "S002", "$45.00"});
+        transactionTableModel.addRow(new Object[]{"T003", "C003", "2023-05-03", "01:45 PM", "S003", "$150.00"});
 
         // Create the table using the transaction table model
         JTable transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30); // Set the height of each row
-        transactionTable.setFont(new Font("Serif", Font.PLAIN, 16));
-        transactionTable.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        transactionTable.setFont(new Font("Lato", Font.PLAIN, 16));
+        transactionTable.getTableHeader().setFont(new Font("Robot", Font.BOLD, 16));
         transactionTable.getTableHeader().setBackground(ACCENT_COLOR);
         transactionTable.getTableHeader().setForeground(Color.WHITE);
         transactionTable.setFillsViewportHeight(true);
@@ -126,7 +125,7 @@ public class SalesPanel extends JPanel {
         // Create action buttons for add, delete, edit, and export
         JButton addButton = new JButton("Add");
         JButton deleteButton = new JButton("Delete");
-        JButton editButton = new JButton("Edit");
+        JButton editButton = new JButton("Update");
         JButton exportButton = new JButton("Export");
 
 // Set button colors to the accent color and text color to white
