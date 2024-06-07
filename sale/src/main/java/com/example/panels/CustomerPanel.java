@@ -129,7 +129,7 @@ public class CustomerPanel extends JPanel {
         JButton updateButton = createButton("Update");
         updateButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
-            
+
             if (selectedCustomer != null) {
                 updateCustomer(this, selectedCustomer);
             } else {
@@ -273,7 +273,7 @@ public class CustomerPanel extends JPanel {
                 preparedStatement.setString(11, countryField.getText()); // country
                 preparedStatement.executeUpdate(); // Execute the statement
                 createFrame.dispose();
-                
+
             } catch (SQLException c) {
                 c.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
@@ -358,7 +358,7 @@ public class CustomerPanel extends JPanel {
                 preparedStatement.setString(12, customerID); // customer_id
                 preparedStatement.executeUpdate(); // Execute the statement
                 createFrame.dispose();
-                
+
             } catch (SQLException c) {
                 c.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
