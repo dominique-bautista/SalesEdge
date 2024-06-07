@@ -50,7 +50,7 @@ public class CreateDatabaseAndTables {
                     "phone VARCHAR(20) NOT NULL, " +
                     "street_address VARCHAR(255) NOT NULL, " +
                     "city VARCHAR(50) NOT NULL, " +
-                    "state VARCHAR(50) NOT NULL, " +
+                    "province VARCHAR(50) NOT NULL, " +
                     "postal_code VARCHAR(20) NOT NULL, " +
                     "country VARCHAR(50) NOT NULL" +
                     ");";
