@@ -23,8 +23,8 @@ public class InventoryPanel extends JPanel {
         topPanel.setBackground(Color.WHITE);
 
         // Title Label
-        JLabel titleLabel = new JLabel("Inventory Section", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 28)); // Set font and size
+        JLabel titleLabel = new JLabel("Inventory Information", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 24)); // Set font and size
         titleLabel.setForeground(ACCENT_COLOR); // Set text color to the accent color
         titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
 
@@ -66,8 +66,8 @@ public class InventoryPanel extends JPanel {
         // Create the table using the table model
         JTable table = new JTable(tableModel);
         table.setRowHeight(30); // Set the height of each row
-        table.setFont(new Font("Serif", Font.PLAIN, 16));
-        table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        table.setFont(new Font("Lato", Font.PLAIN, 16));
+        table.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
         table.getTableHeader().setBackground(ACCENT_COLOR);
         table.getTableHeader().setForeground(Color.WHITE);
         table.setFillsViewportHeight(true);

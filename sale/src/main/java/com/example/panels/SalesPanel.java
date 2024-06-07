@@ -27,7 +27,7 @@ public class SalesPanel extends JPanel {
 
         // Title Label
         JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Roboto", Font.BOLD, 28));
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 24));
         titleLabel.setForeground(ACCENT_COLOR);
         titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR));
 

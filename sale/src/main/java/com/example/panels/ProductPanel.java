@@ -27,7 +27,7 @@ public class ProductPanel extends JPanel {
         topPanel.setBackground(Color.WHITE);
 
         JLabel titleLabel = new JLabel("Product Information", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 24));
         titleLabel.setForeground(ACCENT_COLOR);
         titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR));
 
@@ -70,8 +70,8 @@ public class ProductPanel extends JPanel {
 
         JTable table = new JTable(tableModel);
         table.setRowHeight(30);
-        table.setFont(new Font("Serif", Font.PLAIN, 16));
-        table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        table.setFont(new Font("Lato", Font.PLAIN, 16));
+        table.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
         table.getTableHeader().setBackground(ACCENT_COLOR);
         table.getTableHeader().setForeground(Color.WHITE);
         table.setFillsViewportHeight(true);
