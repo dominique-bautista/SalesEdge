@@ -52,46 +52,16 @@ public class Manager {
         return DriverManager.getConnection(url, username, password);
     }
 
-    public static void delete(String tableName, String columnName, int id, JComponent customerPanelInstance) {
+    public static void delete(String tableName, String columnName, int id) {
         try (Connection conn = Manager.getConnection()) {
-            int maxId;
-            // Disable AUTO_INCREMENT
-            String removeIncrement = "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " INT NOT NULL";
-            PreparedStatement preparedStatement = conn.prepareStatement(removeIncrement);
-            preparedStatement.executeUpdate();
-
+            PreparedStatement preparedStatement;
+            
             // Delete the row with the ID to be deleted
             String deleteSql = "DELETE FROM "+tableName+" WHERE "+columnName+" = " +id;
             preparedStatement = conn.prepareStatement(deleteSql);
             preparedStatement.executeUpdate();
 
-            // Find the maximum ID currently in use
-            String maxID = "SELECT MAX("+columnName+") AS max_id FROM "+tableName;
-            preparedStatement = conn.prepareStatement(maxID);
-            ResultSet rs = preparedStatement.executeQuery();
-            if (rs.next()) {
-                maxId = rs.getInt("max_id");
-            } else {
-                // Handle the case where no rows are returned
-                System.out.println("No rows found in the table.");
-                return; // Exit the method or handle this case as needed
-            }
-
-            // Loop through and update IDs
-
-            while (id < maxId) { // Assuming 4 is the new maximum ID after deletion
-                String updateSql = "UPDATE "+tableName+" SET "+columnName+" ="+id+" WHERE "+columnName+" ="+(id+1);
-                PreparedStatement pstmt = conn.prepareStatement(updateSql);
-                pstmt.executeUpdate();
-                id += 1;
-            }
-
-            // Re-enable AUTO_INCREMENT (if needed for future inserts)
-            preparedStatement = conn.prepareStatement("ALTER TABLE "+tableName+" MODIFY COLUMN "+columnName+" INT NOT NULL AUTO_INCREMENT");
-            preparedStatement.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Customer deleted successfully.");
-            customerPanelInstance.revalidate();
-            customerPanelInstance.repaint();
+            
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -144,14 +114,14 @@ public class Manager {
         return details.toString();
     }
 
-    public static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String customerID) {
+    public static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont,String tableName, String columnName, String customerID, String primeID) {
         JLabel label = new JLabel(labelText);
         label.setFont(labelFont);
         panel.add(label);
         String text = "";
         try(Connection con  = Manager.getConnection())
         {
-            String sql = "SELECT * FROM customer WHERE customer_id = ?";
+            String sql = "SELECT * FROM " + tableName +" WHERE "+ primeID +" = ?";
             PreparedStatement statement = con.prepareStatement(sql);
             statement.setString(1, customerID);
             ResultSet resultSet = statement.executeQuery();

@@ -145,7 +145,7 @@ public class CustomerPanel extends JPanel {
                         JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
                     int id = Integer.parseInt(customerIDMap.get(selectedCustomer));
-                    Manager.delete("customer", "customer_id", id, this);
+                    Manager.delete("customer", "customer_id", id);
                     // Deselect any selected item in the list
                     customerList.clearSelection();
 
@@ -206,7 +206,7 @@ public class CustomerPanel extends JPanel {
         customerDetails.setText(details);
     }
 
-    public static void createCustomer(JComponent pan) {
+    public void createCustomer(JComponent pan) {
         JFrame createFrame = new JFrame("Create Customer");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         createFrame.setSize(500, 600);
@@ -303,17 +303,17 @@ public class CustomerPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField firstNameField = Manager.updateLabeledTextField("First Name:", panel, labelFont, textFieldFont, "first_name", cus );
-        JTextField lastNameField = Manager.updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont, "last_name", cus);
-        JTextField ageField = Manager.updateLabeledTextField("Age:", panel, labelFont, textFieldFont, "age", cus);
-        JTextField genderField = Manager.updateLabeledTextField("Gender:", panel, labelFont, textFieldFont, "gender", cus);
-        JTextField phoneField = Manager.updateLabeledTextField("Phone:", panel, labelFont, textFieldFont, "phone", cus);
-        JTextField emailField = Manager.updateLabeledTextField("Email:", panel, labelFont, textFieldFont, "email", cus);
-        JTextField streetAddressField = Manager.updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont, "street_address", cus);
-        JTextField cityField = Manager.updateLabeledTextField("City:", panel, labelFont, textFieldFont, "city", cus);
-        JTextField provinceField = Manager.updateLabeledTextField("Province:", panel, labelFont, textFieldFont, "province", cus);
-        JTextField postalCodeField = Manager.updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont, "postal_code", cus);
-        JTextField countryField = Manager.updateLabeledTextField("Country:", panel, labelFont, textFieldFont, "country", cus);
+        JTextField firstNameField = Manager.updateLabeledTextField("First Name:", panel, labelFont, textFieldFont,"customer", "first_name", cus, "customer_id" );
+        JTextField lastNameField = Manager.updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont,"customer", "last_name", cus, "customer_id");
+        JTextField ageField = Manager.updateLabeledTextField("Age:", panel, labelFont, textFieldFont,"customer", "age", cus, "customer_id");
+        JTextField genderField = Manager.updateLabeledTextField("Gender:", panel, labelFont, textFieldFont,"customer", "gender", cus, "customer_id");
+        JTextField phoneField = Manager.updateLabeledTextField("Phone:", panel, labelFont, textFieldFont,"customer", "phone", cus, "customer_id");
+        JTextField emailField = Manager.updateLabeledTextField("Email:", panel, labelFont, textFieldFont,"customer", "email", cus, "customer_id");
+        JTextField streetAddressField = Manager.updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont,"customer", "street_address", cus, "customer_id");
+        JTextField cityField = Manager.updateLabeledTextField("City:", panel, labelFont, textFieldFont,"customer", "city", cus, "customer_id");
+        JTextField provinceField = Manager.updateLabeledTextField("Province:", panel, labelFont, textFieldFont,"customer", "province", cus, "customer_id");
+        JTextField postalCodeField = Manager.updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont,"customer", "postal_code", cus, "customer_id");
+        JTextField countryField = Manager.updateLabeledTextField("Country:", panel, labelFont, textFieldFont,"customer", "country", cus, "customer_id");
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(new Color(0xF47130));

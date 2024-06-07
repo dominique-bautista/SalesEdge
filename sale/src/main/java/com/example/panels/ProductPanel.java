@@ -6,7 +6,13 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 public class ProductPanel extends JPanel {
     private static final Color ACCENT_COLOR = new Color(0xF47130);
@@ -29,7 +35,7 @@ public class ProductPanel extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(20);
-        String[] columns = {"Product ID", "Product Name", "Description", "Category", "Price"};
+        String[] columns = { "Product ID", "Product Name", "Description", "Category", "Price" };
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
         searchPanel.add(new JLabel("Search:"));
@@ -56,10 +62,11 @@ public class ProductPanel extends JPanel {
         tableModel.addColumn("Image URL");
         tableModel.addColumn("Stock");
 
-        tableModel.addRow(new Object[]{"1", "T-Shirt", "Cotton T-shirt", "Clothing", "20.99", "url1", "150"});
-        tableModel.addRow(new Object[]{"2", "Laptop", "Gaming laptop", "Electronics", "999.99", "url2", "30"});
-        tableModel.addRow(new Object[]{"3", "Book", "Fiction novel", "Books", "12.99", "url3", "200"});
-        tableModel.addRow(new Object[]{"4", "Toy", "Action figure", "Toys", "14.99", "https://m.media-amazon.com/images/I/61cBV1v26jL._AC_SL1002_.jpg", "75"});
+        tableModel.addRow(new Object[] { "1", "T-Shirt", "Cotton T-shirt", "Clothing", "20.99", "url1", "150" });
+        tableModel.addRow(new Object[] { "2", "Laptop", "Gaming laptop", "Electronics", "999.99", "url2", "30" });
+        tableModel.addRow(new Object[] { "3", "Book", "Fiction novel", "Books", "12.99", "url3", "200" });
+        tableModel.addRow(new Object[] { "4", "Toy", "Action figure", "Toys", "14.99",
+                "https://m.media-amazon.com/images/I/61cBV1v26jL._AC_SL1002_.jpg", "75" });
 
         JTable table = new JTable(tableModel);
         table.setRowHeight(30);
@@ -138,14 +145,12 @@ public class ProductPanel extends JPanel {
                         JScrollPane scrollPane = new JScrollPane(productDetailsPanel);
                         scrollPane.setPreferredSize(new Dimension(450, 600));
 
-                        JOptionPane.showMessageDialog(ProductPanel.this, scrollPane, "Product Details", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(ProductPanel.this, scrollPane, "Product Details",
+                                JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             }
         });
-
-
-
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -167,64 +172,25 @@ public class ProductPanel extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        addButton.addActionListener(e -> createProduct(tableModel));
+        addButton.addActionListener(e -> createProduct(this));
 
         editButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                int modelRow = table.convertRowIndexToModel(selectedRow);
-                String productId = tableModel.getValueAt(modelRow, 0).toString();
-                String productName = tableModel.getValueAt(modelRow, 1).toString();
-                String description = tableModel.getValueAt(modelRow, 2).toString();
-                String category = tableModel.getValueAt(modelRow, 3).toString();
-                String price = tableModel.getValueAt(modelRow, 4).toString();
-                String imageUrl = tableModel.getValueAt(modelRow, 5).toString();
-                String stock = tableModel.getValueAt(modelRow, 6).toString();
-
-                JTextField productIdField = new JTextField(productId);
-                JTextField productNameField = new JTextField(productName);
-                JTextField descriptionField = new JTextField(description);
-                JTextField categoryField = new JTextField(category);
-                JTextField priceField = new JTextField(price);
-                JTextField imageUrlField = new JTextField(imageUrl);
-                JTextField stockField = new JTextField(stock);
-
-                addFocusListeners(productIdField);
-                addFocusListeners(productNameField);
-                addFocusListeners(descriptionField);
-                addFocusListeners(categoryField);
-                addFocusListeners(priceField);
-                addFocusListeners(imageUrlField);
-                addFocusListeners(stockField);
-
-                Object[] message = {
-                        "Product ID:", productIdField,
-                        "Product Name:", productNameField,
-                        "Description:", descriptionField,
-                        "Category:", categoryField,
-                        "Price:", priceField,
-                        "Image URL:", imageUrlField,
-                        "Stock:", stockField,
-                };
-
-                int option = JOptionPane.showConfirmDialog(null, message, "Edit Product", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    tableModel.setValueAt(productIdField.getText(), modelRow, 0);
-                    tableModel.setValueAt(productNameField.getText(), modelRow, 1);
-                    tableModel.setValueAt(descriptionField.getText(), modelRow, 2);
-                    tableModel.setValueAt(categoryField.getText(), modelRow, 3);
-                    tableModel.setValueAt(priceField.getText(), modelRow, 4);
-                    tableModel.setValueAt(imageUrlField.getText(), modelRow, 5);
-                    tableModel.setValueAt(stockField.getText(), modelRow, 6);
-                }
+            selectedRow++;
+            if (selectedRow != 0) {
+                updateProduct(this, String.valueOf(selectedRow));
+                
             } else {
-                JOptionPane.showMessageDialog(null, "Please select a product to edit.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please select a product to edit.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
         deleteButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
+            selectedRow++;
+            if (selectedRow != 0) {
+                Manager.delete("product_inventory", "product_id", selectedRow);
                 int modelRow = table.convertRowIndexToModel(selectedRow);
                 tableModel.removeRow(modelRow);
             }
@@ -246,76 +212,78 @@ public class ProductPanel extends JPanel {
         });
     }
 
-    private void createProduct(DefaultTableModel tableModel) {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Color.WHITE);
-        panel.setPreferredSize(new Dimension(500, 400));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+    // private void createProduct(DefaultTableModel tableModel) {
+    // JPanel panel = new JPanel(new GridBagLayout());
+    // panel.setBackground(Color.WHITE);
+    // panel.setPreferredSize(new Dimension(500, 400));
+    // GridBagConstraints gbc = new GridBagConstraints();
+    // gbc.insets = new Insets(10, 10, 10, 10);
+    // gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        Font font = new Font("Serif", Font.PLAIN, 18);
+    // Font font = new Font("Serif", Font.PLAIN, 18);
 
-        JTextField productIdField = new JTextField(20);
-        JTextField productNameField = new JTextField(20);
-        JTextField descriptionField = new JTextField(20);
-        JTextField categoryField = new JTextField(20);
-        JTextField priceField = new JTextField(20);
-        JTextField supplierField = new JTextField(20);
-        JTextField imageUrlField = new JTextField(20);
-        JTextField stockField = new JTextField(20);
+    // JTextField productIdField = new JTextField(20);
+    // JTextField productNameField = new JTextField(20);
+    // JTextField descriptionField = new JTextField(20);
+    // JTextField categoryField = new JTextField(20);
+    // JTextField priceField = new JTextField(20);
+    // JTextField supplierField = new JTextField(20);
+    // JTextField imageUrlField = new JTextField(20);
+    // JTextField stockField = new JTextField(20);
 
-        productIdField.setFont(font);
-        productNameField.setFont(font);
-        descriptionField.setFont(font);
-        categoryField.setFont(font);
-        priceField.setFont(font);
-        supplierField.setFont(font);
-        imageUrlField.setFont(font);
-        stockField.setFont(font);
+    // productIdField.setFont(font);
+    // productNameField.setFont(font);
+    // descriptionField.setFont(font);
+    // categoryField.setFont(font);
+    // priceField.setFont(font);
+    // supplierField.setFont(font);
+    // imageUrlField.setFont(font);
+    // stockField.setFont(font);
 
-        addFocusListeners(productIdField);
-        addFocusListeners(productNameField);
-        addFocusListeners(descriptionField);
-        addFocusListeners(categoryField);
-        addFocusListeners(priceField);
-        addFocusListeners(supplierField);
-        addFocusListeners(imageUrlField);
-        addFocusListeners(stockField);
+    // addFocusListeners(productIdField);
+    // addFocusListeners(productNameField);
+    // addFocusListeners(descriptionField);
+    // addFocusListeners(categoryField);
+    // addFocusListeners(priceField);
+    // addFocusListeners(supplierField);
+    // addFocusListeners(imageUrlField);
+    // addFocusListeners(stockField);
 
-        addFieldToPanel(panel, "Product ID:", productIdField, gbc, 0, font);
-        addFieldToPanel(panel, "Product Name:", productNameField, gbc, 1, font);
-        addFieldToPanel(panel, "Description:", descriptionField, gbc, 2, font);
-        addFieldToPanel(panel, "Category:", categoryField, gbc, 3, font);
-        addFieldToPanel(panel, "Price:", priceField, gbc, 4, font);
-        addFieldToPanel(panel, "Supplier:", supplierField, gbc, 5, font);
-        addFieldToPanel(panel, "Image URL:", imageUrlField, gbc, 6, font);
-        addFieldToPanel(panel, "Stock:", stockField, gbc, 7, font);
+    // addFieldToPanel(panel, "Product ID:", productIdField, gbc, 0, font);
+    // addFieldToPanel(panel, "Product Name:", productNameField, gbc, 1, font);
+    // addFieldToPanel(panel, "Description:", descriptionField, gbc, 2, font);
+    // addFieldToPanel(panel, "Category:", categoryField, gbc, 3, font);
+    // addFieldToPanel(panel, "Price:", priceField, gbc, 4, font);
+    // addFieldToPanel(panel, "Supplier:", supplierField, gbc, 5, font);
+    // addFieldToPanel(panel, "Image URL:", imageUrlField, gbc, 6, font);
+    // addFieldToPanel(panel, "Stock:", stockField, gbc, 7, font);
 
-        int option = JOptionPane.showConfirmDialog(this, panel, "Create New Product", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) {
-            tableModel.addRow(new Object[]{
-                    productIdField.getText(),
-                    productNameField.getText(),
-                    descriptionField.getText(),
-                    categoryField.getText(),
-                    priceField.getText(),
-                    imageUrlField.getText(),
-                    stockField.getText()
-            });
-        }
-    }
+    // int option = JOptionPane.showConfirmDialog(this, panel, "Create New Product",
+    // JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+    // if (option == JOptionPane.OK_OPTION) {
+    // tableModel.addRow(new Object[]{
+    // productIdField.getText(),
+    // productNameField.getText(),
+    // descriptionField.getText(),
+    // categoryField.getText(),
+    // priceField.getText(),
+    // imageUrlField.getText(),
+    // stockField.getText()
+    // });
+    // }
+    // }
 
-    private void addFieldToPanel(JPanel panel, String labelText, JTextField textField, GridBagConstraints gbc, int yPos, Font font) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(font);
-        gbc.gridx = 0;
-        gbc.gridy = yPos;
-        panel.add(label, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = yPos;
-        panel.add(textField, gbc);
-    }
+    // private void addFieldToPanel(JPanel panel, String labelText, JTextField
+    // textField, GridBagConstraints gbc, int yPos, Font font) {
+    // JLabel label = new JLabel(labelText);
+    // label.setFont(font);
+    // gbc.gridx = 0;
+    // gbc.gridy = yPos;
+    // panel.add(label, gbc);
+    // gbc.gridx = 1;
+    // gbc.gridy = yPos;
+    // panel.add(textField, gbc);
+    // }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Product Panel");
@@ -323,5 +291,149 @@ public class ProductPanel extends JPanel {
         frame.setSize(800, 600);
         frame.add(new ProductPanel());
         frame.setVisible(true);
+    }
+
+    public void createProduct(JComponent pan) {
+        JFrame createFrame = new JFrame("Create Product");
+        createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        createFrame.setSize(500, 600);
+        createFrame.setLocationRelativeTo(null);
+    
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(12, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    
+        Font labelFont = new Font("Lato", Font.PLAIN, 20);
+        Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
+    
+        JTextField productName = Manager.createLabeledTextField("Product Name:", panel, labelFont, textFieldFont);
+        JTextField desc = Manager.createLabeledTextField("Description:", panel, labelFont, textFieldFont);
+        JTextField category = Manager.createLabeledTextField("Category:", panel, labelFont, textFieldFont);
+        JTextField price = Manager.createLabeledTextField("Price:", panel, labelFont, textFieldFont);
+        JTextField supplier = Manager.createLabeledTextField("Supplier:", panel, labelFont, textFieldFont);
+        JTextField imageUrl = Manager.createLabeledTextField("Image URL:", panel, labelFont, textFieldFont);
+        JTextField stock = Manager.createLabeledTextField("Stock:", panel, labelFont, textFieldFont);
+    
+        JButton saveButton = new JButton("Save");
+        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(new Font("Lato", Font.BOLD, 14));
+    
+        saveButton.addActionListener(e -> {
+            boolean allFieldsFilled = Arrays.stream(new JTextField[]{productName, desc, category, price, supplier, stock, imageUrl})
+                                 .allMatch(field ->!field.getText().trim().isEmpty());
+    
+            if (!allFieldsFilled) {
+                JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
+                return;
+            }
+    
+            try (Connection connection = Manager.getConnection()) {
+                String sqlInsert = "INSERT INTO product_inventory (product_name, description, category, price, supplier, stock_level, image_url, low_stock_alert) VALUES (?,?,?,?,?,?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
+                preparedStatement.setString(1, productName.getText());
+                preparedStatement.setString(2, desc.getText());
+                preparedStatement.setString(3, category.getText());
+                preparedStatement.setBigDecimal(4, new BigDecimal(price.getText()));
+                preparedStatement.setString(5, supplier.getText());
+                preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
+                preparedStatement.setString(7, imageUrl.getText());
+    
+                // Calculate lowStockAlert here, right before it's used
+                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10? 0 : 1;
+                preparedStatement.setInt(8, lowStockAlert);
+    
+                preparedStatement.executeUpdate(); // Execute the statement
+                createFrame.dispose();
+    
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(createFrame, "Error: " + ex.getMessage());
+                return;
+            }
+            JOptionPane.showMessageDialog(null, "Product created successfully.");
+            pan.revalidate();
+            pan.repaint();
+        });
+    
+        panel.add(saveButton);
+    
+        createFrame.add(panel);
+        createFrame.setVisible(true);
+    }
+
+    public void updateProduct(JComponent pan, String cus) {
+        JFrame createFrame = new JFrame("Update Product");
+        createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        createFrame.setSize(500, 600);
+        createFrame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(12, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        Font labelFont = new Font("Lato", Font.PLAIN, 20);
+        Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
+
+        JTextField productName = Manager.updateLabeledTextField("Product Name:", panel, labelFont, textFieldFont,"product_inventory", "product_name", cus,"product_id");
+        JTextField desc = Manager.updateLabeledTextField("Description:", panel, labelFont, textFieldFont,"product_inventory", "description", cus,"product_id");
+        JTextField category = Manager.updateLabeledTextField("Category:", panel, labelFont, textFieldFont,"product_inventory", "category", cus,"product_id");
+        JTextField price = Manager.updateLabeledTextField("Price:", panel, labelFont, textFieldFont,"product_inventory", "price", cus,"product_id");
+        JTextField supplier = Manager.updateLabeledTextField("Supplier:", panel, labelFont, textFieldFont,"product_inventory", "supplier", cus,"product_id");
+        JTextField imageUrl = Manager.updateLabeledTextField("Image URL:", panel, labelFont, textFieldFont,"product_inventory", "image_url", cus,"product_id");
+        JTextField stock = Manager.updateLabeledTextField("Stock:", panel, labelFont, textFieldFont,"product_inventory", "stock_level", cus,"product_id");
+    
+        JButton saveButton = new JButton("Save");
+        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(new Font("Lato", Font.BOLD, 14));
+
+        saveButton.addActionListener(e -> {
+            boolean allFieldsFilled = true;
+            JTextField[] textFields = { productName, desc, category,price,supplier, imageUrl , stock};
+            for (JTextField textField : textFields) {
+                if (textField.getText().trim().isEmpty()) {
+                    allFieldsFilled = false;
+                    break;
+                }
+            }
+            if (!allFieldsFilled) {
+                JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
+                return;
+            }
+            try (Connection connection = Manager.getConnection()) {
+                String sqlInsert = "UPDATE `product_inventory` SET `product_name` =?, `description` =?, `category` =?, `price` =?, `supplier` =?, `stock_level` =?, `image_url` =?, `low_stock_alert` =? WHERE `product_id` =?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
+                preparedStatement.setString(1, productName.getText());
+                preparedStatement.setString(2, desc.getText());
+                preparedStatement.setString(3, category.getText());
+                preparedStatement.setBigDecimal(4, new BigDecimal(price.getText()));
+                preparedStatement.setString(5, supplier.getText());
+                preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
+                preparedStatement.setString(7, imageUrl.getText());
+    
+                // Calculate lowStockAlert here, right before it's used
+                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10? 0 : 1;
+                preparedStatement.setInt(8, lowStockAlert);
+    
+                preparedStatement.setString(9, cus); // product_id
+                preparedStatement.executeUpdate(); // Execute the statement
+                createFrame.dispose();
+
+            } catch (SQLException c) {
+                c.printStackTrace();
+                JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
+                return;
+            }
+            JOptionPane.showMessageDialog(null, "Product Updated successfully.");
+            pan.revalidate(); // Revalidate the
+            pan.repaint();
+        });
+
+        panel.add(new JLabel());
+        panel.add(saveButton);
+
+        createFrame.add(panel);
+        createFrame.setVisible(true);
     }
 }
