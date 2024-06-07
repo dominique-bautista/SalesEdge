@@ -2,6 +2,7 @@ package com.example.panels;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -79,6 +80,13 @@ public class CustomerPanel extends JPanel {
         JScrollPane customerListScrollPane = new JScrollPane(customerList);
         customerListScrollPane.setPreferredSize(new Dimension(200, 0));
 
+        customerListScrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(0xF47130); // Set the color of the scrollbar thumb
+            }
+        });
+
         // Create the customer details area
         customerDetails = new JTextArea();
         customerDetails.setFont(new Font("Lato", Font.PLAIN, 18));
@@ -101,7 +109,7 @@ public class CustomerPanel extends JPanel {
         // Add the split pane panel to the CustomerPanel
         add(splitPanePanel, BorderLayout.CENTER);
         // Add the buttons for creating, updating, and deleting customers
-        JButton createButton = createButton("Create");
+        JButton createButton = createButton("Add");
         createButton.addActionListener(e -> {
             createCustomer(this);
             // Deselect any selected item in the list
@@ -117,7 +125,7 @@ public class CustomerPanel extends JPanel {
             // Refresh the customer list
         });
 
-        JButton updateButton = createButton("Update");
+        JButton updateButton = createButton("Edit");
         updateButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
             if (selectedCustomer != null) {
