@@ -7,6 +7,8 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 public class SalesPanel extends JPanel {
     // Define the accent color
@@ -17,7 +19,7 @@ public class SalesPanel extends JPanel {
         // Set the layout for this panel
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE); // Set the background color to white
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the panel
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Create a panel for the title and search components
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
@@ -25,9 +27,9 @@ public class SalesPanel extends JPanel {
 
         // Title Label
         JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 28)); // Set font and size
-        titleLabel.setForeground(ACCENT_COLOR); // Set text color to the accent color
-        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
+        titleLabel.setFont(new Font("Serif", Font.BOLD, 28));
+        titleLabel.setForeground(ACCENT_COLOR);
+        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR));
 
         // Create the search panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -35,6 +37,19 @@ public class SalesPanel extends JPanel {
 
         // Create the search field and column selector
         JTextField searchField = new JTextField(20);
+        // Add focus listener to the search field
+        searchField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                searchField.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                searchField.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+            }
+        });
+
         String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "List of Purchased Items", "Total Amount"};
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
@@ -106,38 +121,149 @@ public class SalesPanel extends JPanel {
 
         // Create a panel for action buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Add padding at the top
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        // Create action buttons for refreshing and exporting sales reports
-        JButton refreshButton = new JButton("Refresh");
+        // Create action buttons for add, delete, edit, and export
+        JButton addButton = new JButton("Add");
+        JButton deleteButton = new JButton("Delete");
+        JButton editButton = new JButton("Edit");
         JButton exportButton = new JButton("Export");
 
-        // Set button colors to the accent color and text color to white
-        refreshButton.setBackground(ACCENT_COLOR);
-        refreshButton.setForeground(Color.WHITE);
+// Set button colors to the accent color and text color to white
+        addButton.setBackground(ACCENT_COLOR);
+        addButton.setForeground(Color.WHITE);
+        deleteButton.setBackground(ACCENT_COLOR);
+        deleteButton.setForeground(Color.WHITE);
+        editButton.setBackground(ACCENT_COLOR);
+        editButton.setForeground(Color.WHITE);
         exportButton.setBackground(ACCENT_COLOR);
         exportButton.setForeground(Color.WHITE);
 
-        // Add action buttons to the button panel
-        buttonPanel.add(refreshButton);
+// Add action buttons to the button panel
+        buttonPanel.add(addButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(editButton);
         buttonPanel.add(exportButton);
+
 
         // Add the button panel to the bottom of the main panel
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Action Listeners for buttons
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to refresh sales reports (to be implemented)
-            }
-        });
-
         exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to export sales reports (to be implemented)
             }
         });
+
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createSales(transactionTableModel);
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Code to delete selected transaction (to be implemented)
+                int selectedRow = transactionTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    transactionTableModel.removeRow(selectedRow);
+                }
+            }
+        });
+
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Code to edit selected transaction (to be implemented)
+                int selectedRow = transactionTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    transactionTableModel.setValueAt("EditedValue", selectedRow, transactionTable.getSelectedColumn());
+                }
+            }
+        });
+
+    }
+
+    private void createSales(DefaultTableModel tableModel) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setPreferredSize(new Dimension(500, 400));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        Font font = new Font("Serif", Font.PLAIN, 18);
+
+        JTextField transactionIdField = createHighlightedTextField(20, font);
+        JTextField customerIdField = createHighlightedTextField(20, font);
+        JTextField dateField = createHighlightedTextField(20, font);
+        JTextField timeField = createHighlightedTextField(20, font);
+        JTextField salespersonIdField = createHighlightedTextField(20, font);
+        JTextField purchasedItemsField = createHighlightedTextField(20, font);
+        JTextField totalAmountField = createHighlightedTextField(20, font);
+
+        addFieldToPanel(panel, "Transaction ID:", transactionIdField, gbc, 0, font);
+        addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 1, font);
+        addFieldToPanel(panel, "Date:", dateField, gbc, 2, font);
+        addFieldToPanel(panel, "Time:", timeField, gbc, 3, font);
+        addFieldToPanel(panel, "Salesperson ID:", salespersonIdField, gbc, 4, font);
+        addFieldToPanel(panel, "List of Purchased Items:", purchasedItemsField, gbc, 5, font);
+        addFieldToPanel(panel, "Total Amount:", totalAmountField, gbc, 6, font);
+
+        // Customize the JOptionPane to remove the question mark icon
+        int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (option == JOptionPane.OK_OPTION) {
+            tableModel.addRow(new Object[]{
+                    transactionIdField.getText(),
+                    customerIdField.getText(),
+                    dateField.getText(),
+                    timeField.getText(),
+                    salespersonIdField.getText(),
+                    purchasedItemsField.getText(),
+                    totalAmountField.getText()
+            });
+        }
+    }
+
+    private JTextField createHighlightedTextField(int columns, Font font) {
+        JTextField textField = new JTextField(columns);
+        textField.setFont(font);
+        textField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        textField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                textField.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                textField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+            }
+        });
+
+        return textField;
+    }
+
+    private void addFieldToPanel(JPanel panel, String labelText, JTextField textField, GridBagConstraints gbc, int yPos, Font font) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(font);
+        gbc.gridx = 0;
+        gbc.gridy = yPos;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = yPos;
+        panel.add(textField, gbc);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Sales Panel");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.add(new SalesPanel());
+        frame.setVisible(true);
     }
 }
