@@ -348,8 +348,8 @@ public class CustomerPanel extends JPanel {
                     return;
                 }
                 preparedStatement.setString(4, genderField.getText()); // gender
-                preparedStatement.setString(5, phoneField.getText()); // phone
-                preparedStatement.setString(6, emailField.getText()); // email
+                preparedStatement.setString(5, emailField.getText()); // email
+                preparedStatement.setString(6, phoneField.getText()); // phone
                 preparedStatement.setString(7, streetAddressField.getText()); // street_address
                 preparedStatement.setString(8, cityField.getText()); // city
                 preparedStatement.setString(9, provinceField.getText()); // province
