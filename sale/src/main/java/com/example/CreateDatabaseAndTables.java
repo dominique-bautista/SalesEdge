@@ -101,8 +101,7 @@ public class CreateDatabaseAndTables {
             // Supplier Information Table
             String createSupplierTable = "CREATE TABLE IF NOT EXISTS supplier (" +
                     "supplier_id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "first_name VARCHAR(50) NOT NULL, " +
-                    "last_name VARCHAR(50) NOT NULL, " +
+                    "supplier_name VARCHAR(100) NOT NULL, " +
                     "products_supplied VARCHAR(255) NOT NULL, " +
                     "email VARCHAR(100) NOT NULL, " +
                     "phone VARCHAR(20) NOT NULL, " +
