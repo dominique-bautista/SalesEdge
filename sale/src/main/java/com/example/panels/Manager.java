@@ -144,6 +144,49 @@ public class Manager {
         return details.toString();
     }
 
+    public static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String customerID) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        panel.add(label);
+        String text = "";
+        try(Connection con  = Manager.getConnection())
+        {
+            String sql = "SELECT * FROM customer WHERE customer_id = ?";
+            PreparedStatement statement = con.prepareStatement(sql);
+            statement.setString(1, customerID);
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next())
+            {
+                text = resultSet.getString(columnName);
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        JTextField textField = new JTextField(text);
+        textField.setFont(textFieldFont);
+
+
+        Color orangeBorderColor = new Color(0xF47130);
+
+
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createLineBorder(orangeBorderColor));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textField.setBorder(UIManager.getBorder("TextField.border"));
+            }
+        });
+
+        panel.add(textField);
+
+        return textField;
+    }
+
     // Method to update an existing customer
     public static void updateCustomer(String selectedCustomer) {
         // String customerID = customerIDMap.get(selectedCustomer);

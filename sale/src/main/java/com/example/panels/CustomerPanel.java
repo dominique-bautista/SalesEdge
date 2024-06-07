@@ -129,9 +129,8 @@ public class CustomerPanel extends JPanel {
         JButton updateButton = createButton("Update");
         updateButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
-
             if (selectedCustomer != null) {
-                updateCustomer(this, selectedCustomer);
+                updateCustomer(this, customerIDMap.get(selectedCustomer));
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a customer to update.");
             }
@@ -292,7 +291,6 @@ public class CustomerPanel extends JPanel {
     }
 
     public void updateCustomer(JComponent pan, String cus) {
-        String customerID = customerIDMap.get(cus);
         JFrame createFrame = new JFrame("Update Customer");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         createFrame.setSize(500, 600);
@@ -305,17 +303,17 @@ public class CustomerPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField firstNameField = updateLabeledTextField("First Name:", panel, labelFont, textFieldFont, "first_name", cus );
-        JTextField lastNameField = updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont, "last_name", cus);
-        JTextField ageField = updateLabeledTextField("Age:", panel, labelFont, textFieldFont, "age", cus);
-        JTextField genderField = updateLabeledTextField("Gender:", panel, labelFont, textFieldFont, "gender", cus);
-        JTextField phoneField = updateLabeledTextField("Phone:", panel, labelFont, textFieldFont, "phone", cus);
-        JTextField emailField = updateLabeledTextField("Email:", panel, labelFont, textFieldFont, "email", cus);
-        JTextField streetAddressField = updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont, "street_address", cus);
-        JTextField cityField = updateLabeledTextField("City:", panel, labelFont, textFieldFont, "city", cus);
-        JTextField provinceField = updateLabeledTextField("Province:", panel, labelFont, textFieldFont, "province", cus);
-        JTextField postalCodeField = updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont, "postal_code", cus);
-        JTextField countryField = updateLabeledTextField("Country:", panel, labelFont, textFieldFont, "country", cus);
+        JTextField firstNameField = Manager.updateLabeledTextField("First Name:", panel, labelFont, textFieldFont, "first_name", cus );
+        JTextField lastNameField = Manager.updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont, "last_name", cus);
+        JTextField ageField = Manager.updateLabeledTextField("Age:", panel, labelFont, textFieldFont, "age", cus);
+        JTextField genderField = Manager.updateLabeledTextField("Gender:", panel, labelFont, textFieldFont, "gender", cus);
+        JTextField phoneField = Manager.updateLabeledTextField("Phone:", panel, labelFont, textFieldFont, "phone", cus);
+        JTextField emailField = Manager.updateLabeledTextField("Email:", panel, labelFont, textFieldFont, "email", cus);
+        JTextField streetAddressField = Manager.updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont, "street_address", cus);
+        JTextField cityField = Manager.updateLabeledTextField("City:", panel, labelFont, textFieldFont, "city", cus);
+        JTextField provinceField = Manager.updateLabeledTextField("Province:", panel, labelFont, textFieldFont, "province", cus);
+        JTextField postalCodeField = Manager.updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont, "postal_code", cus);
+        JTextField countryField = Manager.updateLabeledTextField("Country:", panel, labelFont, textFieldFont, "country", cus);
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(new Color(0xF47130));
@@ -355,7 +353,7 @@ public class CustomerPanel extends JPanel {
                 preparedStatement.setString(9, provinceField.getText()); // province
                 preparedStatement.setString(10, postalCodeField.getText()); // postal_code
                 preparedStatement.setString(11, countryField.getText()); // country
-                preparedStatement.setString(12, customerID); // customer_id
+                preparedStatement.setString(12, cus); // customer_id
                 preparedStatement.executeUpdate(); // Execute the statement
                 createFrame.dispose();
 
@@ -376,49 +374,7 @@ public class CustomerPanel extends JPanel {
         createFrame.setVisible(true);
     }
 
-    public JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String sel) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(labelFont);
-        panel.add(label);
-        String customerID = customerIDMap.get(sel);
-        String text = "";
-        try(Connection con  = Manager.getConnection())
-        {
-            String sql = "SELECT * FROM customer WHERE customer_id = ?";
-            PreparedStatement statement = con.prepareStatement(sql);
-            statement.setString(1, customerID);
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next())
-            {
-                text = resultSet.getString(columnName);
-            }
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        JTextField textField = new JTextField(text);
-        textField.setFont(textFieldFont);
-
-
-        Color orangeBorderColor = new Color(0xF47130);
-
-
-        textField.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                textField.setBorder(BorderFactory.createLineBorder(orangeBorderColor));
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                textField.setBorder(UIManager.getBorder("TextField.border"));
-            }
-        });
-
-        panel.add(textField);
-
-        return textField;
-    }
+    
 
 
     private void populateListAndMap() {
