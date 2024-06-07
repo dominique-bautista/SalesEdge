@@ -16,6 +16,34 @@ public class Manager {
         panel.add(textField);
         return textField;
     }
+    public static JTextField createLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        panel.add(label);
+
+        JTextField textField = new JTextField();
+        textField.setFont(textFieldFont);
+
+
+        Color orangeBorderColor = new Color(0xF47130);
+
+
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setBorder(BorderFactory.createLineBorder(orangeBorderColor));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textField.setBorder(UIManager.getBorder("TextField.border"));
+            }
+        });
+
+        panel.add(textField);
+
+        return textField;
+    }
 
     public static Connection getConnection() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/salesedge";

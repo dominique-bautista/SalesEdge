@@ -11,11 +11,11 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-
 
 public class CustomerPanel extends JPanel {
     private final JTextField searchBar;
@@ -92,6 +92,7 @@ public class CustomerPanel extends JPanel {
         customerDetails = new JTextArea();
         customerDetails.setFont(new Font("Lato", Font.PLAIN, 18));
         customerDetails.setEditable(false);
+        customerDetails.setText("Select a customer to view details.");
 
         JScrollPane customerDetailsScrollPane = new JScrollPane(customerDetails);
 
@@ -111,7 +112,14 @@ public class CustomerPanel extends JPanel {
         // Add the buttons for creating, updating, and deleting customers
         JButton createButton = createButton("Create");
         createButton.addActionListener(e -> {
-            createCustomer();
+            createCustomer(this);
+            // Deselect any selected item in the list
+            customerList.clearSelection();
+
+            // Clear the details panel
+            customerDetails.setText("Select a customer to view details.");
+
+            // Optionally, refresh the list to ensure it's up-to-date
             populateListAndMap();
             revalidate();
             repaint();
@@ -121,8 +129,9 @@ public class CustomerPanel extends JPanel {
         JButton updateButton = createButton("Update");
         updateButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
+            
             if (selectedCustomer != null) {
-                Manager.updateCustomer(selectedCustomer);
+                updateCustomer(this, selectedCustomer);
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a customer to update.");
             }
@@ -137,8 +146,14 @@ public class CustomerPanel extends JPanel {
                         JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
                     int id = Integer.parseInt(customerIDMap.get(selectedCustomer));
-
                     Manager.delete("customer", "customer_id", id, this);
+                    // Deselect any selected item in the list
+                    customerList.clearSelection();
+
+                    // Clear the details panel
+                    customerDetails.setText("Select a customer to view details.");
+
+                    // Optionally, refresh the list to ensure it's up-to-date
                     populateListAndMap();
                     revalidate();
                     repaint();
@@ -192,7 +207,7 @@ public class CustomerPanel extends JPanel {
         customerDetails.setText(details);
     }
 
-    public static void createCustomer() {
+    public static void createCustomer(JComponent pan) {
         JFrame createFrame = new JFrame("Create Customer");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         createFrame.setSize(500, 600);
@@ -205,17 +220,18 @@ public class CustomerPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField firstNameField = createLabeledTextField("First Name:", panel, labelFont, textFieldFont);
-        JTextField lastNameField = createLabeledTextField("Last Name:", panel, labelFont, textFieldFont);
-        JTextField ageField = createLabeledTextField("Age:", panel, labelFont, textFieldFont);
-        JTextField genderField = createLabeledTextField("Gender:", panel, labelFont, textFieldFont);
-        JTextField phoneField = createLabeledTextField("Phone:", panel, labelFont, textFieldFont);
-        JTextField emailField = createLabeledTextField("Email:", panel, labelFont, textFieldFont);
-        JTextField streetAddressField = createLabeledTextField("Street Address:", panel, labelFont, textFieldFont);
-        JTextField cityField = createLabeledTextField("City:", panel, labelFont, textFieldFont);
-        JTextField provinceField = createLabeledTextField("Province:", panel, labelFont, textFieldFont);
-        JTextField postalCodeField = createLabeledTextField("Postal Code:", panel, labelFont, textFieldFont);
-        JTextField countryField = createLabeledTextField("Country:", panel, labelFont, textFieldFont);
+        JTextField firstNameField = Manager.createLabeledTextField("First Name:", panel, labelFont, textFieldFont);
+        JTextField lastNameField = Manager.createLabeledTextField("Last Name:", panel, labelFont, textFieldFont);
+        JTextField ageField = Manager.createLabeledTextField("Age:", panel, labelFont, textFieldFont);
+        JTextField genderField = Manager.createLabeledTextField("Gender:", panel, labelFont, textFieldFont);
+        JTextField phoneField = Manager.createLabeledTextField("Phone:", panel, labelFont, textFieldFont);
+        JTextField emailField = Manager.createLabeledTextField("Email:", panel, labelFont, textFieldFont);
+        JTextField streetAddressField = Manager.createLabeledTextField("Street Address:", panel, labelFont,
+                textFieldFont);
+        JTextField cityField = Manager.createLabeledTextField("City:", panel, labelFont, textFieldFont);
+        JTextField provinceField = Manager.createLabeledTextField("Province:", panel, labelFont, textFieldFont);
+        JTextField postalCodeField = Manager.createLabeledTextField("Postal Code:", panel, labelFont, textFieldFont);
+        JTextField countryField = Manager.createLabeledTextField("Country:", panel, labelFont, textFieldFont);
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(new Color(0xF47130));
@@ -224,7 +240,8 @@ public class CustomerPanel extends JPanel {
 
         saveButton.addActionListener(e -> {
             boolean allFieldsFilled = true;
-            JTextField[] textFields = {firstNameField, lastNameField, ageField, genderField, phoneField, emailField, streetAddressField, cityField, provinceField, postalCodeField, countryField};
+            JTextField[] textFields = { firstNameField, lastNameField, ageField, genderField, phoneField, emailField,
+                    streetAddressField, cityField, provinceField, postalCodeField, countryField };
             for (JTextField textField : textFields) {
                 if (textField.getText().trim().isEmpty()) {
                     allFieldsFilled = false;
@@ -255,13 +272,16 @@ public class CustomerPanel extends JPanel {
                 preparedStatement.setString(10, postalCodeField.getText()); // postal_code
                 preparedStatement.setString(11, countryField.getText()); // country
                 preparedStatement.executeUpdate(); // Execute the statement
-                JOptionPane.showMessageDialog(createFrame, "Customer created successfully.");
                 createFrame.dispose();
+                
             } catch (SQLException c) {
                 c.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
                 return;
             }
+            JOptionPane.showMessageDialog(null, "Customer created successfully.");
+            pan.revalidate(); // Revalidate the
+            pan.repaint();
         });
 
         panel.add(new JLabel());
@@ -271,12 +291,112 @@ public class CustomerPanel extends JPanel {
         createFrame.setVisible(true);
     }
 
-    private static JTextField createLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont) {
+    public void updateCustomer(JComponent pan, String cus) {
+        String customerID = customerIDMap.get(cus);
+        JFrame createFrame = new JFrame("Update Customer");
+        createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        createFrame.setSize(500, 600);
+        createFrame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(12, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        Font labelFont = new Font("Lato", Font.PLAIN, 20);
+        Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
+
+        JTextField firstNameField = updateLabeledTextField("First Name:", panel, labelFont, textFieldFont, "first_name", cus );
+        JTextField lastNameField = updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont, "last_name", cus);
+        JTextField ageField = updateLabeledTextField("Age:", panel, labelFont, textFieldFont, "age", cus);
+        JTextField genderField = updateLabeledTextField("Gender:", panel, labelFont, textFieldFont, "gender", cus);
+        JTextField phoneField = updateLabeledTextField("Phone:", panel, labelFont, textFieldFont, "phone", cus);
+        JTextField emailField = updateLabeledTextField("Email:", panel, labelFont, textFieldFont, "email", cus);
+        JTextField streetAddressField = updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont, "street_address", cus);
+        JTextField cityField = updateLabeledTextField("City:", panel, labelFont, textFieldFont, "city", cus);
+        JTextField provinceField = updateLabeledTextField("Province:", panel, labelFont, textFieldFont, "province", cus);
+        JTextField postalCodeField = updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont, "postal_code", cus);
+        JTextField countryField = updateLabeledTextField("Country:", panel, labelFont, textFieldFont, "country", cus);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(new Font("Lato", Font.BOLD, 14));
+
+        saveButton.addActionListener(e -> {
+            boolean allFieldsFilled = true;
+            JTextField[] textFields = { firstNameField, lastNameField, ageField, genderField, phoneField, emailField,
+                    streetAddressField, cityField, provinceField, postalCodeField, countryField };
+            for (JTextField textField : textFields) {
+                if (textField.getText().trim().isEmpty()) {
+                    allFieldsFilled = false;
+                    break;
+                }
+            }
+            if (!allFieldsFilled) {
+                JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
+                return;
+            }
+            try (Connection connection = Manager.getConnection()) {
+                String sqlInsert = "UPDATE `customer` SET `first_name` =?, `last_name` =?, `age` =?, `gender` =?, `email` =?, `phone` =?, `street_address` =?, `city` =?, `province` =?, `postal_code` =?, `country` =? WHERE `customer_id` =?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
+                preparedStatement.setString(1, firstNameField.getText()); // fname
+                preparedStatement.setString(2, lastNameField.getText()); // lname
+                try {
+                    preparedStatement.setInt(3, Integer.parseInt(ageField.getText())); // age
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(createFrame, "Invalid age format. Please enter a numeric value.");
+                    return;
+                }
+                preparedStatement.setString(4, genderField.getText()); // gender
+                preparedStatement.setString(5, phoneField.getText()); // phone
+                preparedStatement.setString(6, emailField.getText()); // email
+                preparedStatement.setString(7, streetAddressField.getText()); // street_address
+                preparedStatement.setString(8, cityField.getText()); // city
+                preparedStatement.setString(9, provinceField.getText()); // province
+                preparedStatement.setString(10, postalCodeField.getText()); // postal_code
+                preparedStatement.setString(11, countryField.getText()); // country
+                preparedStatement.setString(12, customerID); // customer_id
+                preparedStatement.executeUpdate(); // Execute the statement
+                createFrame.dispose();
+                
+            } catch (SQLException c) {
+                c.printStackTrace();
+                JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
+                return;
+            }
+            JOptionPane.showMessageDialog(null, "Customer Updated successfully.");
+            pan.revalidate(); // Revalidate the
+            pan.repaint();
+        });
+
+        panel.add(new JLabel());
+        panel.add(saveButton);
+
+        createFrame.add(panel);
+        createFrame.setVisible(true);
+    }
+
+    public JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String sel) {
         JLabel label = new JLabel(labelText);
         label.setFont(labelFont);
         panel.add(label);
+        String customerID = customerIDMap.get(sel);
+        String text = "";
+        try(Connection con  = Manager.getConnection())
+        {
+            String sql = "SELECT * FROM customer WHERE customer_id = ?";
+            PreparedStatement statement = con.prepareStatement(sql);
+            statement.setString(1, customerID);
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next())
+            {
+                text = resultSet.getString(columnName);
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-        JTextField textField = new JTextField();
+        JTextField textField = new JTextField(text);
         textField.setFont(textFieldFont);
 
 
@@ -299,9 +419,6 @@ public class CustomerPanel extends JPanel {
 
         return textField;
     }
-
-
-
 
 
     private void populateListAndMap() {
