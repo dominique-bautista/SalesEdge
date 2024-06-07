@@ -5,6 +5,7 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CustomerPanel extends JPanel {
@@ -184,10 +185,24 @@ public class CustomerPanel extends JPanel {
         DefaultListModel<String> model = (DefaultListModel<String>) customerList.getModel();
         model.clear();
 
-        customerIDMap.keySet().stream()
-                .filter(name -> name.toLowerCase().contains(searchQuery.toLowerCase()))
-                .forEach(model::addElement);
+        if (searchQuery.isEmpty()) {
+            // If a search query is empty, re-populate the list in ascending order of ID
+            populateListAndMap();
+        } else {
+            // Use a linked hash map to maintain the order of insertion
+            Map<String, String> filteredMap = new LinkedHashMap<>();
+
+            // Filter the map based on the search query and maintain the order of IDs
+            customerIDMap.entrySet().stream()
+                    .filter(entry -> entry.getKey().toLowerCase().contains(searchQuery.toLowerCase()))
+                    .forEach(entry -> filteredMap.put(entry.getKey(), entry.getValue()));
+
+            // Add the filtered and ordered names to the list model
+            filteredMap.keySet().forEach(model::addElement);
+        }
     }
+
+
 
     // Method to display customer details
     private void showCustomerDetails(String customerName) {
@@ -293,17 +308,17 @@ public class CustomerPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField firstNameField = Manager.updateLabeledTextField("First Name:", panel, labelFont, textFieldFont,"customer", "first_name", cus, "customer_id" );
-        JTextField lastNameField = Manager.updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont,"customer", "last_name", cus, "customer_id");
-        JTextField ageField = Manager.updateLabeledTextField("Age:", panel, labelFont, textFieldFont,"customer", "age", cus, "customer_id");
-        JTextField genderField = Manager.updateLabeledTextField("Gender:", panel, labelFont, textFieldFont,"customer", "gender", cus, "customer_id");
-        JTextField phoneField = Manager.updateLabeledTextField("Phone:", panel, labelFont, textFieldFont,"customer", "phone", cus, "customer_id");
-        JTextField emailField = Manager.updateLabeledTextField("Email:", panel, labelFont, textFieldFont,"customer", "email", cus, "customer_id");
-        JTextField streetAddressField = Manager.updateLabeledTextField("Street Address:", panel, labelFont,textFieldFont,"customer", "street_address", cus, "customer_id");
-        JTextField cityField = Manager.updateLabeledTextField("City:", panel, labelFont, textFieldFont,"customer", "city", cus, "customer_id");
-        JTextField provinceField = Manager.updateLabeledTextField("Province:", panel, labelFont, textFieldFont,"customer", "province", cus, "customer_id");
-        JTextField postalCodeField = Manager.updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont,"customer", "postal_code", cus, "customer_id");
-        JTextField countryField = Manager.updateLabeledTextField("Country:", panel, labelFont, textFieldFont,"customer", "country", cus, "customer_id");
+        JTextField firstNameField = Manager.updateLabeledTextField("First Name:", panel, labelFont, textFieldFont, "customer", "first_name", cus, "customer_id");
+        JTextField lastNameField = Manager.updateLabeledTextField("Last Name:", panel, labelFont, textFieldFont, "customer", "last_name", cus, "customer_id");
+        JTextField ageField = Manager.updateLabeledTextField("Age:", panel, labelFont, textFieldFont, "customer", "age", cus, "customer_id");
+        JTextField genderField = Manager.updateLabeledTextField("Gender:", panel, labelFont, textFieldFont, "customer", "gender", cus, "customer_id");
+        JTextField phoneField = Manager.updateLabeledTextField("Phone:", panel, labelFont, textFieldFont, "customer", "phone", cus, "customer_id");
+        JTextField emailField = Manager.updateLabeledTextField("Email:", panel, labelFont, textFieldFont, "customer", "email", cus, "customer_id");
+        JTextField streetAddressField = Manager.updateLabeledTextField("Street Address:", panel, labelFont, textFieldFont, "customer", "street_address", cus, "customer_id");
+        JTextField cityField = Manager.updateLabeledTextField("City:", panel, labelFont, textFieldFont, "customer", "city", cus, "customer_id");
+        JTextField provinceField = Manager.updateLabeledTextField("Province:", panel, labelFont, textFieldFont, "customer", "province", cus, "customer_id");
+        JTextField postalCodeField = Manager.updateLabeledTextField("Postal Code:", panel, labelFont, textFieldFont, "customer", "postal_code", cus, "customer_id");
+        JTextField countryField = Manager.updateLabeledTextField("Country:", panel, labelFont, textFieldFont, "customer", "country", cus, "customer_id");
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(new Color(0xF47130));
@@ -345,16 +360,21 @@ public class CustomerPanel extends JPanel {
                 preparedStatement.setString(11, countryField.getText()); // country
                 preparedStatement.setString(12, cus); // customer_id
                 preparedStatement.executeUpdate(); // Execute the statement
-                createFrame.dispose();
 
+                // Update the right side details immediately
+                showCustomerDetails(cus);
+
+                createFrame.dispose();
             } catch (SQLException c) {
                 c.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
                 return;
             }
+
             JOptionPane.showMessageDialog(null, "Customer Updated successfully.");
-            pan.revalidate(); // Revalidate the
+            pan.revalidate();
             pan.repaint();
+            populateListAndMap();
         });
 
         panel.add(new JLabel());
@@ -371,10 +391,9 @@ public class CustomerPanel extends JPanel {
         // Clear the list and map
         DefaultListModel<String> model = (DefaultListModel<String>) customerList.getModel();
         model.clear();
+        customerIDMap.clear(); // Ensure the map is also cleared
 
-        // Fetch the updated list of customers from your database
-        // Example: Assuming you have a method in your Manager class that fetches
-        // customer names and IDs
+        // Fetch the updated list of customers from a database
         Map<String, String> customers = Manager.getCustomerNamesOrderedByIDAsc();
 
         for (Map.Entry<String, String> entry : customers.entrySet()) {
@@ -388,5 +407,6 @@ public class CustomerPanel extends JPanel {
         revalidate();
         repaint();
     }
+
 }
 
