@@ -30,7 +30,7 @@ public class DashBoard {
 
         // Add logo label
         JLabel logoLabel = new JLabel("SalesEdge");
-        logoLabel.setFont(new Font("Roboto", Font.BOLD, 40));
+        logoLabel.setFont(new Font("Roboto", Font.BOLD, 50));
         logoLabel.setHorizontalAlignment(SwingConstants.LEFT);
         logoLabel.setPreferredSize(new Dimension(320, 50));
         logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -38,7 +38,7 @@ public class DashBoard {
         sidebar.add(logoLabel);
 
         // Add a vertical gap after the logo
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(20));
 
         // Button labels and icons
         String[] buttonLabels = {"Home", "Customer", "Product", "Sales", "Inventory", "Report"};
@@ -110,9 +110,9 @@ public class DashBoard {
         button.setIcon(new ImageIcon(iconPath));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBackground(new Color(0xF5F5F5)); // Light gray background
-        button.setPreferredSize(new Dimension(320, 50));
-        button.setMaximumSize(new Dimension(320, 50));
-        button.setFont(new Font("Lato", Font.PLAIN, 18));
+        button.setPreferredSize(new Dimension(360, 50));
+        button.setMaximumSize(new Dimension(360, 50));
+        button.setFont(new Font("Lato", Font.PLAIN, 23));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
