@@ -1,13 +1,34 @@
 package com.example;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.*;
 import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
 
-    private static void on_start()
-    {
+    // Method to authenticate user credentials against the database
+    private static boolean authenticateUser(String username, String password) {
+        String jdbcURL = "jdbc:mysql://localhost:3306/salesedge";
+        String dbUser = "root";
+        String dbPassword = "";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String query = "SELECT * FROM staff WHERE username = ? AND BINARY password = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
+            statement.setString(2, password);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next(); // If the result set contains any rows, the credentials are valid
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void on_start() {
         // Group 1: Initialize components
         // Create the main window frame
         MainFrame loginFrame = new MainFrame();
@@ -18,7 +39,6 @@ public class LoginForm {
         // Create a panel for the login details on the right side
         JPanel loginPanel = new JPanel();
         // Create fields for username and password
-        // Creates labels and fields for username and password
         JLabel salesEdgeLabel = new JLabel("SalesEdge");
         JLabel usernameLabel = new JLabel("Username:");
         JTextField usernameField = new JTextField();
@@ -26,21 +46,24 @@ public class LoginForm {
         JPasswordField passwordField = new JPasswordField();
         // Create a login button
         JButton loginButton = new JButton("Login");
+
+        // Create a label for the register link
+        JLabel registerLabel = new JLabel("Don't have an account? Register");
+
         // Calculate the maximum width and height for the window
         int maxWidth = loginFrame.getMaxWidth();
         int maxHeight = loginFrame.getMaxHeight();
 
         // Make the frame visible
-        loginFrame.showMainFrame();;
+        loginFrame.showMainFrame();
 
         // Group 3: Configure leftPanel
-        leftPanel.setBackground(new Color(0xF47130));// Set the background color of the left panel
-        int leftPanelWidth = (int) (maxWidth * 0.58);// Calculate the width of the left panel
-        leftPanel.setBounds(0, 0, leftPanelWidth, maxHeight);// Set the position and size of the left panel
-        leftPanel.setLayout(new BorderLayout());// Set the layout manager for the left panel
+        leftPanel.setBackground(new Color(0xF47130));
+        int leftPanelWidth = (int) (maxWidth * 0.58);
+        leftPanel.setBounds(0, 0, leftPanelWidth, maxHeight);
+        leftPanel.setLayout(new BorderLayout());
 
         // Group 4: Configure logoLabel
-        // Set the text displayed by the logo label to a random greeting
         String[] greetings = {
                 "Welcome!", "Bienvenido!", "Bienvenue!", "Willkommen!", "Benvenuto!",
                 "欢迎!", "Добро пожаловать!", "ようこそ!", "환영합니다!", "Bem-vindo!",
@@ -49,31 +72,23 @@ public class LoginForm {
         Random rand = new Random();
         String randomGreeting = greetings[rand.nextInt(greetings.length)];
         logoLabel.setText(randomGreeting);
-        // Set the icon for the logo label
         logoLabel.setIcon(loginFrame.getLogo());
-        // Align the text vertically at the top of the label
         logoLabel.setVerticalAlignment(JLabel.TOP);
-        // Center the text horizontally within the label
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
-        // Position the horizontal text relative to the icon
         logoLabel.setHorizontalTextPosition(JLabel.CENTER);
-        // Position the vertical text relative to the icon
         logoLabel.setVerticalTextPosition(JLabel.BOTTOM);
-        // Set the font for the logo label
-        logoLabel.setFont(new Font("Inter", Font.BOLD, 26));
+        logoLabel.setFont(new Font("Inter", Font.BOLD, 48));
 
         // Group 5: Configure loginPanel
         loginPanel.setBackground(new Color(0xFDFDFD));
-        // Calculate the remaining width for the login panel
         int loginPanelWidth = maxWidth - leftPanelWidth;
-        // Set the position and size of the login panel
         loginPanel.setBounds(leftPanelWidth, 0, loginPanelWidth, maxHeight);
-        // Set the layout manager for the login panel
         loginPanel.setLayout(new GridBagLayout());
 
         // Create fonts
-        Font titleFont = new Font("Roboto", Font.BOLD, 36);
-        Font font = new Font("Lato", Font.BOLD, 14);
+        Font titleFont = new Font("Roboto", Font.BOLD, 48);
+        Font font = new Font("Lato", Font.BOLD, 18);
+        Font linkFont = new Font("Lato", Font.BOLD | Font.ITALIC, 18);
 
         // Set font for salesEdge label
         salesEdgeLabel.setFont(titleFont);
@@ -88,12 +103,29 @@ public class LoginForm {
         // Set font for login button
         loginButton.setFont(font);
 
+        // Set font and style for register label
+        registerLabel.setFont(linkFont);
+        registerLabel.setForeground(new Color(0xE7723C));
+        registerLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        registerLabel.setOpaque(false);
+        registerLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+
+        // Add mouse listener to the register label
+        registerLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Dispose the login frame and open the register form
+                loginFrame.getMainFrame().dispose();
+                RegisterForm.on_start();
+            }
+        });
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(20, 0, 20, 0); // Add space above and below salesEdge label
+        gbc.insets = new Insets(20, 0, 20, 0);
 
         // Add salesEdge label
         loginPanel.add(salesEdgeLabel, gbc);
@@ -101,13 +133,13 @@ public class LoginForm {
         gbc.gridy++;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(5, 5, 5, 5); // Consistent space between components
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         // Add username label and field
         loginPanel.add(usernameLabel, gbc);
         gbc.gridy++;
         usernameField.setPreferredSize(new Dimension(300, 40));
-        usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2)); // Set orange border
+        usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
         loginPanel.add(usernameField, gbc);
 
         gbc.gridy++;
@@ -115,46 +147,45 @@ public class LoginForm {
         loginPanel.add(passwordLabel, gbc);
         gbc.gridy++;
         passwordField.setPreferredSize(new Dimension(300, 40));
-        passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2)); // Set orange border
+        passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
         loginPanel.add(passwordField, gbc);
 
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(15, 5, 5, 5); // Increase top space for login button
-        loginButton.setBackground(new Color(0xF47130)); // Set orange background
-        loginButton.setForeground(Color.WHITE); // Set text color to white
-        loginButton.setOpaque(true); // Make the background color visible
-        loginButton.setBorderPainted(false); // Remove the default border
+        gbc.insets = new Insets(15, 5, 5, 5);
+        loginButton.setBackground(new Color(0xF47130));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setOpaque(true);
+        loginButton.setBorderPainted(false);
         loginPanel.add(loginButton, gbc);
+
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
-            String password = new String(passwordField.getPassword()); // Convert a char array to string
+            String password = new String(passwordField.getPassword());
 
-            // Check credentials (this is a placeholder, replace with actual validation logic)
-            if ("admin".equals(username) && "admin".equals(password)) {
-                // Login successful, proceed to Dashboard
+            // Authenticate user against the database
+            if (authenticateUser(username, password)) {
                 DashBoard.initializeDashboard(loginFrame.getMainFrame());
             } else {
-                // Handle failed login attempt
                 JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 
+        // Add the register label
+        gbc.gridy++;
+        gbc.insets = new Insets(15, 25, 5, 5);
+        loginPanel.add(registerLabel, gbc);
+
         // Group 6: Assembly
-        // Add the logo label to the left panel
         leftPanel.add(logoLabel, BorderLayout.CENTER);
-        // Add the left panel to the login frame
         loginFrame.getMainFrame().add(leftPanel, BorderLayout.WEST);
-        // Add the login panel to the login frame
         loginFrame.getMainFrame().add(loginPanel, BorderLayout.CENTER);
-        // Make the frame visible
         loginFrame.showMainFrame();
     }
 
     public static void main(String[] args) {
         on_start();
-
     }
 }
