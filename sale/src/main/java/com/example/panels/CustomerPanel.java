@@ -64,7 +64,7 @@ public class CustomerPanel extends JPanel {
 
         // Create the customer list
         customerList = new JList<>(new DefaultListModel<>());
-        customerList.setFont(new Font("Lato", Font.PLAIN, 18));
+        customerList.setFont(new Font("Lato", Font.PLAIN, 20));
         customerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         // Add a listener to handle selection events
@@ -89,7 +89,7 @@ public class CustomerPanel extends JPanel {
 
         // Create the customer details area
         customerDetails = new JTextArea();
-        customerDetails.setFont(new Font("Lato", Font.PLAIN, 18));
+        customerDetails.setFont(new Font("Lato", Font.PLAIN, 20));
         customerDetails.setEditable(false);
         customerDetails.setText("Select a customer to view details.");
 
