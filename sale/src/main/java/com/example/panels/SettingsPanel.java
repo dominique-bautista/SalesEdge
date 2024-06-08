@@ -1,8 +1,9 @@
 package com.example.panels;
 
 
+import com.example.LoginForm;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class SettingsPanel extends JPanel {
@@ -38,7 +39,7 @@ public class SettingsPanel extends JPanel {
         subHeaderLabel.setForeground(Color.BLACK);
         headerPanel.add(subHeaderLabel);
 
-        // Add header panel to the top of content panel
+        // Add a header panel to the top of the content panel
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
         // Create the form panel
@@ -61,7 +62,7 @@ public class SettingsPanel extends JPanel {
         addLabeledTextField(formPanel, "Phone", gbc, 1, 2);
         addLabeledTextField(formPanel, "Role", gbc, 1, 3);
 
-        // Add form panel to the center of content panel
+        // Add a form panel to the center of content panel
         contentPanel.add(formPanel, BorderLayout.CENTER);
 
         // Create the logout and save buttons
@@ -81,16 +82,24 @@ public class SettingsPanel extends JPanel {
         saveButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         saveButton.setFocusPainted(false);
 
+        // Add ActionListener to the logout button
+        logoutButton.addActionListener(e -> {
+            // Close the current SettingsPanel window
+            SwingUtilities.getWindowAncestor(SettingsPanel.this).dispose();
+            // Open the login form
+            LoginForm.on_start();
+        });
+
         // Add logout and save buttons to the bottom right corner within the content panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10)); // Adding spacing between buttons
         buttonPanel.setBackground(PANEL_COLOR);
         buttonPanel.add(saveButton);
         buttonPanel.add(logoutButton);
 
-        // Add button panel to the south of content panel
+        // Add a button panel to the south of content panel
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add content panel to the center of this panel
+        // Add a content panel to the center of this panel
         add(contentPanel, BorderLayout.CENTER);
     }
 
@@ -125,3 +134,4 @@ public class SettingsPanel extends JPanel {
         frame.setVisible(true);
     }
 }
+
