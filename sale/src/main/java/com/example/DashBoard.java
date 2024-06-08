@@ -117,7 +117,7 @@ public class DashBoard {
         button.setBorderPainted(false);
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setIconTextGap(20);
-        button.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 20)); // Add padding for better alignment
+        button.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 20)); // Add padding for better alignment
         return button;
     }
 
