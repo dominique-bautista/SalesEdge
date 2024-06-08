@@ -41,14 +41,15 @@ public class DashBoard {
         sidebar.add(Box.createVerticalStrut(20));
 
         // Button labels and icons
-        String[] buttonLabels = {"Home", "Customer", "Product", "Sales", "Inventory", "Report"};
+        String[] buttonLabels = {"Home", "Customer", "Product", "Sales", "Inventory", "Report", "Settings"};
         String[] iconPaths = {
                 "sale\\src\\main\\resources\\home.png",
                 "sale\\src\\main\\resources\\customer.png",
                 "sale\\src\\main\\resources\\product.png",
                 "sale\\src\\main\\resources\\sales.png",
                 "sale\\src\\main\\resources\\inventory.png",
-                "sale\\src\\main\\resources\\report.png"
+                "sale\\src\\main\\resources\\report.png",
+                "sale\\src\\main\\resources\\user_settings.png"  // Added settings icon
         };
         String[] iconPathsWhite = {
                 "sale\\src\\main\\resources\\home-white.png",
@@ -56,7 +57,8 @@ public class DashBoard {
                 "sale\\src\\main\\resources\\product-white.png",
                 "sale\\src\\main\\resources\\sales-white.png",
                 "sale\\src\\main\\resources\\inventory-white.png",
-                "sale\\src\\main\\resources\\report-white.png"
+                "sale\\src\\main\\resources\\report-white.png",
+                "sale\\src\\main\\resources\\user_settings-white.png"  // Added settings white icon
         };
 
         // Add buttons to the sidebar and set the Home button as selected
@@ -159,11 +161,12 @@ public class DashBoard {
             case 3 -> new SalesPanel();
             case 4 -> new InventoryPanel();
             case 5 -> new ReportPanel();
+            case 6 -> new SettingsPanel(); // Added SettingsPanel
             default -> new HomePanel(); // Default HomePanel
         };
     }
 
     public static void main(String[] args) {
-    initializeDashboard();
+        initializeDashboard();
     }
 }
