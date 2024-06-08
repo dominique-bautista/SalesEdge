@@ -34,7 +34,7 @@ public class DashBoard {
         logoLabel.setHorizontalAlignment(SwingConstants.LEFT);
         logoLabel.setPreferredSize(new Dimension(320, 50));
         logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoLabel.setBorder(BorderFactory.createEmptyBorder(25, 35, 20, 20)); // Add padding
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(40, 40, 20, 20)); // Add padding
         sidebar.add(logoLabel);
 
         // Add a vertical gap after the logo
@@ -117,7 +117,7 @@ public class DashBoard {
         button.setBorderPainted(false);
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setIconTextGap(20);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 20)); // Add padding for better alignment
+        button.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 20)); // Add padding for better alignment
         return button;
     }
 
