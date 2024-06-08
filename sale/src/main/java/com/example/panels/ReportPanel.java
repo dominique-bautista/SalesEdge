@@ -30,7 +30,7 @@ public class ReportPanel extends JPanel {
         String[] buttonLabels = {"Dashboard", "Customer", "Product", "Sales", "Inventory"};
         for (String label : buttonLabels) {
             JButton button = new JButton(label);
-            button.setFont(new Font("Lato", Font.PLAIN, 14));
+            button.setFont(new Font("Lato", Font.PLAIN, 16));
             button.setFocusPainted(false);
             button.setPreferredSize(new Dimension(120, 30)); // Smaller button size
             topPanel.add(button);
