@@ -10,35 +10,43 @@ public class HomePanel extends JPanel {
 
     private static final Color ACCENT_COLOR = new Color(0xF47130);
     private static final Color BACKGROUND_COLOR = Color.WHITE;
+    private static final Color TEXT_COLOR = Color.BLACK;
 
     public HomePanel() {
         setBackground(BACKGROUND_COLOR);
         setLayout(new BorderLayout(20, 20)); // Add padding between components
 
-        // Panel for total sales at the top
-        JPanel totalSalesPanel = createRoundedPanel("Total Sales", getTotalSales(), new Font("Serif", Font.BOLD, 48));
-        totalSalesPanel.setMaximumSize(new Dimension(400, 150));
-        add(totalSalesPanel, BorderLayout.NORTH);
+        // Create a wrapper panel for top section to add extra padding
+        JPanel topWrapperPanel = new JPanel(new BorderLayout());
+        topWrapperPanel.setBackground(BACKGROUND_COLOR);
+        topWrapperPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Add padding around the wrapper panel
+        JPanel totalSalesPanel = createRoundedPanel("Total Sales", getTotalSales(), new Font("Roboto", Font.BOLD, 48));
+        topWrapperPanel.add(totalSalesPanel, BorderLayout.CENTER);
+        add(topWrapperPanel, BorderLayout.NORTH);
 
-        // Panel for customers and low stock in the middle
+        // Create a wrapper panel for middle section to add extra padding
+        JPanel middleWrapperPanel = new JPanel(new BorderLayout());
+        middleWrapperPanel.setBackground(BACKGROUND_COLOR);
+        middleWrapperPanel.setBorder(new EmptyBorder(0, 20, 0, 20)); // Add padding around the wrapper panel
         JPanel middlePanel = new JPanel(new GridLayout(1, 2, 20, 0));
         middlePanel.setBackground(BACKGROUND_COLOR);
-        middlePanel.setBorder(new EmptyBorder(10, 10, 10, 10)); // Add padding around the panel
-        middlePanel.add(createRoundedPanel("Customers", getCustomerCount(), new Font("Serif", Font.BOLD, 24)));
-        middlePanel.add(createRoundedPanel("Low Stock", getLowStockCount(), new Font("Serif", Font.BOLD, 24)));
-        add(middlePanel, BorderLayout.CENTER);
+        middlePanel.setBorder(new EmptyBorder(0, 0, 0, 0)); // Remove padding around the inner panel
+        middlePanel.add(createRoundedPanel("Customers", getCustomerCount(), new Font("Roboto", Font.BOLD, 24)));
+        middlePanel.add(createRoundedPanel("Low Stocks", getLowStockCount(), new Font("Roboto", Font.BOLD, 24)));
+        middleWrapperPanel.add(middlePanel, BorderLayout.CENTER);
+        add(middleWrapperPanel, BorderLayout.CENTER);
 
-        // Panel for recent sales transactions at the bottom
-        JPanel transactionsPanel = new JPanel(new BorderLayout());
-        transactionsPanel.setBackground(BACKGROUND_COLOR);
-        transactionsPanel.setBorder(new EmptyBorder(10, 10, 10, 10)); // Add padding around the panel
+        // Create a wrapper panel for bottom section to add extra padding
+        JPanel bottomWrapperPanel = new JPanel(new BorderLayout());
+        bottomWrapperPanel.setBackground(BACKGROUND_COLOR);
+        bottomWrapperPanel.setBorder(new EmptyBorder(0, 20, 20, 20)); // Add padding around the wrapper panel
         JLabel transactionsLabel = new JLabel("Recent Sales Transactions", SwingConstants.LEFT);
-        transactionsLabel.setFont(new Font("Serif", Font.BOLD, 18));
-        transactionsLabel.setForeground(ACCENT_COLOR);
+        transactionsLabel.setFont(new Font("Roboto", Font.BOLD, 18));
+        transactionsLabel.setForeground(TEXT_COLOR);
         transactionsLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
-        transactionsPanel.add(transactionsLabel, BorderLayout.NORTH);
-        transactionsPanel.add(createTransactionsTable(getRecentTransactions()), BorderLayout.CENTER);
-        add(transactionsPanel, BorderLayout.SOUTH);
+        bottomWrapperPanel.add(transactionsLabel, BorderLayout.NORTH);
+        bottomWrapperPanel.add(createTransactionsTable(getRecentTransactions()), BorderLayout.CENTER);
+        add(bottomWrapperPanel, BorderLayout.SOUTH);
     }
 
     // Method to create a rounded panel for summary
@@ -67,12 +75,12 @@ public class HomePanel extends JPanel {
         panel.setBackground(new Color(0, 0, 0, 0)); // Set background to be transparent
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Serif", Font.PLAIN, 18));
-        titleLabel.setForeground(ACCENT_COLOR);
+        titleLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
+        titleLabel.setForeground(TEXT_COLOR);
 
         JLabel valueLabel = new JLabel(String.valueOf(value), SwingConstants.CENTER);
         valueLabel.setFont(valueFont);
-        valueLabel.setForeground(ACCENT_COLOR);
+        valueLabel.setForeground(TEXT_COLOR);
 
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         panel.add(titleLabel, BorderLayout.NORTH);
@@ -89,8 +97,8 @@ public class HomePanel extends JPanel {
         }
         JTable table = new JTable(model);
         table.setRowHeight(30); // Set the height of each row
-        table.setFont(new Font("Serif", Font.PLAIN, 16));
-        table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+        table.setFont(new Font("Lato", Font.PLAIN, 16));
+        table.getTableHeader().setFont(new Font("Lato", Font.PLAIN, 16));
         table.getTableHeader().setBackground(ACCENT_COLOR);
         table.getTableHeader().setForeground(Color.WHITE);
         table.setFillsViewportHeight(true);
@@ -110,18 +118,18 @@ public class HomePanel extends JPanel {
     }
 
     private int getCustomerCount() {
-        return 200; // Example value
+        return 58; // Example value
     }
 
     private int getLowStockCount() {
-        return 15; // Example value
+        return 10; // Example value
     }
 
     private List<String[]> getRecentTransactions() {
         return List.of(
-                new String[]{"2024-05-20", "John Doe", "$150"},
-                new String[]{"2024-05-19", "Jane Smith", "$200"}
-                // Add more transactions
+                new String[]{"2024-06-01", "Alice", "$100"},
+                new String[]{"2024-06-02", "Bob", "$200"}
+                // Add more transactions as needed
         );
     }
 
