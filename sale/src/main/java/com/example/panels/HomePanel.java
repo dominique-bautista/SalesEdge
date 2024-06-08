@@ -16,7 +16,7 @@ public class HomePanel extends JPanel {
         setBackground(BACKGROUND_COLOR);
         setLayout(new BorderLayout(20, 20)); // Add padding between components
 
-        // Create a wrapper panel for top section to add extra padding
+        // Create a wrapper panel for a top section to add extra padding
         JPanel topWrapperPanel = new JPanel(new BorderLayout());
         topWrapperPanel.setBackground(BACKGROUND_COLOR);
         topWrapperPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Add padding around the wrapper panel
@@ -24,7 +24,7 @@ public class HomePanel extends JPanel {
         topWrapperPanel.add(totalSalesPanel, BorderLayout.CENTER);
         add(topWrapperPanel, BorderLayout.NORTH);
 
-        // Create a wrapper panel for middle section to add extra padding
+        // Create a wrapper panel for a middle section to add extra padding
         JPanel middleWrapperPanel = new JPanel(new BorderLayout());
         middleWrapperPanel.setBackground(BACKGROUND_COLOR);
         middleWrapperPanel.setBorder(new EmptyBorder(0, 20, 0, 20)); // Add padding around the wrapper panel
@@ -36,14 +36,14 @@ public class HomePanel extends JPanel {
         middleWrapperPanel.add(middlePanel, BorderLayout.CENTER);
         add(middleWrapperPanel, BorderLayout.CENTER);
 
-        // Create a wrapper panel for bottom section to add extra padding
+        // Create a wrapper panel for a bottom section to add extra padding
         JPanel bottomWrapperPanel = new JPanel(new BorderLayout());
         bottomWrapperPanel.setBackground(BACKGROUND_COLOR);
         bottomWrapperPanel.setBorder(new EmptyBorder(0, 20, 20, 20)); // Add padding around the wrapper panel
         JLabel transactionsLabel = new JLabel("Recent Sales Transactions", SwingConstants.LEFT);
         transactionsLabel.setFont(new Font("Roboto", Font.BOLD, 18));
         transactionsLabel.setForeground(TEXT_COLOR);
-        transactionsLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
+        transactionsLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add a bottom border
         bottomWrapperPanel.add(transactionsLabel, BorderLayout.NORTH);
         bottomWrapperPanel.add(createTransactionsTable(getRecentTransactions()), BorderLayout.CENTER);
         add(bottomWrapperPanel, BorderLayout.SOUTH);
@@ -72,7 +72,7 @@ public class HomePanel extends JPanel {
             }
         };
         panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(0, 0, 0, 0)); // Set background to be transparent
+        panel.setBackground(new Color(0, 0, 0, 0)); // Set the background to be transparent
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
