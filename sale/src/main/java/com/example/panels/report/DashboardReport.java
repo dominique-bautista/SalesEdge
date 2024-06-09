@@ -49,10 +49,10 @@ public class DashboardReport extends JPanel {
 
     private JFreeChart createCustomerDemographicChart() {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("18-24", 30);
-        dataset.setValue("25-34", 40);
-        dataset.setValue("35-44", 20);
-        dataset.setValue("45+", 10);
+        dataset.setValue("18-24", CustomerReport.countAgeOfRange(18,24));
+        dataset.setValue("25-34", CustomerReport.countAgeOfRange(25,34));
+        dataset.setValue("35-44", CustomerReport.countAgeOfRange(35,44));
+        dataset.setValue("45+", CustomerReport.countAgeOfRange(45,200));
         return ChartFactory.createPieChart(
                 "Customer Demographic",
                 dataset,

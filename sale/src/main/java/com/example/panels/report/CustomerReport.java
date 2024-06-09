@@ -94,7 +94,7 @@ public class CustomerReport extends JPanel {
         );
     }
 
-    private int countAgeOfRange(int start, int end)
+    public static int countAgeOfRange(int start, int end)
     {
         int count = 0;
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
