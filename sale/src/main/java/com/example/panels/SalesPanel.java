@@ -1,12 +1,9 @@
 package com.example.panels;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,13 +70,13 @@ public class SalesPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // Create the table model for sales transactions
-        DefaultTableModel transactionTableModel = new DefaultTableModel();
-        transactionTableModel.addColumn("Transaction ID");
-        transactionTableModel.addColumn("Customer ID");
-        transactionTableModel.addColumn("Date");
-        transactionTableModel.addColumn("Time");
-        transactionTableModel.addColumn("Salesperson ID");
-        transactionTableModel.addColumn("Total Amount");
+        DefaultTableModel transactionTableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Make the "Transaction ID" and "Salesperson ID" columns non-editable
+                return column != 0 && column != 4;
+            }
+        };
 
         // Add some sample data to the table model
         transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "$600.00"});
@@ -111,16 +108,13 @@ public class SalesPanel extends JPanel {
         transactionTable.setRowSorter(sorter);
 
         // Add action listener to the search field
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String text = searchField.getText();
-                int columnIndex = columnSelector.getSelectedIndex();
-                if (text.trim().length() == 0) {
-                    sorter.setRowFilter(null);
-                } else {
-                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
-                }
+        searchField.addActionListener(e -> {
+            String text = searchField.getText();
+            int columnIndex = columnSelector.getSelectedIndex();
+            if (text.trim().length() == 0) {
+                sorter.setRowFilter(null);
+            } else {
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
             }
         });
 
@@ -128,7 +122,7 @@ public class SalesPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        // Create action buttons for add, delete, edit, and export
+        // Create action buttons for adding, delete, edit, and export
         JButton addButton = new JButton("Add");
         JButton deleteButton = new JButton("Delete");
         JButton editButton = new JButton("Update");
@@ -154,39 +148,25 @@ public class SalesPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Action Listeners for buttons
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to export sales reports (to be implemented)
+        exportButton.addActionListener(e -> {
+            // Code to export sales reports (to be implemented)
+        });
+
+        addButton.addActionListener(e -> createSales(transactionTableModel));
+
+        deleteButton.addActionListener(e -> {
+            // Code to delete selected transaction (to be implemented)
+            int selectedRow = transactionTable.getSelectedRow();
+            if (selectedRow != -1) {
+                transactionTableModel.removeRow(selectedRow);
             }
         });
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createSales(transactionTableModel);
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to delete selected transaction (to be implemented)
-                int selectedRow = transactionTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    transactionTableModel.removeRow(selectedRow);
-                }
-            }
-        });
-
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to edit selected transaction (to be implemented)
-                int selectedRow = transactionTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    transactionTableModel.setValueAt("EditedValue", selectedRow, transactionTable.getSelectedColumn());
-                }
+        editButton.addActionListener(e -> {
+            // Code to edit selected transaction (to be implemented)
+            int selectedRow = transactionTable.getSelectedRow();
+            if (selectedRow != -1) {
+                transactionTableModel.setValueAt("EditedValue", selectedRow, transactionTable.getSelectedColumn());
             }
         });
 
