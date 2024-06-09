@@ -120,6 +120,7 @@ public class SalesPanel extends JPanel {
 
         // Create a panel for action buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        buttonPanel.setBackground(Color.WHITE); // Set button panel background to white
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         // Create action buttons for adding, delete, edit, and export
