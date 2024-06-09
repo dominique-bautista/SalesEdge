@@ -1,6 +1,8 @@
 package com.example;
 
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
@@ -139,7 +141,6 @@ public class LoginForm {
         loginPanel.add(usernameLabel, gbc);
         gbc.gridy++;
         usernameField.setPreferredSize(new Dimension(300, 40));
-        usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
         loginPanel.add(usernameField, gbc);
 
         gbc.gridy++;
@@ -147,7 +148,6 @@ public class LoginForm {
         loginPanel.add(passwordLabel, gbc);
         gbc.gridy++;
         passwordField.setPreferredSize(new Dimension(300, 40));
-        passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
         loginPanel.add(passwordField, gbc);
 
         gbc.gridy++;
@@ -183,6 +183,31 @@ public class LoginForm {
         loginFrame.getMainFrame().add(leftPanel, BorderLayout.WEST);
         loginFrame.getMainFrame().add(loginPanel, BorderLayout.CENTER);
         loginFrame.showMainFrame();
+
+        // Change border color of text fields when clicked
+        usernameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                usernameField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+            }
+        });
+
+        passwordField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+            }
+        });
     }
 
     public static void main(String[] args) {

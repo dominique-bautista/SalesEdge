@@ -1,10 +1,11 @@
 package com.example.panels;
 
-
 import com.example.LoginForm;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class SettingsPanel extends JPanel {
 
@@ -120,6 +121,19 @@ public class SettingsPanel extends JPanel {
         textField.setBorder(BorderFactory.createLineBorder(TEXT_COLOR));
         textField.setPreferredSize(TEXT_FIELD_SIZE); // Set preferred size to control height
 
+        // Add focus listener to change border color on focus
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                textField.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                textField.setBorder(BorderFactory.createLineBorder(TEXT_COLOR));
+            }
+        });
+
         subPanel.add(label, BorderLayout.NORTH);
         subPanel.add(textField, BorderLayout.CENTER);
 
@@ -134,4 +148,3 @@ public class SettingsPanel extends JPanel {
         frame.setVisible(true);
     }
 }
-
