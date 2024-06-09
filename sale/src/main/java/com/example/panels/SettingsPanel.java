@@ -4,6 +4,8 @@ import com.example.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -99,8 +101,7 @@ public class SettingsPanel extends JPanel {
             LoginForm.on_start();
         });
 
-        // Add logout and save buttons to the bottom right corner within the content
-        // panel
+        // Add logout and save buttons to the bottom right corner within the content panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10)); // Adding spacing between buttons
         buttonPanel.setBackground(PANEL_COLOR);
         buttonPanel.add(saveButton);
@@ -111,6 +112,21 @@ public class SettingsPanel extends JPanel {
 
         // Add a content panel to the center of this panel
         add(contentPanel, BorderLayout.CENTER);
+
+        // Add focus listeners to change border color on focus
+        for (JTextField textField : textFields) {
+            textField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    textField.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    textField.setBorder(BorderFactory.createLineBorder(TEXT_COLOR, 2));
+                }
+            });
+        }
     }
 
     private void updateStaffLoggedIn() {
@@ -176,8 +192,7 @@ public class SettingsPanel extends JPanel {
         frame.setVisible(true);
     }
 
-    private JTextField updateLabeledTextField(JPanel panel, String labelText, GridBagConstraints gbc, int x, int y,
-            String columnName) {
+    private JTextField updateLabeledTextField(JPanel panel, String labelText, GridBagConstraints gbc, int x, int y, String columnName) {
         gbc.gridx = x;
         gbc.gridy = y;
         String text = "";
@@ -212,5 +227,4 @@ public class SettingsPanel extends JPanel {
         panel.add(subPanel, gbc);
         return textField;
     }
-
 }
