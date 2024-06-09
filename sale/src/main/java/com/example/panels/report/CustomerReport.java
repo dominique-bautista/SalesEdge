@@ -13,6 +13,10 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import java.awt.Color;
 
 public class CustomerReport extends JPanel {
 
@@ -35,14 +39,23 @@ public class CustomerReport extends JPanel {
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("Male", genderPercentage("Male"));
         dataset.setValue("Female", genderPercentage("Female"));
-        return ChartFactory.createPieChart(
+
+        JFreeChart chart = ChartFactory.createPieChart(
                 "Gender Distribution",
                 dataset,
                 true,
                 true,
                 false
         );
+
+        // Customizing colors for the Pie Chart
+        PiePlot plot = (PiePlot) chart.getPlot();
+        plot.setSectionPaint("Male", Color.BLUE); // Set color for Male section
+        plot.setSectionPaint("Female", Color.PINK); // Set color for Female section
+
+        return chart;
     }
+
     private int genderPercentage(String gender) {
         int totalCount = 0;
         int genderCount = 0;
@@ -55,7 +68,7 @@ public class CustomerReport extends JPanel {
                     totalCount = totalCountResultSet.getInt(1);
                 }
             }
-    
+
             // Query to get the count of records matching the specified gender
             String genderCountQuery = "SELECT COUNT(*) FROM customer WHERE gender =?";
             try (PreparedStatement genderCountStatement = con.prepareStatement(genderCountQuery)) {
@@ -70,7 +83,7 @@ public class CustomerReport extends JPanel {
             e.printStackTrace();
             return -1; // Return -1 or another error indicator on failure
         }
-    
+
         // Calculate the percentage
         if (totalCount > 0) {
             double percentage = ((double) genderCount / totalCount) * 100;
@@ -86,16 +99,23 @@ public class CustomerReport extends JPanel {
         dataset.addValue(countAgeOfRange(25, 24), "Age Group", "25-34");
         dataset.addValue(countAgeOfRange(35, 24), "Age Group", "35-44");
         dataset.addValue(countAgeOfRange(45, 200), "Age Group", "45+");
-        return ChartFactory.createBarChart(
+
+        JFreeChart chart = ChartFactory.createBarChart(
                 "Age Distribution",
                 "Age Group",
                 "Number of Customers",
                 dataset
         );
+
+        // Customizing colors for the Bar Chart
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, Color.ORANGE); // Set color for the bars
+
+        return chart;
     }
 
-    public static int countAgeOfRange(int start, int end)
-    {
+    public static int countAgeOfRange(int start, int end) {
         int count = 0;
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
             String query = "SELECT COUNT(*) FROM customer WHERE age >=? AND age <=?";

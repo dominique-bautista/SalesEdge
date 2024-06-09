@@ -1,15 +1,12 @@
 package com.example.panels.report;
 
-import javax.swing.*;
-import java.awt.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.chart.plot.PlotOrientation;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class SalesReport extends JPanel {
 
@@ -17,9 +14,8 @@ public class SalesReport extends JPanel {
         setLayout(new GridLayout(0, 2, 10, 10)); // 0 rows, 2 columns
 
         // Create and add charts to the sales report panel
-        add(createChartPanel(createSalesOverTimeChart()));
         add(createChartPanel(createSalesByCategoryChart()));
-        add(createChartPanel(createSalesByProductChart()));
+        add(createChartPanel(createSalesByStaffChart()));
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -27,25 +23,6 @@ public class SalesReport extends JPanel {
         chartPanel.setMouseWheelEnabled(true); // Enable zooming
         chartPanel.setPreferredSize(new Dimension(300, 300)); // Larger chart size
         return chartPanel;
-    }
-
-    private JFreeChart createSalesOverTimeChart() {
-        XYSeries series = new XYSeries("Sales Over Time");
-        series.add(1, 500);
-        series.add(2, 700);
-        series.add(3, 300);
-        series.add(4, 900);
-        XYSeriesCollection dataset = new XYSeriesCollection(series);
-        return ChartFactory.createXYLineChart(
-                "Sales Over Time",
-                "Time",
-                "Sales",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
     }
 
     private JFreeChart createSalesByCategoryChart() {
@@ -63,17 +40,14 @@ public class SalesReport extends JPanel {
         );
     }
 
-    private JFreeChart createSalesByProductChart() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(200, "Sales", "Product A");
-        dataset.addValue(400, "Sales", "Product B");
-        dataset.addValue(600, "Sales", "Product C");
-        return ChartFactory.createBarChart(
-                "Sales by Product",
-                "Product",
-                "Sales",
+    private JFreeChart createSalesByStaffChart() {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Staff A", 50);
+        dataset.setValue("Staff B", 30);
+        dataset.setValue("Staff C", 20);
+        return ChartFactory.createPieChart(
+                "Sales by Staff",
                 dataset,
-                PlotOrientation.VERTICAL,
                 true,
                 true,
                 false
