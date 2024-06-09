@@ -99,53 +99,6 @@ public class InventoryPanel extends JPanel {
             }
         });
 
-        // Create a panel for action buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // Add padding at the top
-
-        // Create action buttons for adding, editing, and deleting inventory items
-        JButton addButton = new JButton("Add");
-        JButton editButton = new JButton("Edit");
-        JButton deleteButton = new JButton("Delete");
-
-        // Set button colors to the accent color and text color to white
-        addButton.setBackground(ACCENT_COLOR);
-        addButton.setForeground(Color.WHITE);
-        editButton.setBackground(ACCENT_COLOR);
-        editButton.setForeground(Color.WHITE);
-        deleteButton.setBackground(ACCENT_COLOR);
-        deleteButton.setForeground(Color.WHITE);
-
-        // Add action buttons to the button panel
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-
-        // Add the button panel to the bottom of the main panel
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // Action Listeners for buttons
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to add a new product (to be implemented)
-            }
-        });
-
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to edit the selected product (to be implemented)
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Code to delete the selected product (to be implemented)
-            }
-        });
-
         // Add a MouseListener to the table to handle clicks on the supplier column
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
