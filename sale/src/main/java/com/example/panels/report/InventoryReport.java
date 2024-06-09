@@ -12,8 +12,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 public class InventoryReport extends JPanel {
 
@@ -23,7 +21,6 @@ public class InventoryReport extends JPanel {
         // Create and add charts to the inventory report panel
         add(createChartPanel(createCurrentStockLevelsChart()));
         add(createChartPanel(createLowStockAlertChart()));
-        add(createChartPanel(createStockLevelsOverTimeChart()));
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -35,13 +32,13 @@ public class InventoryReport extends JPanel {
 
     private JFreeChart createCurrentStockLevelsChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    
+
         // Fetch product names and stock levels from the database
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
             String query = "SELECT product_name, stock_level FROM product_inventory";
             try (PreparedStatement preparedStatement = con.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
-    
+
                 while (resultSet.next()) {
                     String productName = resultSet.getString("product_name");
                     int stockLevel = resultSet.getInt("stock_level");
@@ -55,7 +52,7 @@ public class InventoryReport extends JPanel {
             e.printStackTrace();
             // Handle connection exception appropriately
         }
-    
+
         return ChartFactory.createBarChart(
                 "Current Stock Levels",
                 "Product",
@@ -72,7 +69,7 @@ public class InventoryReport extends JPanel {
             String query = "SELECT product_name, stock_level FROM product_inventory where stock_level < " + threshold;
             try (PreparedStatement preparedStatement = con.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
-    
+
                 while (resultSet.next()) {
                     String productName = resultSet.getString("product_name");
                     int stockLevel = resultSet.getInt("stock_level");
@@ -86,27 +83,11 @@ public class InventoryReport extends JPanel {
             e.printStackTrace();
             // Handle connection exception appropriately
         }
-    
-        return ChartFactory.createBarChart(
-            "Low Stock Alert",
-            "Product",
-            "Quantity",
-            dataset
-        );
-        
-    }
 
-    private JFreeChart createStockLevelsOverTimeChart() {
-        XYSeries series = new XYSeries("Stock Levels Over Time");
-        series.add(1, 50);
-        series.add(2, 70);
-        series.add(3, 60);
-        series.add(4, 80);
-        XYSeriesCollection dataset = new XYSeriesCollection(series);
-        return ChartFactory.createXYLineChart(
-                "Stock Levels Over Time",
-                "Time",
-                "Stock Level",
+        return ChartFactory.createBarChart(
+                "Low Stock Alert",
+                "Product",
+                "Quantity",
                 dataset
         );
     }

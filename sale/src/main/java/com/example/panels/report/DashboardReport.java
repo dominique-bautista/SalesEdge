@@ -8,8 +8,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 public class DashboardReport extends JPanel {
 
@@ -17,7 +15,6 @@ public class DashboardReport extends JPanel {
         setLayout(new GridLayout(0, 2, 10, 10)); // 0 rows, 2 columns
 
         // Create and add charts to the panel
-        add(createChartPanel(createSalesOverTimeChart()));
         add(createChartPanel(createCustomerDemographicChart()));
         add(createChartPanel(createProductsByCategoryChart()));
         add(createChartPanel(createLowStockAlertChart()));
@@ -30,21 +27,6 @@ public class DashboardReport extends JPanel {
         chartPanel.setMouseWheelEnabled(true); // Enable zooming
         chartPanel.setPreferredSize(new Dimension(300, 300)); // Larger chart size
         return chartPanel;
-    }
-
-    private JFreeChart createSalesOverTimeChart() {
-        XYSeries series = new XYSeries("Sales Over Time");
-        series.add(1, 500);
-        series.add(2, 700);
-        series.add(3, 300);
-        series.add(4, 900);
-        XYSeriesCollection dataset = new XYSeriesCollection(series);
-        return ChartFactory.createXYLineChart(
-                "Sales Over Time",
-                "Time",
-                "Sales",
-                dataset
-        );
     }
 
     private JFreeChart createCustomerDemographicChart() {
