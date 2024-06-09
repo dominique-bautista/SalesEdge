@@ -8,6 +8,7 @@ import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
+    public static String id;
 
     // Method to authenticate user credentials against the database
     private static boolean authenticateUser(String username, String password) {
@@ -25,6 +26,28 @@ public class LoginForm {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private static String getUserId(String username, String password) {
+        String jdbcURL = "jdbc:mysql://localhost:3306/salesedge";
+        String dbUser = "root";
+        String dbPassword = "";
+        String user;
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String query = "SELECT * FROM staff WHERE username = ? AND BINARY password = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
+            statement.setString(2, password);
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next()){
+                user = resultSet.getString("staff_id");
+                return user; // If the result set contains any rows, the credentials are valid
+            }
+            return ""; // If the result set contains any rows, the credentials are valid;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
         }
     }
 
@@ -167,9 +190,10 @@ public class LoginForm {
 
             // Authenticate user against the database
             if (authenticateUser(username, password)) {
-                DashBoard.initializeDashboard(loginFrame.getMainFrame());
+                DashBoard.initializeDashboard(loginFrame.getMainFrame(), getUserId(username, password));
             } else {
-                JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(loginFrame.getMainFrame(), "Invalid username or password.",
+                        "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 

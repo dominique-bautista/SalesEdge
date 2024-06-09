@@ -15,6 +15,7 @@ public class DashBoard {
     private static JPanel mainContentPanel;
     static final MainFrame dashboardFrame = new MainFrame();
     static final JFrame mainFrame = dashboardFrame.getMainFrame();
+    private static String currentId;
 
     public static void UI()
     {
@@ -93,16 +94,22 @@ public class DashBoard {
     }
 
     // Method to initialize the dashboard
-    public static void initializeDashboard(JFrame loginFrame) {
+    public static void initializeDashboard(JFrame loginFrame, String id) {
         // Dispose of the login frame
         loginFrame.dispose();
+        // Set the Id
+        currentId = id;
         UI();
         // Create the main dashboard frame
         dashboardFrame.showMainFrame();
     }
+    public static String getCurrentUserId() {
+        return currentId;
+    }
     // for testing without logging in
     public static void initializeDashboard() {
         UI();
+
         dashboardFrame.showMainFrame();
     }
 
@@ -161,7 +168,7 @@ public class DashBoard {
             case 3 -> new SalesPanel();
             case 4 -> new InventoryPanel();
             case 5 -> new ReportPanel();
-            case 6 -> new SettingsPanel(); // Added SettingsPanel
+            case 6 -> new SettingsPanel(getCurrentUserId()); // Added SettingsPanel
             default -> new HomePanel(); // Default HomePanel
         };
     }

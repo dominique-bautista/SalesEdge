@@ -2,6 +2,12 @@ package com.example.panels.report;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,8 +33,8 @@ public class CustomerReport extends JPanel {
 
     private JFreeChart createGenderDistributionChart() {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("Male", 60);
-        dataset.setValue("Female", 40);
+        dataset.setValue("Male", genderPercentage("Male"));
+        dataset.setValue("Female", genderPercentage("Female"));
         return ChartFactory.createPieChart(
                 "Gender Distribution",
                 dataset,
@@ -37,18 +43,77 @@ public class CustomerReport extends JPanel {
                 false
         );
     }
+    private int genderPercentage(String gender) {
+        int totalCount = 0;
+        int genderCount = 0;
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details
+            // Query to get the total count of records
+            String totalCountQuery = "SELECT COUNT(*) FROM customer";
+            try (PreparedStatement totalCountStatement = con.prepareStatement(totalCountQuery);
+                 ResultSet totalCountResultSet = totalCountStatement.executeQuery()) {
+                if (totalCountResultSet.next()) {
+                    totalCount = totalCountResultSet.getInt(1);
+                }
+            }
+    
+            // Query to get the count of records matching the specified gender
+            String genderCountQuery = "SELECT COUNT(*) FROM customer WHERE gender =?";
+            try (PreparedStatement genderCountStatement = con.prepareStatement(genderCountQuery)) {
+                genderCountStatement.setString(1, gender);
+                try (ResultSet genderCountResultSet = genderCountStatement.executeQuery()) {
+                    if (genderCountResultSet.next()) {
+                        genderCount = genderCountResultSet.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1; // Return -1 or another error indicator on failure
+        }
+    
+        // Calculate the percentage
+        if (totalCount > 0) {
+            double percentage = ((double) genderCount / totalCount) * 100;
+            return (int) percentage; // Truncates to int. Consider returning double for precision.
+        } else {
+            return 0; // Avoid division by zero
+        }
+    }
 
     private JFreeChart createAgeDistributionChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(30, "Age Group", "18-24");
-        dataset.addValue(40, "Age Group", "25-34");
-        dataset.addValue(20, "Age Group", "35-44");
-        dataset.addValue(10, "Age Group", "45+");
+        dataset.addValue(countAgeOfRange(18, 24), "Age Group", "18-24");
+        dataset.addValue(countAgeOfRange(25, 24), "Age Group", "25-34");
+        dataset.addValue(countAgeOfRange(35, 24), "Age Group", "35-44");
+        dataset.addValue(countAgeOfRange(45, 200), "Age Group", "45+");
         return ChartFactory.createBarChart(
                 "Age Distribution",
                 "Age Group",
                 "Number of Customers",
                 dataset
         );
+    }
+
+    private int countAgeOfRange(int start, int end)
+    {
+        int count = 0;
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
+            String query = "SELECT COUNT(*) FROM customer WHERE age >=? AND age <=?";
+            try (PreparedStatement preparedStatement = con.prepareStatement(query)) {
+                preparedStatement.setInt(1, start);
+                preparedStatement.setInt(2, end);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                // Handle SQL exception appropriately
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle connection exception appropriately
+        }
+        return count;
     }
 }
