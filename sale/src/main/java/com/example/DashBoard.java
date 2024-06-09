@@ -173,6 +173,13 @@ public class DashBoard {
         };
     }
 
+    public static void cleanUpMainFrame() {
+        if (mainFrame != null) {
+            mainFrame.getContentPane().removeAll();
+            mainFrame.repaint();
+        }
+    }
+
     public static void main(String[] args) {
         initializeDashboard();
     }

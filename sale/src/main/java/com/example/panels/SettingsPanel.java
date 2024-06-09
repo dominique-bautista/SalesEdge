@@ -93,13 +93,18 @@ public class SettingsPanel extends JPanel {
         saveButton.setFocusPainted(false);
         saveButton.addActionListener(e -> updateStaffLoggedIn());
 
-        // Add ActionListener to the logout button
         logoutButton.addActionListener(e -> {
-            // Close the current SettingsPanel window
-            SwingUtilities.getWindowAncestor(SettingsPanel.this).dispose();
-            // Open the login form
+            // Clean up the main frame
+            DashBoard.cleanUpMainFrame();
+            // Dispose the entire dashboard frame and its components
+            JFrame dashboardFrame = (JFrame) SwingUtilities.getWindowAncestor(SettingsPanel.this);
+            if (dashboardFrame != null) {
+                dashboardFrame.dispose();
+            }
+            // Reinitialize the login form
             LoginForm.on_start();
         });
+
 
         // Add logout and save buttons to the bottom right corner within the content panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10)); // Adding spacing between buttons
