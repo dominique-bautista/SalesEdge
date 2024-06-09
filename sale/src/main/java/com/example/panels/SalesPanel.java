@@ -9,10 +9,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SalesPanel extends JPanel {
     // Define the accent color
     private static final Color ACCENT_COLOR = new Color(0xF47130);
+
+    // To auto-increment transaction IDs
+    private static final AtomicInteger transactionIdCounter = new AtomicInteger(1);
+    // Placeholder for the current logged-in salesperson ID
+    private static final String currentSalespersonId = "S001";
 
     // Constructor for the SalesPanel
     public SalesPanel() {
@@ -50,7 +56,7 @@ public class SalesPanel extends JPanel {
             }
         });
 
-        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "List of Purchased Items", "Total Amount"};
+        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Total Amount"};
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
         // Add the search field and column selector to the search panel
@@ -84,7 +90,7 @@ public class SalesPanel extends JPanel {
         JTable transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30); // Set the height of each row
         transactionTable.setFont(new Font("Lato", Font.PLAIN, 16));
-        transactionTable.getTableHeader().setFont(new Font("Robot", Font.BOLD, 16));
+        transactionTable.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
         transactionTable.getTableHeader().setBackground(ACCENT_COLOR);
         transactionTable.getTableHeader().setForeground(Color.WHITE);
         transactionTable.setFillsViewportHeight(true);
@@ -128,7 +134,7 @@ public class SalesPanel extends JPanel {
         JButton editButton = new JButton("Update");
         JButton exportButton = new JButton("Export");
 
-// Set button colors to the accent color and text color to white
+        // Set button colors to the accent color and text color to white
         addButton.setBackground(ACCENT_COLOR);
         addButton.setForeground(Color.WHITE);
         deleteButton.setBackground(ACCENT_COLOR);
@@ -138,12 +144,11 @@ public class SalesPanel extends JPanel {
         exportButton.setBackground(ACCENT_COLOR);
         exportButton.setForeground(Color.WHITE);
 
-// Add action buttons to the button panel
+        // Add action buttons to the button panel
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(editButton);
         buttonPanel.add(exportButton);
-
 
         // Add the button panel to the bottom of the main panel
         add(buttonPanel, BorderLayout.SOUTH);
@@ -197,32 +202,29 @@ public class SalesPanel extends JPanel {
 
         Font font = new Font("Serif", Font.PLAIN, 18);
 
-        JTextField transactionIdField = createHighlightedTextField(20, font);
+        // Excluding transaction ID and salesperson ID fields
         JTextField customerIdField = createHighlightedTextField(20, font);
         JTextField dateField = createHighlightedTextField(20, font);
         JTextField timeField = createHighlightedTextField(20, font);
-        JTextField salespersonIdField = createHighlightedTextField(20, font);
         JTextField purchasedItemsField = createHighlightedTextField(20, font);
         JTextField totalAmountField = createHighlightedTextField(20, font);
 
-        addFieldToPanel(panel, "Transaction ID:", transactionIdField, gbc, 0, font);
-        addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 1, font);
-        addFieldToPanel(panel, "Date:", dateField, gbc, 2, font);
-        addFieldToPanel(panel, "Time:", timeField, gbc, 3, font);
-        addFieldToPanel(panel, "Salesperson ID:", salespersonIdField, gbc, 4, font);
-        addFieldToPanel(panel, "List of Purchased Items:", purchasedItemsField, gbc, 5, font);
-        addFieldToPanel(panel, "Total Amount:", totalAmountField, gbc, 6, font);
+        addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 0, font);
+        addFieldToPanel(panel, "Date:", dateField, gbc, 1, font);
+        addFieldToPanel(panel, "Time:", timeField, gbc, 2, font);
+        addFieldToPanel(panel, "List of Purchased Items:", purchasedItemsField, gbc, 3, font);
+        addFieldToPanel(panel, "Total Amount:", totalAmountField, gbc, 4, font);
 
         // Customize the JOptionPane to remove the question mark icon
         int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
+            String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
             tableModel.addRow(new Object[]{
-                    transactionIdField.getText(),
+                    transactionId,
                     customerIdField.getText(),
                     dateField.getText(),
                     timeField.getText(),
-                    salespersonIdField.getText(),
-                    purchasedItemsField.getText(),
+                    currentSalespersonId,
                     totalAmountField.getText()
             });
         }
