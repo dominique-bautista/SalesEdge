@@ -8,7 +8,6 @@ import java.util.Random;
 import javax.swing.*;
 
 public class LoginForm {
-    public static String id;
 
     // Method to authenticate user credentials against the database
     private static boolean authenticateUser(String username, String password) {
