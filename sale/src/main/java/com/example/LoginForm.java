@@ -1,6 +1,8 @@
 package com.example;
 
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
@@ -39,11 +41,11 @@ public class LoginForm {
             statement.setString(1, username);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()){
+            if (resultSet.next()) {
                 user = resultSet.getString("staff_id");
                 return user; // If the result set contains any rows, the credentials are valid
             }
-            return ""; // If the result set contains any rows, the credentials are valid;
+            return ""; // If the result set contains any rows, the credentials are valid
         } catch (SQLException e) {
             e.printStackTrace();
             return "";
@@ -161,7 +163,7 @@ public class LoginForm {
         loginPanel.add(usernameLabel, gbc);
         gbc.gridy++;
         usernameField.setPreferredSize(new Dimension(300, 40));
-        usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+        usernameField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         loginPanel.add(usernameField, gbc);
 
         gbc.gridy++;
@@ -169,8 +171,33 @@ public class LoginForm {
         loginPanel.add(passwordLabel, gbc);
         gbc.gridy++;
         passwordField.setPreferredSize(new Dimension(300, 40));
-        passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+        passwordField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         loginPanel.add(passwordField, gbc);
+
+        // Add focus listeners to change border color on focus
+        usernameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                usernameField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                usernameField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+            }
+        });
+
+        passwordField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+            }
+        });
 
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.CENTER;

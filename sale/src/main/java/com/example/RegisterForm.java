@@ -2,6 +2,8 @@ package com.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -216,7 +218,8 @@ public class RegisterForm {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.setString(1, firstName);
                 statement.setString(2, lastName);
-                statement.setString(3, username);
+                statement.setString(
+                        3, username);
                 statement.setString(4, password);
                 statement.setString(5, role);
                 statement.setString(6, email);
@@ -255,14 +258,31 @@ public class RegisterForm {
         gbc.gridy++;
         panel.add(label, gbc);
         gbc.gridy++;
-        gbc.gridwidth = 1; // Ensure grid width is set to 1 for each text field
+
+        // Set preferred size and default black border
         field.setPreferredSize(new Dimension(300, 35));
-        field.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2)); // Set orange border
+        field.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
+        // Add FocusListener to change border color on focus
+        field.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                // Change border color to orange when focused
+                field.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 1));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                // Change border color back to black when focus lost
+                field.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+            }
+        });
+
         panel.add(field, gbc);
     }
+
 
     public static void main(String[] args) {
         on_start();
     }
 }
-
