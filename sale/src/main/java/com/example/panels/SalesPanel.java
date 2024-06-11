@@ -6,41 +6,35 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SalesPanel extends JPanel {
-    // Define the accent color
     private static final Color ACCENT_COLOR = new Color(0xF47130);
-
-    // To auto-increment transaction IDs
     private static final AtomicInteger transactionIdCounter = new AtomicInteger(1);
-    // Placeholder for the current logged-in salesperson ID
     private static final String currentSalespersonId = "S001";
+    private static final Map<String, String[][]> transactionProductDetails = new HashMap<>();
 
-    // Constructor for the SalesPanel
     public SalesPanel() {
-        // Set the layout for this panel
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE); // Set the background color to white
+        setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Create a panel for the title and search components
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setBackground(Color.WHITE);
 
-        // Title Label
         JLabel titleLabel = new JLabel("Sales Transactions", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Roboto", Font.BOLD, 24));
         titleLabel.setForeground(ACCENT_COLOR);
         titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR));
 
-        // Create the search panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         searchPanel.setBackground(Color.WHITE);
 
-        // Create the search field and column selector
         JTextField searchField = new JTextField(20);
-        // Add focus listener to the search field
         searchField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -53,39 +47,44 @@ public class SalesPanel extends JPanel {
             }
         });
 
-        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Total Amount"};
+        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Product", "Total Amount"};
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
-        // Add the search field and column selector to the search panel
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
         searchPanel.add(new JLabel(" in "));
         searchPanel.add(columnSelector);
 
-        // Add the title label and search panel to the top panel
         topPanel.add(titleLabel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
 
-        // Add the top panel to the top of the main panel
         add(topPanel, BorderLayout.NORTH);
 
-        // Create the table model for sales transactions
         DefaultTableModel transactionTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Make the "Transaction ID" and "Salesperson ID" columns non-editable
                 return column != 0 && column != 4;
             }
         };
 
-        // Add some sample data to the table model
-        transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "$600.00"});
-        transactionTableModel.addRow(new Object[]{"T002", "C002", "2023-05-02", "11:00 AM", "S002", "$45.00"});
-        transactionTableModel.addRow(new Object[]{"T003", "C003", "2023-05-03", "01:45 PM", "S003", "$150.00"});
+        transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "Click to view", "$600.00"});
+        transactionProductDetails.put("T001", new String[][]{
+                {"P001", "Product A", "2", "$300.00"},
+                {"P002", "Product B", "1", "$300.00"}
+        });
 
-        // Create the table using the transaction table model
+        transactionTableModel.addRow(new Object[]{"T002", "C002", "2023-05-02", "11:00 AM", "S002", "Click to view", "$45.00"});
+        transactionProductDetails.put("T002", new String[][]{
+                {"P003", "Product C", "1", "$45.00"}
+        });
+
+        transactionTableModel.addRow(new Object[]{"T003", "C003", "2023-05-03", "01:45 PM", "S003", "Click to view", "$150.00"});
+        transactionProductDetails.put("T003", new String[][]{
+                {"P004", "Product D", "1", "$150.00"}
+        });
+
         JTable transactionTable = new JTable(transactionTableModel);
-        transactionTable.setRowHeight(30); // Set the height of each row
+        transactionTable.setRowHeight(30);
         transactionTable.setFont(new Font("Lato", Font.PLAIN, 16));
         transactionTable.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
         transactionTable.getTableHeader().setBackground(ACCENT_COLOR);
@@ -96,18 +95,26 @@ public class SalesPanel extends JPanel {
         transactionTable.setSelectionBackground(ACCENT_COLOR);
         transactionTable.setSelectionForeground(Color.WHITE);
 
-        // Create a scroll pane for the table
+        transactionTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = transactionTable.columnAtPoint(e.getPoint());
+                if (column == 5) {
+                    int row = transactionTable.rowAtPoint(e.getPoint());
+                    String transactionId = (String) transactionTable.getValueAt(row, 0);
+                    showProductDetails(transactionId);
+                }
+            }
+        });
+
         JScrollPane transactionScrollPane = new JScrollPane(transactionTable);
         transactionScrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
 
-        // Display the transaction table
         add(transactionScrollPane, BorderLayout.CENTER);
 
-        // Create a row sorter for the table
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(transactionTableModel);
         transactionTable.setRowSorter(sorter);
 
-        // Add action listener to the search field
         searchField.addActionListener(e -> {
             String text = searchField.getText();
             int columnIndex = columnSelector.getSelectedIndex();
@@ -118,18 +125,15 @@ public class SalesPanel extends JPanel {
             }
         });
 
-        // Create a panel for action buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        buttonPanel.setBackground(Color.WHITE); // Set button panel background to white
+        buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        // Create action buttons for adding, delete, edit, and export
         JButton addButton = new JButton("Add");
         JButton deleteButton = new JButton("Delete");
         JButton editButton = new JButton("Update");
         JButton exportButton = new JButton("Export");
 
-        // Set button colors to the accent color and text color to white
         addButton.setBackground(ACCENT_COLOR);
         addButton.setForeground(Color.WHITE);
         deleteButton.setBackground(ACCENT_COLOR);
@@ -139,16 +143,13 @@ public class SalesPanel extends JPanel {
         exportButton.setBackground(ACCENT_COLOR);
         exportButton.setForeground(Color.WHITE);
 
-        // Add action buttons to the button panel
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(editButton);
         buttonPanel.add(exportButton);
 
-        // Add the button panel to the bottom of the main panel
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Action Listeners for buttons
         exportButton.addActionListener(e -> {
             // Code to export sales reports (to be implemented)
         });
@@ -156,21 +157,20 @@ public class SalesPanel extends JPanel {
         addButton.addActionListener(e -> createSales(transactionTableModel));
 
         deleteButton.addActionListener(e -> {
-            // Code to delete selected transaction (to be implemented)
             int selectedRow = transactionTable.getSelectedRow();
             if (selectedRow != -1) {
+                String transactionId = (String) transactionTable.getValueAt(selectedRow, 0);
                 transactionTableModel.removeRow(selectedRow);
+                transactionProductDetails.remove(transactionId);
             }
         });
 
         editButton.addActionListener(e -> {
-            // Code to edit selected transaction (to be implemented)
             int selectedRow = transactionTable.getSelectedRow();
             if (selectedRow != -1) {
                 transactionTableModel.setValueAt("EditedValue", selectedRow, transactionTable.getSelectedColumn());
             }
         });
-
     }
 
     private void createSales(DefaultTableModel tableModel) {
@@ -183,33 +183,45 @@ public class SalesPanel extends JPanel {
 
         Font font = new Font("Serif", Font.PLAIN, 18);
 
-        // Excluding transaction ID and salesperson ID fields
         JTextField customerIdField = createHighlightedTextField(20, font);
         JTextField dateField = createHighlightedTextField(20, font);
         JTextField timeField = createHighlightedTextField(20, font);
-        JTextField purchasedItemsField = createHighlightedTextField(20, font);
+        JTextField productField = createHighlightedTextField(20, font);
         JTextField totalAmountField = createHighlightedTextField(20, font);
 
         addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 0, font);
         addFieldToPanel(panel, "Date:", dateField, gbc, 1, font);
         addFieldToPanel(panel, "Time:", timeField, gbc, 2, font);
-        addFieldToPanel(panel, "List of Purchased Items:", purchasedItemsField, gbc, 3, font);
+        addFieldToPanel(panel, "Product:", productField, gbc, 3, font);
         addFieldToPanel(panel, "Total Amount:", totalAmountField, gbc, 4, font);
 
-        // Customize the JOptionPane to remove the question mark icon
         int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
             String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
+            String productDetails = productField.getText();
             tableModel.addRow(new Object[]{
                     transactionId,
                     customerIdField.getText(),
                     dateField.getText(),
                     timeField.getText(),
                     currentSalespersonId,
+                    "Click to view",
                     totalAmountField.getText()
             });
+
+            String[] products = productDetails.split(";"); // Split products by semicolon
+            String[][] productArray = new String[products.length][4];
+
+            for (int i = 0; i < products.length; i++) {
+                String[] productInfo = products[i].split(","); // Split each product info by comma
+                if (productInfo.length == 4) {
+                    productArray[i] = productInfo;
+                }
+            }
+            transactionProductDetails.put(transactionId, productArray);
         }
     }
+
 
     private JTextField createHighlightedTextField(int columns, Font font) {
         JTextField textField = new JTextField(columns);
@@ -241,11 +253,36 @@ public class SalesPanel extends JPanel {
         panel.add(textField, gbc);
     }
 
+    private void showProductDetails(String transactionId) {
+        String[][] products = transactionProductDetails.get(transactionId);
+        if (products != null) {
+            String[] columnNames = {"Product ID", "Product Name", "Quantity", "Price"};
+            JTable productTable = new JTable(products, columnNames);
+            productTable.setFont(new Font("Serif", Font.PLAIN, 16));
+            productTable.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
+            productTable.getTableHeader().setBackground(ACCENT_COLOR);
+            productTable.getTableHeader().setForeground(Color.WHITE);
+            productTable.setFillsViewportHeight(true);
+            productTable.setGridColor(ACCENT_COLOR);
+            productTable.setShowGrid(true);
+            productTable.setSelectionBackground(ACCENT_COLOR);
+            productTable.setSelectionForeground(Color.WHITE);
+
+            JScrollPane scrollPane = new JScrollPane(productTable);
+            scrollPane.setPreferredSize(new Dimension(600, 400));
+            productTable.setPreferredScrollableViewportSize(new Dimension(500, 300));
+
+            JOptionPane.showMessageDialog(this, scrollPane, "Product Details", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Sales Panel");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.add(new SalesPanel());
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Sales Panel");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 600);
+            frame.add(new SalesPanel());
+            frame.setVisible(true);
+        });
     }
 }

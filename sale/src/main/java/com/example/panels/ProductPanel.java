@@ -95,7 +95,6 @@ public class ProductPanel extends JPanel {
         table.setShowGrid(true);
         table.setSelectionBackground(ACCENT_COLOR);
         table.setSelectionForeground(Color.WHITE);
-        table.removeColumn(table.getColumnModel().getColumn(4)); // Remove image URL column from view
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
