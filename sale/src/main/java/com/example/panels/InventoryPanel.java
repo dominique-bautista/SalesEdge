@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.sql.*;
 
 public class InventoryPanel extends JPanel {
     // Define the accent color
@@ -55,11 +56,24 @@ public class InventoryPanel extends JPanel {
         tableModel.addColumn("Low Stock Alert");
         tableModel.addColumn("Supplier Information");
 
-        // Add some sample data to the table model
-        tableModel.addRow(new Object[]{"Product 1", 50, "No", "Supplier A"});
-        tableModel.addRow(new Object[]{"Product 2", 10, "Yes", "Supplier B"});
-        tableModel.addRow(new Object[]{"Product 3", 5, "Yes", "Supplier C"});
-        tableModel.addRow(new Object[]{"Product 4", 100, "No", "Supplier D"});
+        // Populate a table model with data from the database
+        try (Connection connection = getConnection()) {
+            String query = "SELECT product_name, stock_level, low_stock_alert, supplier FROM product_inventory";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String productName = resultSet.getString("product_name");
+                        int stockLevel = resultSet.getInt("stock_level");
+                        String lowStockAlert = resultSet.getBoolean("low_stock_alert") ? "Yes" : "No";
+                        String supplier = resultSet.getString("supplier");
+                        tableModel.addRow(new Object[]{productName, stockLevel, lowStockAlert, supplier});
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle database connection or query errors
+        }
 
         // Create the table using the table model
         JTable table = new JTable(tableModel);
@@ -120,5 +134,13 @@ public class InventoryPanel extends JPanel {
 
         // Display the supplier information in a dialog
         JOptionPane.showMessageDialog(this, supplierInfo, "Supplier Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Method to establish a database connection
+    private Connection getConnection() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/salesedge";
+        String username = "root";
+        String password = "";
+        return DriverManager.getConnection(url, username, password);
     }
 }
