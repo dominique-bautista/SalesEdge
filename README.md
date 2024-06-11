@@ -26,7 +26,7 @@ SalesEdge is a comprehensive retail management system designed to streamline ope
 - **Product ID**: Unique identifier for each product.
 - **Product Name**: Name of the product.
 - **Description**: Description of the product.
-- **Category**: Product category (e.g., Clothing, Electronics) [Dropdown in UI].
+- **Category**: Product category (e.g., Clothing, Electronics).
 - **Price**: Price of the product.
 - **Supplier**: Supplier of the product.
 - **Stock Level**: Quantity available of the product.
