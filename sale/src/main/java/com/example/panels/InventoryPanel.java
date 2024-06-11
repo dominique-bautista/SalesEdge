@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class InventoryPanel extends JPanel {
     // Define the accent color
@@ -26,7 +24,7 @@ public class InventoryPanel extends JPanel {
         JLabel titleLabel = new JLabel("Inventory Information", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Roboto", Font.BOLD, 24)); // Set font and size
         titleLabel.setForeground(ACCENT_COLOR); // Set text color to the accent color
-        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add bottom border
+        titleLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add a bottom border
 
         // Create the search panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -86,16 +84,13 @@ public class InventoryPanel extends JPanel {
         table.setRowSorter(sorter);
 
         // Add action listener to the search field
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String text = searchField.getText();
-                int columnIndex = columnSelector.getSelectedIndex();
-                if (text.trim().length() == 0) {
-                    sorter.setRowFilter(null);
-                } else {
-                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
-                }
+        searchField.addActionListener(e -> {
+            String text = searchField.getText();
+            int columnIndex = columnSelector.getSelectedIndex();
+            if (text.trim().length() == 0) {
+                sorter.setRowFilter(null);
+            } else {
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
             }
         });
 

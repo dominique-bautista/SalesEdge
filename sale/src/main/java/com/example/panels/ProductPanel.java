@@ -4,25 +4,32 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 public class ProductPanel extends JPanel {
     private static final Color ACCENT_COLOR = new Color(0xF47130);
-    private static final Color DEFAULT_BORDER_COLOR = Color.GRAY;
 
     public ProductPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        // Create a top panel with search functionality
+        JPanel topPanel = createTopPanel();
+        add(topPanel, BorderLayout.NORTH);
+
+        // Create a table and populate it with data from the database
+        JTable table = createTable();
+        add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Create button panel for Add, Edit, and Delete operations
+        JPanel buttonPanel = createButtonPanel(table);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setBackground(Color.WHITE);
 
@@ -35,8 +42,7 @@ public class ProductPanel extends JPanel {
         searchPanel.setBackground(Color.WHITE);
 
         JTextField searchField = new JTextField(20);
-        String[] columns = { "Product ID", "Product Name", "Description", "Category", "Price" };
-        JComboBox<String> columnSelector = new JComboBox<>(columns);
+        JComboBox<String> columnSelector = new JComboBox<>(new String[]{"Product ID", "Product Name", "Description", "Category", "Price"});
 
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
@@ -46,27 +52,37 @@ public class ProductPanel extends JPanel {
         topPanel.add(titleLabel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
 
-        add(topPanel, BorderLayout.NORTH);
+        return topPanel;
+    }
 
+    private JTable createTable() {
         DefaultTableModel tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        tableModel.addColumn("Product ID");
-        tableModel.addColumn("Product Name");
-        tableModel.addColumn("Description");
-        tableModel.addColumn("Category");
-        tableModel.addColumn("Price");
-        tableModel.addColumn("Image URL");
-        tableModel.addColumn("Stock");
+        tableModel.setColumnIdentifiers(new String[]{"Product ID", "Product Name", "Description", "Category", "Price"});
 
-        tableModel.addRow(new Object[] { "1", "T-Shirt", "Cotton T-shirt", "Clothing", "20.99", "url1", "150" });
-        tableModel.addRow(new Object[] { "2", "Laptop", "Gaming laptop", "Electronics", "999.99", "url2", "30" });
-        tableModel.addRow(new Object[] { "3", "Book", "Fiction novel", "Books", "12.99", "url3", "200" });
-        tableModel.addRow(new Object[] { "4", "Toy", "Action figure", "Toys", "14.99",
-                "https://m.media-amazon.com/images/I/61cBV1v26jL._AC_SL1002_.jpg", "75" });
+        try (Connection connection = getConnection()) {
+            String query = "SELECT * FROM product_inventory";
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(query)) {
+                while (resultSet.next()) {
+                    Object[] rowData = {
+                            resultSet.getString("product_id"),
+                            resultSet.getString("product_name"),
+                            resultSet.getString("description"),
+                            resultSet.getString("category"),
+                            resultSet.getBigDecimal("price")
+                    };
+                    tableModel.addRow(rowData);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
 
         JTable table = new JTable(tableModel);
         table.setRowHeight(30);
@@ -79,17 +95,13 @@ public class ProductPanel extends JPanel {
         table.setShowGrid(true);
         table.setSelectionBackground(ACCENT_COLOR);
         table.setSelectionForeground(Color.WHITE);
-
-        table.removeColumn(table.getColumnModel().getColumn(5));
-        table.removeColumn(table.getColumnModel().getColumn(5));
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
-        add(scrollPane, BorderLayout.CENTER);
+        table.removeColumn(table.getColumnModel().getColumn(4)); // Remove image URL column from view
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
 
+        JTextField searchField = (JTextField) ((JPanel) ((JPanel) this.getComponent(0)).getComponent(1)).getComponent(1);
+        JComboBox<String> columnSelector = (JComboBox<String>) ((JPanel) ((JPanel) this.getComponent(0)).getComponent(1)).getComponent(3);
         searchField.addActionListener(e -> {
             String text = searchField.getText();
             int columnIndex = columnSelector.getSelectedIndex();
@@ -100,70 +112,23 @@ public class ProductPanel extends JPanel {
             }
         });
 
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int row = table.getSelectedRow();
-                    if (row != -1) {
-                        String productId = table.getModel().getValueAt(row, 0).toString();
-                        String productName = table.getModel().getValueAt(row, 1).toString();
-                        String description = table.getModel().getValueAt(row, 2).toString();
-                        String category = table.getModel().getValueAt(row, 3).toString();
-                        String price = table.getModel().getValueAt(row, 4).toString();
-                        String imageUrl = table.getModel().getValueAt(row, 5).toString();
-                        String stock = table.getModel().getValueAt(row, 6).toString();
-                        String supplier = "Default Supplier";
+        return table;
+    }
 
-                        JPanel productDetailsPanel = new JPanel();
-                        productDetailsPanel.setLayout(new BoxLayout(productDetailsPanel, BoxLayout.Y_AXIS));
-                        productDetailsPanel.add(new JLabel("Product ID: " + productId));
-                        productDetailsPanel.add(new JLabel("Product Name: " + productName));
-                        productDetailsPanel.add(new JLabel("Description: " + description));
-                        productDetailsPanel.add(new JLabel("Category: " + category));
-                        productDetailsPanel.add(new JLabel("Price: " + price));
-                        productDetailsPanel.add(new JLabel("Supplier: " + supplier));
-                        productDetailsPanel.add(Box.createVerticalStrut(10));
-
-                        try {
-                            ImageIcon imageIcon = new ImageIcon(new URL(imageUrl));
-                            Image image = imageIcon.getImage();
-                            Image scaledImage = image.getScaledInstance(400, 400, Image.SCALE_SMOOTH);
-                            imageIcon = new ImageIcon(scaledImage);
-                            JLabel imageLabel = new JLabel(imageIcon);
-                            imageLabel.setPreferredSize(new Dimension(400, 400));
-                            productDetailsPanel.add(imageLabel);
-                        } catch (Exception ex) {
-                            JLabel noImageLabel = new JLabel("No image available");
-                            noImageLabel.setPreferredSize(new Dimension(400, 400));
-                            noImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                            noImageLabel.setVerticalAlignment(SwingConstants.CENTER);
-                            productDetailsPanel.add(noImageLabel);
-                        }
-
-                        productDetailsPanel.add(new JLabel("Stock: " + stock));
-
-                        JScrollPane scrollPane = new JScrollPane(productDetailsPanel);
-                        scrollPane.setPreferredSize(new Dimension(450, 600));
-
-                        JOptionPane.showMessageDialog(ProductPanel.this, scrollPane, "Product Details",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    }
-                }
-            }
-        });
-
+    private JPanel createButtonPanel(JTable table) {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         buttonPanel.setBackground(Color.WHITE);
 
         JButton addButton = new JButton("Add");
-        JButton editButton = new JButton("Edit");
-        JButton deleteButton = new JButton("Delete");
-
         addButton.setBackground(ACCENT_COLOR);
         addButton.setForeground(Color.WHITE);
+
+        JButton editButton = new JButton("Edit");
         editButton.setBackground(ACCENT_COLOR);
         editButton.setForeground(Color.WHITE);
+
+        JButton deleteButton = new JButton("Delete");
         deleteButton.setBackground(ACCENT_COLOR);
         deleteButton.setForeground(Color.WHITE);
 
@@ -171,127 +136,27 @@ public class ProductPanel extends JPanel {
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
-
         addButton.addActionListener(e -> createProduct(this));
-
         editButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
-            selectedRow++;
-            if (selectedRow != 0) {
-                updateProduct(this, String.valueOf(selectedRow));
-
+            if (selectedRow != -1) {
+                String productId = (String) table.getValueAt(selectedRow, 0);
+                updateProduct(this, productId);
             } else {
-                JOptionPane.showMessageDialog(null, "Please select a product to edit.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please select a product to edit.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-
         deleteButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
-            selectedRow++;
-            if (selectedRow != 0) {
-                Manager.delete("product_inventory", "product_id", selectedRow);
-                int modelRow = table.convertRowIndexToModel(selectedRow);
-                tableModel.removeRow(modelRow);
+            if (selectedRow != -1) {
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                String productId = (String) model.getValueAt(selectedRow, 0);
+                deleteProduct(productId);
+                model.removeRow(selectedRow);
             }
         });
-    }
 
-    private void addFocusListeners(JTextField textField) {
-        textField.setBorder(BorderFactory.createLineBorder(DEFAULT_BORDER_COLOR, 1));
-        textField.addFocusListener(new java.awt.event.FocusListener() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent e) {
-                textField.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                textField.setBorder(BorderFactory.createLineBorder(DEFAULT_BORDER_COLOR, 1));
-            }
-        });
-    }
-
-    // private void createProduct(DefaultTableModel tableModel) {
-    // JPanel panel = new JPanel(new GridBagLayout());
-    // panel.setBackground(Color.WHITE);
-    // panel.setPreferredSize(new Dimension(500, 400));
-    // GridBagConstraints gbc = new GridBagConstraints();
-    // gbc.insets = new Insets(10, 10, 10, 10);
-    // gbc.fill = GridBagConstraints.HORIZONTAL;
-
-    // Font font = new Font("Serif", Font.PLAIN, 18);
-
-    // JTextField productIdField = new JTextField(20);
-    // JTextField productNameField = new JTextField(20);
-    // JTextField descriptionField = new JTextField(20);
-    // JTextField categoryField = new JTextField(20);
-    // JTextField priceField = new JTextField(20);
-    // JTextField supplierField = new JTextField(20);
-    // JTextField imageUrlField = new JTextField(20);
-    // JTextField stockField = new JTextField(20);
-
-    // productIdField.setFont(font);
-    // productNameField.setFont(font);
-    // descriptionField.setFont(font);
-    // categoryField.setFont(font);
-    // priceField.setFont(font);
-    // supplierField.setFont(font);
-    // imageUrlField.setFont(font);
-    // stockField.setFont(font);
-
-    // addFocusListeners(productIdField);
-    // addFocusListeners(productNameField);
-    // addFocusListeners(descriptionField);
-    // addFocusListeners(categoryField);
-    // addFocusListeners(priceField);
-    // addFocusListeners(supplierField);
-    // addFocusListeners(imageUrlField);
-    // addFocusListeners(stockField);
-
-    // addFieldToPanel(panel, "Product ID:", productIdField, gbc, 0, font);
-    // addFieldToPanel(panel, "Product Name:", productNameField, gbc, 1, font);
-    // addFieldToPanel(panel, "Description:", descriptionField, gbc, 2, font);
-    // addFieldToPanel(panel, "Category:", categoryField, gbc, 3, font);
-    // addFieldToPanel(panel, "Price:", priceField, gbc, 4, font);
-    // addFieldToPanel(panel, "Supplier:", supplierField, gbc, 5, font);
-    // addFieldToPanel(panel, "Image URL:", imageUrlField, gbc, 6, font);
-    // addFieldToPanel(panel, "Stock:", stockField, gbc, 7, font);
-
-    // int option = JOptionPane.showConfirmDialog(this, panel, "Create New Product",
-    // JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-    // if (option == JOptionPane.OK_OPTION) {
-    // tableModel.addRow(new Object[]{
-    // productIdField.getText(),
-    // productNameField.getText(),
-    // descriptionField.getText(),
-    // categoryField.getText(),
-    // priceField.getText(),
-    // imageUrlField.getText(),
-    // stockField.getText()
-    // });
-    // }
-    // }
-
-    // private void addFieldToPanel(JPanel panel, String labelText, JTextField
-    // textField, GridBagConstraints gbc, int yPos, Font font) {
-    // JLabel label = new JLabel(labelText);
-    // label.setFont(font);
-    // gbc.gridx = 0;
-    // gbc.gridy = yPos;
-    // panel.add(label, gbc);
-    // gbc.gridx = 1;
-    // gbc.gridy = yPos;
-    // panel.add(textField, gbc);
-    // }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Product Panel");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.add(new ProductPanel());
-        frame.setVisible(true);
+        return buttonPanel;
     }
 
     public void createProduct(JComponent pan) {
@@ -322,7 +187,7 @@ public class ProductPanel extends JPanel {
 
         saveButton.addActionListener(e -> {
             boolean allFieldsFilled = Arrays.stream(new JTextField[]{productName, desc, category, price, supplier, stock, imageUrl})
-                                 .allMatch(field ->!field.getText().trim().isEmpty());
+                                 .noneMatch(field -> field.getText().trim().isEmpty());
 
             if (!allFieldsFilled) {
                 JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
@@ -427,7 +292,7 @@ public class ProductPanel extends JPanel {
                 return;
             }
             JOptionPane.showMessageDialog(null, "Product Updated successfully.");
-            pan.revalidate(); // Revalidate the
+            pan.revalidate();
             pan.repaint();
         });
 
@@ -437,4 +302,44 @@ public class ProductPanel extends JPanel {
         createFrame.add(panel);
         createFrame.setVisible(true);
     }
+
+    private void deleteProduct(String productId) {
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) {
+                String query = "DELETE FROM product_inventory WHERE product_id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(query)) {
+                    statement.setString(1, productId);
+                    int rowsAffected = statement.executeUpdate();
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Product deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Product with ID " + productId + " not found.", "Not Found", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Product Panel");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 600);
+            frame.add(new ProductPanel());
+            frame.setVisible(true);
+        });
+    }
+
+    public static Connection getConnection() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/salesedge";
+        String username = "root";
+        String password = "";
+        return DriverManager.getConnection(url, username, password);
+    }
+
 }
