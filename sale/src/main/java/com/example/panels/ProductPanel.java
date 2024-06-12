@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -153,12 +152,24 @@ public class ProductPanel extends JPanel {
         deleteButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                DefaultTableModel model = (DefaultTableModel) table.getModel();
-                String productId = (String) model.getValueAt(selectedRow, 0);
-                deleteProduct(productId);
-                model.removeRow(selectedRow);
+                int confirm = JOptionPane.showConfirmDialog(
+                        this,
+                        "Are you sure you want to delete this product?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel) table.getModel();
+                    String productId = (String) model.getValueAt(selectedRow, 0);
+                    deleteProduct(productId);
+                    model.removeRow(selectedRow);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a product to delete.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
 
         return buttonPanel;
     }
@@ -176,20 +187,23 @@ public class ProductPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField productName = Manager.createLabeledTextField("Product Name:", panel, labelFont, textFieldFont);
-        JTextField desc = Manager.createLabeledTextField("Description:", panel, labelFont, textFieldFont);
-        JTextField category = Manager.createLabeledTextField("Category:", panel, labelFont, textFieldFont);
-        JTextField price = Manager.createLabeledTextField("Price:", panel, labelFont, textFieldFont);
-        JTextField supplier = Manager.createLabeledTextField("Supplier:", panel, labelFont, textFieldFont);
-        JTextField stock = Manager.createLabeledTextField("Stock:", panel, labelFont, textFieldFont);
+        JTextField productName = createLabeledTextField("Product Name:", panel, labelFont, textFieldFont);
+        JTextField desc = createLabeledTextField("Description:", panel, labelFont, textFieldFont);
+        JTextField category = createLabeledTextField("Category:", panel, labelFont, textFieldFont);
+        JTextField price = createLabeledTextField("Price:", panel, labelFont, textFieldFont);
+        JTextField supplier = createLabeledTextField("Supplier:", panel, labelFont, textFieldFont);
+        JTextField stock = createLabeledTextField("Stock:", panel, labelFont, textFieldFont);
 
         JLabel imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(100, 100));
+        imageLabel.setPreferredSize(new Dimension(240, 240));
+        imageLabel.setMaximumSize(new Dimension(240, 240));
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         panel.add(new JLabel("Image Preview:"));
         panel.add(imageLabel);
 
         JButton uploadButton = new JButton("Upload Image");
+        uploadButton.setBackground(new Color(0xF47130));
+        uploadButton.setForeground(Color.WHITE);
         panel.add(new JLabel());
         panel.add(uploadButton);
 
@@ -200,7 +214,8 @@ public class ProductPanel extends JPanel {
                 File selectedFile = fileChooser.getSelectedFile();
                 try {
                     BufferedImage img = ImageIO.read(selectedFile);
-                    ImageIcon icon = new ImageIcon(img.getScaledInstance(100, 100, Image.SCALE_SMOOTH));
+                    Image scaledImg = img.getScaledInstance(240, 240, Image.SCALE_SMOOTH);
+                    ImageIcon icon = new ImageIcon(scaledImg);
                     imageLabel.setIcon(icon);
                     imageLabel.setText(selectedFile.getAbsolutePath());
                 } catch (IOException ex) {
@@ -211,7 +226,7 @@ public class ProductPanel extends JPanel {
         });
 
         JButton saveButton = new JButton("Save");
-        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setBackground(ACCENT_COLOR);
         saveButton.setForeground(Color.WHITE);
         saveButton.setFont(new Font("Lato", Font.BOLD, 14));
 
@@ -224,7 +239,7 @@ public class ProductPanel extends JPanel {
                 return;
             }
 
-            try (Connection connection = Manager.getConnection()) {
+            try (Connection connection = getConnection()) {
                 String sqlInsert = "INSERT INTO product_inventory (product_name, description, category, price, supplier, stock_level, image_url, low_stock_alert) VALUES (?,?,?,?,?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
                 preparedStatement.setString(1, productName.getText());
@@ -235,14 +250,13 @@ public class ProductPanel extends JPanel {
                 preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
                 preparedStatement.setString(7, imageLabel.getText());
 
-                // Calculate lowStockAlert here, right before it's used
-                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
+                int lowStockAlert = Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
                 preparedStatement.setInt(8, lowStockAlert);
 
-                preparedStatement.executeUpdate(); // Execute the statement
+                preparedStatement.executeUpdate();
                 createFrame.dispose();
 
-            } catch (SQLException ex) {
+            } catch (SQLException | NumberFormatException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(createFrame, "Error: " + ex.getMessage());
                 return;
@@ -259,7 +273,7 @@ public class ProductPanel extends JPanel {
         createFrame.setVisible(true);
     }
 
-    public void updateProduct(JComponent pan, String cus) {
+    public void updateProduct(JComponent pan, String productId) {
         JFrame createFrame = new JFrame("Update Product");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         createFrame.setSize(500, 600);
@@ -272,22 +286,22 @@ public class ProductPanel extends JPanel {
         Font labelFont = new Font("Lato", Font.PLAIN, 20);
         Font textFieldFont = new Font("Lato", Font.PLAIN, 15);
 
-        JTextField productName = Manager.updateLabeledTextField("Product Name:", panel, labelFont, textFieldFont,"product_inventory", "product_name", cus,"product_id");
-        JTextField desc = Manager.updateLabeledTextField("Description:", panel, labelFont, textFieldFont,"product_inventory", "description", cus,"product_id");
-        JTextField category = Manager.updateLabeledTextField("Category:", panel, labelFont, textFieldFont,"product_inventory", "category", cus,"product_id");
-        JTextField price = Manager.updateLabeledTextField("Price:", panel, labelFont, textFieldFont,"product_inventory", "price", cus,"product_id");
-        JTextField supplier = Manager.updateLabeledTextField("Supplier:", panel, labelFont, textFieldFont,"product_inventory", "supplier", cus,"product_id");
-        JTextField imageUrl = Manager.updateLabeledTextField("Image URL:", panel, labelFont, textFieldFont,"product_inventory", "image_url", cus,"product_id");
-        JTextField stock = Manager.updateLabeledTextField("Stock:", panel, labelFont, textFieldFont,"product_inventory", "stock_level", cus,"product_id");
+        JTextField productName = updateLabeledTextField("Product Name:", panel, labelFont, textFieldFont, "product_name", productId);
+        JTextField desc = updateLabeledTextField("Description:", panel, labelFont, textFieldFont, "description", productId);
+        JTextField category = updateLabeledTextField("Category:", panel, labelFont, textFieldFont, "category", productId);
+        JTextField price = updateLabeledTextField("Price:", panel, labelFont, textFieldFont, "price", productId);
+        JTextField supplier = updateLabeledTextField("Supplier:", panel, labelFont, textFieldFont, "supplier", productId);
+        JTextField imageUrl = updateLabeledTextField("Image URL:", panel, labelFont, textFieldFont, "image_url", productId);
+        JTextField stock = updateLabeledTextField("Stock:", panel, labelFont, textFieldFont, "stock_level", productId);
 
         JButton saveButton = new JButton("Save");
-        saveButton.setBackground(new Color(0xF47130));
+        saveButton.setBackground(ACCENT_COLOR);
         saveButton.setForeground(Color.WHITE);
         saveButton.setFont(new Font("Lato", Font.BOLD, 14));
 
         saveButton.addActionListener(e -> {
             boolean allFieldsFilled = true;
-            JTextField[] textFields = { productName, desc, category,price,supplier, imageUrl , stock};
+            JTextField[] textFields = {productName, desc, category, price, supplier, imageUrl, stock};
             for (JTextField textField : textFields) {
                 if (textField.getText().trim().isEmpty()) {
                     allFieldsFilled = false;
@@ -298,9 +312,9 @@ public class ProductPanel extends JPanel {
                 JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
                 return;
             }
-            try (Connection connection = Manager.getConnection()) {
-                String sqlInsert = "UPDATE `product_inventory` SET `product_name` =?, `description` =?, `category` =?, `price` =?, `supplier` =?, `stock_level` =?, `image_url` =?, `low_stock_alert` =? WHERE `product_id` =?";
-                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsert);
+            try (Connection connection = getConnection()) {
+                String sqlUpdate = "UPDATE product_inventory SET product_name = ?, description = ?, category = ?, price = ?, supplier = ?, stock_level = ?, image_url = ?, low_stock_alert = ? WHERE product_id = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate);
                 preparedStatement.setString(1, productName.getText());
                 preparedStatement.setString(2, desc.getText());
                 preparedStatement.setString(3, category.getText());
@@ -309,20 +323,19 @@ public class ProductPanel extends JPanel {
                 preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
                 preparedStatement.setString(7, imageUrl.getText());
 
-                // Calculate lowStockAlert here, right before it's used
-                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10? 0 : 1;
+                int lowStockAlert = Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
                 preparedStatement.setInt(8, lowStockAlert);
 
-                preparedStatement.setString(9, cus); // product_id
-                preparedStatement.executeUpdate(); // Execute the statement
+                preparedStatement.setString(9, productId);
+                preparedStatement.executeUpdate();
                 createFrame.dispose();
 
-            } catch (SQLException c) {
-                c.printStackTrace();
-                JOptionPane.showMessageDialog(createFrame, "Error: " + c.getMessage());
+            } catch (SQLException | NumberFormatException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(createFrame, "Error: " + ex.getMessage());
                 return;
             }
-            JOptionPane.showMessageDialog(null, "Product Updated successfully.");
+            JOptionPane.showMessageDialog(null, "Product updated successfully.");
             pan.revalidate();
             pan.repaint();
         });
@@ -347,6 +360,41 @@ public class ProductPanel extends JPanel {
         }
     }
 
+    private static JTextField createLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        JTextField textField = new JTextField();
+        textField.setFont(textFieldFont);
+        panel.add(label);
+        panel.add(textField);
+        return textField;
+    }
+
+    private static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String keyValue) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        JTextField textField = new JTextField();
+        textField.setFont(textFieldFont);
+
+        try (Connection connection = getConnection()) {
+            String query = String.format("SELECT %s FROM %s WHERE %s = ?", columnName, "product_inventory", "product_id");
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, keyValue);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        textField.setText(resultSet.getString(columnName));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        panel.add(label);
+        panel.add(textField);
+        return textField;
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -364,9 +412,4 @@ public class ProductPanel extends JPanel {
         String password = "";
         return DriverManager.getConnection(url, username, password);
     }
-
 }
-
-
-
-
