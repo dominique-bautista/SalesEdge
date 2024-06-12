@@ -183,22 +183,99 @@ public class SalesPanel extends JPanel {
 
         Font font = new Font("Serif", Font.PLAIN, 18);
 
-        JTextField customerIdField = createHighlightedTextField(20, font);
-        JTextField dateField = createHighlightedTextField(20, font);
-        JTextField timeField = createHighlightedTextField(20, font);
-        JTextField productField = createHighlightedTextField(20, font);
-        JTextField totalAmountField = createHighlightedTextField(20, font);
+        JTextField customerIdField = createHighlightedTextField(font);
+        JTextField dateField = createHighlightedTextField(font);
+        JTextField timeField = createHighlightedTextField(font);
 
         addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 0, font);
         addFieldToPanel(panel, "Date:", dateField, gbc, 1, font);
         addFieldToPanel(panel, "Time:", timeField, gbc, 2, font);
-        addFieldToPanel(panel, "Product:", productField, gbc, 3, font);
-        addFieldToPanel(panel, "Total Amount:", totalAmountField, gbc, 4, font);
+
+        JButton cartButton = new JButton("Cart");
+        cartButton.setBackground(ACCENT_COLOR);
+        cartButton.setForeground(Color.WHITE);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        panel.add(cartButton, gbc);
+
+        AtomicInteger totalAmount = new AtomicInteger(0);
+        String[][] productDetails = new String[10][4]; // temporary storage for products
+
+        cartButton.addActionListener(e -> {
+            JPanel cartPanel = new JPanel(new BorderLayout(10, 10));
+            DefaultTableModel cartTableModel = new DefaultTableModel(new String[]{"Product ID", "Product Name", "Quantity", "Price"}, 0);
+            JTable cartTable = new JTable(cartTableModel);
+            cartTable.setRowHeight(30);
+            cartTable.setFont(new Font("Lato", Font.PLAIN, 16));
+            cartTable.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
+            cartTable.getTableHeader().setBackground(ACCENT_COLOR);
+            cartTable.getTableHeader().setForeground(Color.WHITE);
+            cartTable.setFillsViewportHeight(true);
+            cartTable.setGridColor(ACCENT_COLOR);
+            cartTable.setShowGrid(true);
+            cartTable.setSelectionBackground(ACCENT_COLOR);
+            cartTable.setSelectionForeground(Color.WHITE);
+
+            JScrollPane cartScrollPane = new JScrollPane(cartTable);
+            cartScrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
+            cartPanel.add(cartScrollPane, BorderLayout.CENTER);
+
+            JButton addProductButton = new JButton("Add Product");
+            addProductButton.setBackground(ACCENT_COLOR);
+            addProductButton.setForeground(Color.WHITE);
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+            buttonPanel.setBackground(Color.WHITE);
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            buttonPanel.add(addProductButton);
+            cartPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            addProductButton.addActionListener(ev -> {
+                JPanel productPanel = new JPanel(new GridBagLayout());
+                productPanel.setBackground(Color.WHITE);
+                GridBagConstraints productGbc = new GridBagConstraints();
+                productGbc.insets = new Insets(10, 10, 10, 10);
+                productGbc.fill = GridBagConstraints.HORIZONTAL;
+
+                JTextField productIdField = createHighlightedTextField(font);
+                JTextField quantityField = createHighlightedTextField(font);
+
+                addFieldToPanel(productPanel, "Product ID:", productIdField, productGbc, 0, font);
+                addFieldToPanel(productPanel, "Quantity:", quantityField, productGbc, 1, font);
+
+                int option = JOptionPane.showConfirmDialog(this, productPanel, "Add Product", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (option == JOptionPane.OK_OPTION) {
+                    String productId = productIdField.getText();
+                    String quantityStr = quantityField.getText();
+                    int quantity = Integer.parseInt(quantityStr);
+
+                    // In a real scenario, product information would be fetched from a database
+                    String productName = "Product " + productId.substring(1); // Mock product name
+                    int price = 100; // Mock price
+
+                    int total = price * quantity;
+                    totalAmount.addAndGet(total);
+
+                    cartTableModel.addRow(new Object[]{productId, productName, quantityStr, "$" + total});
+                }
+            });
+
+            int option = JOptionPane.showConfirmDialog(this, cartPanel, "Cart", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (option == JOptionPane.OK_OPTION) {
+                int rowCount = cartTableModel.getRowCount();
+                for (int i = 0; i < rowCount; i++) {
+                    productDetails[i][0] = (String) cartTableModel.getValueAt(i, 0);
+                    productDetails[i][1] = (String) cartTableModel.getValueAt(i, 1);
+                    productDetails[i][2] = (String) cartTableModel.getValueAt(i, 2);
+                    productDetails[i][3] = ((String) cartTableModel.getValueAt(i, 3)).substring(1); // Remove '$' symbol
+                }
+            }
+        });
 
         int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
             String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
-            String productDetails = productField.getText();
             tableModel.addRow(new Object[]{
                     transactionId,
                     customerIdField.getText(),
@@ -206,25 +283,15 @@ public class SalesPanel extends JPanel {
                     timeField.getText(),
                     currentSalespersonId,
                     "Click to view",
-                    totalAmountField.getText()
+                    "$" + totalAmount.get()
             });
 
-            String[] products = productDetails.split(";"); // Split products by semicolon
-            String[][] productArray = new String[products.length][4];
-
-            for (int i = 0; i < products.length; i++) {
-                String[] productInfo = products[i].split(","); // Split each product info by comma
-                if (productInfo.length == 4) {
-                    productArray[i] = productInfo;
-                }
-            }
-            transactionProductDetails.put(transactionId, productArray);
+            transactionProductDetails.put(transactionId, productDetails);
         }
     }
 
-
-    private JTextField createHighlightedTextField(int columns, Font font) {
-        JTextField textField = new JTextField(columns);
+    private JTextField createHighlightedTextField(Font font) {
+        JTextField textField = new JTextField(20);
         textField.setFont(font);
         textField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         textField.addFocusListener(new FocusListener() {
