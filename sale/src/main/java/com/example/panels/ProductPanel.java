@@ -1,9 +1,14 @@
 package com.example.panels;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
@@ -176,8 +181,34 @@ public class ProductPanel extends JPanel {
         JTextField category = Manager.createLabeledTextField("Category:", panel, labelFont, textFieldFont);
         JTextField price = Manager.createLabeledTextField("Price:", panel, labelFont, textFieldFont);
         JTextField supplier = Manager.createLabeledTextField("Supplier:", panel, labelFont, textFieldFont);
-        JTextField imageUrl = Manager.createLabeledTextField("Image URL:", panel, labelFont, textFieldFont);
         JTextField stock = Manager.createLabeledTextField("Stock:", panel, labelFont, textFieldFont);
+
+        JLabel imageLabel = new JLabel();
+        imageLabel.setPreferredSize(new Dimension(100, 100));
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        panel.add(new JLabel("Image Preview:"));
+        panel.add(imageLabel);
+
+        JButton uploadButton = new JButton("Upload Image");
+        panel.add(new JLabel());
+        panel.add(uploadButton);
+
+        uploadButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(createFrame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    BufferedImage img = ImageIO.read(selectedFile);
+                    ImageIcon icon = new ImageIcon(img.getScaledInstance(100, 100, Image.SCALE_SMOOTH));
+                    imageLabel.setIcon(icon);
+                    imageLabel.setText(selectedFile.getAbsolutePath());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(createFrame, "Error loading image: " + ex.getMessage());
+                }
+            }
+        });
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(new Color(0xF47130));
@@ -185,11 +216,11 @@ public class ProductPanel extends JPanel {
         saveButton.setFont(new Font("Lato", Font.BOLD, 14));
 
         saveButton.addActionListener(e -> {
-            boolean allFieldsFilled = Arrays.stream(new JTextField[]{productName, desc, category, price, supplier, stock, imageUrl})
-                                 .noneMatch(field -> field.getText().trim().isEmpty());
+            boolean allFieldsFilled = Arrays.stream(new JTextField[]{productName, desc, category, price, supplier, stock})
+                    .noneMatch(field -> field.getText().trim().isEmpty());
 
-            if (!allFieldsFilled) {
-                JOptionPane.showMessageDialog(createFrame, "All fields must be filled out.");
+            if (!allFieldsFilled || imageLabel.getIcon() == null) {
+                JOptionPane.showMessageDialog(createFrame, "All fields and image must be filled out.");
                 return;
             }
 
@@ -202,10 +233,10 @@ public class ProductPanel extends JPanel {
                 preparedStatement.setBigDecimal(4, new BigDecimal(price.getText()));
                 preparedStatement.setString(5, supplier.getText());
                 preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
-                preparedStatement.setString(7, imageUrl.getText());
+                preparedStatement.setString(7, imageLabel.getText());
 
                 // Calculate lowStockAlert here, right before it's used
-                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10? 0 : 1;
+                int lowStockAlert = stock.getText().trim().isEmpty() || Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
                 preparedStatement.setInt(8, lowStockAlert);
 
                 preparedStatement.executeUpdate(); // Execute the statement
@@ -221,6 +252,7 @@ public class ProductPanel extends JPanel {
             pan.repaint();
         });
 
+        panel.add(new JLabel());
         panel.add(saveButton);
 
         createFrame.add(panel);
@@ -303,23 +335,15 @@ public class ProductPanel extends JPanel {
     }
 
     private void deleteProduct(String productId) {
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) {
-                String query = "DELETE FROM product_inventory WHERE product_id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(query)) {
-                    statement.setString(1, productId);
-                    int rowsAffected = statement.executeUpdate();
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Product deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Product with ID " + productId + " not found.", "Not Found", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        try (Connection connection = getConnection()) {
+            String sqlDelete = "DELETE FROM product_inventory WHERE product_id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlDelete)) {
+                preparedStatement.setString(1, productId);
+                preparedStatement.executeUpdate();
             }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -342,3 +366,7 @@ public class ProductPanel extends JPanel {
     }
 
 }
+
+
+
+
