@@ -212,6 +212,7 @@ public class SalesPanel extends JPanel {
         AtomicInteger totalAmount = new AtomicInteger(0);
         String[][] productDetails = new String[10][4]; // temporary storage for products
         Map<String, String> productsQuantities = new HashMap<>();
+        double totAmount = 0;
         cartButton.addActionListener(e -> {
             JPanel cartPanel = new JPanel(new BorderLayout(10, 10));
             DefaultTableModel cartTableModel = new DefaultTableModel(
@@ -259,7 +260,7 @@ public class SalesPanel extends JPanel {
                     int quantity = Integer.parseInt(quantityStr);
                     String productName = "";
                     int price = 0;
-                    int total = 0;
+                    int stock = 0;
                     try (Connection conn = Manager.getConnection()) {
                         String sql = "SELECT * FROM product_inventory WHERE product_id =?";
                         PreparedStatement stmt = conn.prepareStatement(sql);
@@ -268,28 +269,22 @@ public class SalesPanel extends JPanel {
                         if (rs.next()) {
                             productName = rs.getString("product_name");
                             price = rs.getInt("price");
-                            total = price * quantity;
+                            stock = rs.getInt("stock_level");
+                            if(stock < quantity)
+                            {
+                                JOptionPane.showMessageDialog(this, "Not enough stock", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }else {
+                                totalAmount.addAndGet((int)(price * quantity));
+                                String tot = "$" + price; // Correctly concatenates dollar sign with total
+                                cartTableModel.addRow(new Object[]{productId, productName, quantityStr, tot});
+                            }
                         } else {
-                            JOptionPane.showMessageDialog(this, "Invalid Product ID", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                            productName = "";
-                            price = 0;
+                            JOptionPane.showMessageDialog(this, "Invalid Product ID", "Error", JOptionPane.ERROR_MESSAGE);
                         }
-
                     } catch (Exception a) {
-                        // TODO: handle exception
                         a.printStackTrace();
-                        ;
                     }
-
-                    String tot = "$";
-                    tot += total;
-                    // In a real scenario, product information would be fetched from a database
-
-                    // int total = price * quantity;
-                    // totalAmount.addAndGet(total);
-
-                    cartTableModel.addRow(new Object[] { productId, productName, quantityStr, tot });
                 }
 
             });
@@ -390,6 +385,13 @@ public class SalesPanel extends JPanel {
                 } else {
                     System.out.println("No rows were inserted.");
                 }
+                // Update stock level
+                String updateStockSQL = "UPDATE product_inventory SET stock_level = stock_level -? WHERE product_id =?";
+                PreparedStatement updateStockStmt = conn.prepareStatement(updateStockSQL);
+                updateStockStmt.setInt(1, quantity);
+                updateStockStmt.setInt(2, productId);
+                updateStockStmt.executeUpdate();
+
             }
 
             // Commit the transaction
