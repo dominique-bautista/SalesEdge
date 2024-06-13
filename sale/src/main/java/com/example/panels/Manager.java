@@ -9,14 +9,6 @@ import java.util.Map;
 
 public class Manager {
 
-    // Method to create a new label and field and add to panel
-    public static JTextField labelField(String container, JPanel panel) {
-        JLabel label = new JLabel(container);
-        JTextField textField = new JTextField();
-        panel.add(label);
-        panel.add(textField);
-        return textField;
-    }
     public static JTextField createLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont) {
         JLabel label = new JLabel(labelText);
         label.setFont(labelFont);
@@ -161,7 +153,7 @@ public class Manager {
     public static Map<String, String> getCustomerNamesOrderedByIDAsc() {
         Map<String, String> customerMap = new LinkedHashMap<>();
         try (Connection connection = getConnection()) {
-            String sql = "SELECT customer_id, first_name, last_name FROM customer ORDER BY customer_id ASC";
+            String sql = "SELECT customer_id, first_name, last_name FROM customer ORDER BY customer_id";
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
