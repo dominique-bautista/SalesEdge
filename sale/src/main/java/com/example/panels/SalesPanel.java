@@ -8,6 +8,10 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,7 +51,8 @@ public class SalesPanel extends JPanel {
             }
         });
 
-        String[] columns = {"Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Product", "Total Amount"};
+        String[] columns = { "Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Product",
+                "Total Amount" };
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
         searchPanel.add(new JLabel("Search:"));
@@ -67,20 +72,23 @@ public class SalesPanel extends JPanel {
             }
         };
 
-        transactionTableModel.addRow(new Object[]{"T001", "C001", "2023-05-01", "10:30 AM", "S001", "Click to view", "$600.00"});
-        transactionProductDetails.put("T001", new String[][]{
-                {"P001", "Product A", "2", "$300.00"},
-                {"P002", "Product B", "1", "$300.00"}
+        transactionTableModel
+                .addRow(new Object[] { "T001", "C001", "2023-05-01", "10:30 AM", "S001", "Click to view", "$600.00" });
+        transactionProductDetails.put("T001", new String[][] {
+                { "P001", "Product A", "2", "$300.00" },
+                { "P002", "Product B", "1", "$300.00" }
         });
 
-        transactionTableModel.addRow(new Object[]{"T002", "C002", "2023-05-02", "11:00 AM", "S002", "Click to view", "$45.00"});
-        transactionProductDetails.put("T002", new String[][]{
-                {"P003", "Product C", "1", "$45.00"}
+        transactionTableModel
+                .addRow(new Object[] { "T002", "C002", "2023-05-02", "11:00 AM", "S002", "Click to view", "$45.00" });
+        transactionProductDetails.put("T002", new String[][] {
+                { "P003", "Product C", "1", "$45.00" }
         });
 
-        transactionTableModel.addRow(new Object[]{"T003", "C003", "2023-05-03", "01:45 PM", "S003", "Click to view", "$150.00"});
-        transactionProductDetails.put("T003", new String[][]{
-                {"P004", "Product D", "1", "$150.00"}
+        transactionTableModel
+                .addRow(new Object[] { "T003", "C003", "2023-05-03", "01:45 PM", "S003", "Click to view", "$150.00" });
+        transactionProductDetails.put("T003", new String[][] {
+                { "P004", "Product D", "1", "$150.00" }
         });
 
         JTable transactionTable = new JTable(transactionTableModel);
@@ -186,6 +194,8 @@ public class SalesPanel extends JPanel {
         JTextField customerIdField = createHighlightedTextField(font);
         JTextField dateField = createHighlightedTextField(font);
         JTextField timeField = createHighlightedTextField(font);
+        JTextField productIdField = createHighlightedTextField(font);
+        JTextField quantityField = createHighlightedTextField(font);
 
         addFieldToPanel(panel, "Customer ID:", customerIdField, gbc, 0, font);
         addFieldToPanel(panel, "Date:", dateField, gbc, 1, font);
@@ -201,10 +211,11 @@ public class SalesPanel extends JPanel {
 
         AtomicInteger totalAmount = new AtomicInteger(0);
         String[][] productDetails = new String[10][4]; // temporary storage for products
-
+        Map<String, String> productsQuantities = new HashMap<>();
         cartButton.addActionListener(e -> {
             JPanel cartPanel = new JPanel(new BorderLayout(10, 10));
-            DefaultTableModel cartTableModel = new DefaultTableModel(new String[]{"Product ID", "Product Name", "Quantity", "Price"}, 0);
+            DefaultTableModel cartTableModel = new DefaultTableModel(
+                    new String[] { "Product ID", "Product Name", "Quantity", "Price" }, 0);
             JTable cartTable = new JTable(cartTableModel);
             cartTable.setRowHeight(30);
             cartTable.setFont(new Font("Lato", Font.PLAIN, 16));
@@ -230,7 +241,6 @@ public class SalesPanel extends JPanel {
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
             buttonPanel.add(addProductButton);
             cartPanel.add(buttonPanel, BorderLayout.SOUTH);
-
             addProductButton.addActionListener(ev -> {
                 JPanel productPanel = new JPanel(new GridBagLayout());
                 productPanel.setBackground(Color.WHITE);
@@ -238,45 +248,75 @@ public class SalesPanel extends JPanel {
                 productGbc.insets = new Insets(10, 10, 10, 10);
                 productGbc.fill = GridBagConstraints.HORIZONTAL;
 
-                JTextField productIdField = createHighlightedTextField(font);
-                JTextField quantityField = createHighlightedTextField(font);
-
                 addFieldToPanel(productPanel, "Product ID:", productIdField, productGbc, 0, font);
                 addFieldToPanel(productPanel, "Quantity:", quantityField, productGbc, 1, font);
 
-                int option = JOptionPane.showConfirmDialog(this, productPanel, "Add Product", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                int option = JOptionPane.showConfirmDialog(this, productPanel, "Add Product",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (option == JOptionPane.OK_OPTION) {
                     String productId = productIdField.getText();
                     String quantityStr = quantityField.getText();
                     int quantity = Integer.parseInt(quantityStr);
+                    String productName = "";
+                    int price = 0;
+                    int total = 0;
+                    try (Connection conn = Manager.getConnection()) {
+                        String sql = "SELECT * FROM product_inventory WHERE product_id =?";
+                        PreparedStatement stmt = conn.prepareStatement(sql);
+                        stmt.setString(1, productId);
+                        ResultSet rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            productName = rs.getString("product_name");
+                            price = rs.getInt("price");
+                            total = price * quantity;
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Invalid Product ID", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            productName = "";
+                            price = 0;
+                        }
 
+                    } catch (Exception a) {
+                        // TODO: handle exception
+                        a.printStackTrace();
+                        ;
+                    }
+
+                    String tot = "$";
+                    tot += total;
                     // In a real scenario, product information would be fetched from a database
-                    String productName = "Product " + productId.substring(1); // Mock product name
-                    int price = 100; // Mock price
 
-                    int total = price * quantity;
-                    totalAmount.addAndGet(total);
+                    // int total = price * quantity;
+                    // totalAmount.addAndGet(total);
 
-                    cartTableModel.addRow(new Object[]{productId, productName, quantityStr, "$" + total});
+                    cartTableModel.addRow(new Object[] { productId, productName, quantityStr, tot });
                 }
+
             });
 
-            int option = JOptionPane.showConfirmDialog(this, cartPanel, "Cart", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int option = JOptionPane.showConfirmDialog(this, cartPanel, "Cart", JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE);
             if (option == JOptionPane.OK_OPTION) {
                 int rowCount = cartTableModel.getRowCount();
                 for (int i = 0; i < rowCount; i++) {
                     productDetails[i][0] = (String) cartTableModel.getValueAt(i, 0);
                     productDetails[i][1] = (String) cartTableModel.getValueAt(i, 1);
                     productDetails[i][2] = (String) cartTableModel.getValueAt(i, 2);
-                    productDetails[i][3] = ((String) cartTableModel.getValueAt(i, 3)).substring(1); // Remove '$' symbol
+                    productDetails[i][3] = (String) cartTableModel.getValueAt(i, 3);
+                    productsQuantities.put(productDetails[i][0], productDetails[i][2]);
+
                 }
             }
         });
 
-        int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
+            insertTransaction(customerIdField.getText(), dateField.getText(), timeField.getText(), "1",
+                    productsQuantities); 
+
             String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
-            tableModel.addRow(new Object[]{
+            tableModel.addRow(new Object[] {
                     transactionId,
                     customerIdField.getText(),
                     dateField.getText(),
@@ -286,7 +326,81 @@ public class SalesPanel extends JPanel {
                     "$" + totalAmount.get()
             });
 
-            transactionProductDetails.put(transactionId, productDetails);
+        }
+    }
+
+    public void insertTransaction(String customerId, String date, String time, String salespersonId,
+            Map<String, String> productsQuantities) {
+        
+        Connection conn = null;
+        try  {
+            conn = Manager.getConnection();
+            conn.setAutoCommit(false);
+            String insertTransactionSQL = "INSERT INTO transactions (CustomerID, Date, Time, SalespersonID) VALUES (?,?,?,?)";
+            PreparedStatement transactionStmt = conn.prepareStatement(insertTransactionSQL,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            transactionStmt.setString(1, customerId);
+            transactionStmt.setDate(2, java.sql.Date.valueOf(date)); // Assuming 'date' is in "yyyy-MM-dd" format
+            transactionStmt.setTime(3, java.sql.Time.valueOf(time)); // Assuming 'time' is in "HH:mm:ss" format
+            transactionStmt.setInt(4, Integer.parseInt(salespersonId));
+            int rowsAffected = transactionStmt.executeUpdate();
+            if(rowsAffected > 0) {
+                System.out.println("Transaction Inserted");
+            } else {
+                System.out.println("No rows were inserted.");
+            }
+
+            ResultSet rs = transactionStmt.getGeneratedKeys();
+            int transactId = rs.next() ? rs.getInt(1) : -1;
+
+            String insertItemSQL = "INSERT INTO transactionitems (TransactionID, ProductID, ProductName, Quantity, Price) VALUES (?,?,?,?,?)";
+            PreparedStatement itemStmt = conn.prepareStatement(insertItemSQL);
+            for (Map.Entry<String, String> entry : productsQuantities.entrySet()) {
+                int productId = Integer.parseInt(entry.getKey());
+                int quantity = Integer.parseInt(entry.getValue());
+                // Fetch price from Products table
+                String fetchPriceSQL = "SELECT price, product_name FROM product_inventory WHERE product_id =?";
+                PreparedStatement priceStmt = conn.prepareStatement(fetchPriceSQL);
+                priceStmt.setInt(1, productId);
+                ResultSet Rs = priceStmt.executeQuery();
+                double priceRs;
+                String name;
+                if (Rs.next()) {
+                    priceRs = Rs.getDouble(1);
+                    name = Rs.getString(2);
+
+                } else {
+                    priceRs = 0;
+                    name = "";
+                }
+                // double price = Rs.next() ? Rs.getDouble("price") : 0.0; // Handle price not
+                // found
+
+                // Insert into TransactionItems
+                itemStmt.setInt(1, transactId);
+                itemStmt.setInt(2, productId);
+                itemStmt.setString(3, name);
+                itemStmt.setInt(4, quantity);
+                itemStmt.setDouble(5, priceRs);
+                
+                int res = itemStmt.executeUpdate();
+                if (res >0)
+                {
+                    System.out.println("Transaction Inserted");
+                } else {
+                    System.out.println("No rows were inserted.");
+                }
+            }
+
+            // Commit the transaction
+            conn.commit();
+        } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            ex.printStackTrace();
         }
     }
 
@@ -309,7 +423,8 @@ public class SalesPanel extends JPanel {
         return textField;
     }
 
-    private void addFieldToPanel(JPanel panel, String labelText, JTextField textField, GridBagConstraints gbc, int yPos, Font font) {
+    private void addFieldToPanel(JPanel panel, String labelText, JTextField textField, GridBagConstraints gbc, int yPos,
+            Font font) {
         JLabel label = new JLabel(labelText);
         label.setFont(font);
         gbc.gridx = 0;
@@ -323,7 +438,7 @@ public class SalesPanel extends JPanel {
     private void showProductDetails(String transactionId) {
         String[][] products = transactionProductDetails.get(transactionId);
         if (products != null) {
-            String[] columnNames = {"Product ID", "Product Name", "Quantity", "Price"};
+            String[] columnNames = { "Product ID", "Product Name", "Quantity", "Price" };
             JTable productTable = new JTable(products, columnNames);
             productTable.setFont(new Font("Serif", Font.PLAIN, 16));
             productTable.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
