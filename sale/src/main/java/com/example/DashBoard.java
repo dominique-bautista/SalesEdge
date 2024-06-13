@@ -97,7 +97,7 @@ public class DashBoard {
     public static void initializeDashboard(JFrame loginFrame, String id) {
         // Dispose of the login frame
         loginFrame.dispose();
-        // Set the Id
+        // Set the ID
         currentId = id;
         UI();
         // Create the main dashboard frame
