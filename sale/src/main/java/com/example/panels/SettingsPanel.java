@@ -20,8 +20,8 @@ public class SettingsPanel extends JPanel {
     private static final Dimension TEXT_FIELD_SIZE = new Dimension(200, 40); // Set the height of the text fields
     private static final int BUTTON_WIDTH = 100;
     private static final int BUTTON_HEIGHT = 40;
-    private String loggedUserID;
-    private JTextField[] textFields = new JTextField[8];
+    private final String loggedUserID;
+    private final JTextField[] textFields = new JTextField[8];
 
     public SettingsPanel(String userID) {
 
@@ -164,29 +164,6 @@ public class SettingsPanel extends JPanel {
             e.printStackTrace();
             System.err.println("Failed to connect to the database.");
         }
-    }
-
-    // Method to create and add a labeled text field
-    private void addLabeledTextField(JPanel panel, String labelText, GridBagConstraints gbc, int x, int y) {
-        gbc.gridx = x;
-        gbc.gridy = y;
-
-        JPanel subPanel = new JPanel(new BorderLayout(5, 5));
-        subPanel.setBackground(PANEL_COLOR);
-
-        JLabel label = new JLabel(labelText.toUpperCase());
-        label.setFont(new Font("Roboto", Font.BOLD, 14));
-        label.setForeground(TEXT_COLOR);
-
-        JTextField textField = new JTextField();
-        textField.setFont(new Font("Lato", Font.PLAIN, 14));
-        textField.setBorder(BorderFactory.createLineBorder(TEXT_COLOR));
-        textField.setPreferredSize(TEXT_FIELD_SIZE); // Set preferred size to control height
-
-        subPanel.add(label, BorderLayout.NORTH);
-        subPanel.add(textField, BorderLayout.CENTER);
-
-        panel.add(subPanel, gbc);
     }
 
     public static void main(String[] args) {
