@@ -102,17 +102,6 @@ public class CreateDatabaseAndTables {
                         statement.executeUpdate(createTransactionsTableSQL);
                         statement.executeUpdate(createTransactionItemsTableSQL);
 
-                        // Supplier Information Table
-                        String createSupplierTable = "CREATE TABLE IF NOT EXISTS supplier (" +
-                                        "supplier_id INT AUTO_INCREMENT PRIMARY KEY, " +
-                                        "supplier_name VARCHAR(100) NOT NULL, " +
-                                        "products_supplied VARCHAR(255) NOT NULL, " +
-                                        "email VARCHAR(100) NOT NULL, " +
-                                        "phone VARCHAR(20) NOT NULL, " +
-                                        "address VARCHAR(255) NOT NULL" +
-                                        ");";
-                        statement.executeUpdate(createSupplierTable);
-
                         System.out.println("Tables created successfully!");
 
                         connection.close();
