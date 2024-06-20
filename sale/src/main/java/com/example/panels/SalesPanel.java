@@ -10,10 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,6 +21,8 @@ public class SalesPanel extends JPanel {
     private static final String currentSalespersonId = "S001";
     private static final Map<String, String[][]> transactionProductDetails = new HashMap<>();
 
+    String productView;
+    String total;
     public SalesPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
@@ -73,6 +72,40 @@ public class SalesPanel extends JPanel {
                 return column != 0 && column != 4;
             }
         };
+
+        try (Connection connection = Manager.getConnection()) {
+            String query = "SELECT * FROM Transactions";
+            String productQuery = "SELECT * FROM TransactionItems WHERE TransactionID = ?";
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(query)) {
+                while (resultSet.next()) {
+                    PreparedStatement productStmt = connection.prepareStatement(productQuery);
+                    productStmt.setString(1, resultSet.getString("TransactionID"));
+                    ResultSet Rs = productStmt.executeQuery();
+
+                    int totalAmount = 0;
+                    while (Rs.next()) {
+                        int price = Rs.getInt("Price");
+                        int qty = Rs.getInt("Quantity");
+                        totalAmount += price * qty;
+                    }
+
+                    Object[] rowData = {
+                            resultSet.getString("TransactionID"),
+                            resultSet.getString("CustomerID"),
+                            resultSet.getString("Date"),
+                            resultSet.getString("Time"),
+                            resultSet.getBigDecimal("SalespersonID"),
+                            productView = "See products",
+                            totalAmount,
+                    };
+                    transactionTableModel.addRow(rowData);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
 
         JTable transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30);
