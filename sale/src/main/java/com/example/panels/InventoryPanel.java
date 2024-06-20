@@ -50,10 +50,18 @@ public class InventoryPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // Create the table model for inventory items
-        DefaultTableModel tableModel = new DefaultTableModel();
+        DefaultTableModel tableModel = new DefaultTableModel() {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 1) {
+                    return Integer.class; // Assuming "Stock Levels" is at index 1
+                }
+                return super.getColumnClass(columnIndex);
+            }
+        };
         tableModel.addColumn("Product Name");
-        tableModel.addColumn("Stock Levels");
-        tableModel.addColumn("Low Stock Alert");
+        tableModel.addColumn("Stocks");
+        tableModel.addColumn("Low Stock");
         tableModel.addColumn("Supplier Name");
 
         // Populate a table model with data from the database
