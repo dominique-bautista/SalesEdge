@@ -17,7 +17,6 @@ public class DashboardReport extends JPanel {
         // Create and add charts to the panel
         add(createChartPanel(createCustomerDemographicChart()));
         add(createChartPanel(createProductsByCategoryChart()));
-        add(createChartPanel(createLowStockAlertChart()));
         add(createChartPanel(createSalesByStaffChart()));
         add(createChartPanel(createInventoryLevelsChart()));
     }
@@ -53,23 +52,6 @@ public class DashboardReport extends JPanel {
                 "Products by Category",
                 "Category",
                 "Number of Products",
-                dataset,
-                PlotOrientation.VERTICAL,
-                false,
-                true,
-                false
-        );
-    }
-
-    private JFreeChart createLowStockAlertChart() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(5, "Low Stock", "Product A");
-        dataset.addValue(2, "Low Stock", "Product B");
-        dataset.addValue(1, "Low Stock", "Product C");
-        return ChartFactory.createBarChart(
-                "Low Stock Alert",
-                "Product",
-                "Quantity",
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,
