@@ -3,6 +3,8 @@ package com.example.panels;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,29 +13,24 @@ import java.util.Map;
 
 public class CustomerPanel extends JPanel {
     private final JTextField searchBar;
+    private JComboBox<String> searchFilter = null;
     private final JList<String> customerList;
     private final JTextArea customerDetails;
-    private final Map<String, String> customerIDMap; // Map to hold customer
-    // names and their IDs
+    private final Map<String, String> customerIDMap;
 
     public CustomerPanel() {
         setLayout(new BorderLayout());
 
-        // Initialize the map of customer names and their IDs
         customerIDMap = Manager.getCustomerNames();
 
-        // Set the shared customerIDMap in Manager
-
-        // Create the search bar
         searchBar = new JTextField("Search...");
-        searchBar.setPreferredSize(new Dimension(790, 30));
+        searchBar.setPreferredSize(new Dimension(750, 30));
         searchBar.setFont(new Font("Lato", Font.PLAIN, 18));
         searchBar.setForeground(Color.GRAY);
 
-        // Add a listener to clear the text field when focused
-        searchBar.addFocusListener(new java.awt.event.FocusAdapter() {
+        searchBar.addFocusListener(new FocusAdapter() {
             @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
+            public void focusGained(FocusEvent evt) {
                 if (searchBar.getText().equals("Search...")) {
                     searchBar.setText("");
                     searchBar.setForeground(Color.BLACK);
@@ -41,33 +38,34 @@ public class CustomerPanel extends JPanel {
             }
 
             @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
+            public void focusLost(FocusEvent evt) {
                 if (searchBar.getText().isEmpty()) {
                     searchBar.setForeground(Color.GRAY);
                     searchBar.setText("Search...");
-                    // Show all customers when search is cleared
                 }
             }
         });
 
-        // Add a listener to handle the Enter key press
-        searchBar.addActionListener(e -> updateCustomerList(searchBar.getText()));
+        searchBar.addActionListener(e -> updateCustomerList(searchBar.getText(), (String) searchFilter.getSelectedItem()));
+        searchFilter = new JComboBox<>(new String[]{"First Name", "Last Name", "Age", "Gender", "Phone", "Email","Street Address","City","Province","Postal Code","Country"});
+        searchFilter.setFont(new Font("Lato", Font.PLAIN, 18));
 
-        // Add the search bar to a panel with padding
+        searchFilter.setPreferredSize(new Dimension(200, searchFilter.getPreferredSize().height));
+
         JPanel searchPanel = new JPanel();
         searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchBar);
+        searchPanel.add(new JLabel(" in "));
+        searchPanel.add(searchFilter);
 
-        // Add the search panel to the top of the CustomerPanel
         add(searchPanel, BorderLayout.NORTH);
 
-        // Create the customer list
         customerList = new JList<>(new DefaultListModel<>());
         customerList.setFont(new Font("Lato", Font.PLAIN, 20));
         customerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Add a listener to handle selection events
         customerList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedCustomer = customerList.getSelectedValue();
@@ -79,15 +77,13 @@ public class CustomerPanel extends JPanel {
 
         JScrollPane customerListScrollPane = new JScrollPane(customerList);
         customerListScrollPane.setPreferredSize(new Dimension(200, 0));
-
         customerListScrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
-                this.thumbColor = new Color(0xF47130); // Set the color of the scrollbar thumb
+                this.thumbColor = new Color(0xF47130);
             }
         });
 
-        // Create the customer details area
         customerDetails = new JTextArea();
         customerDetails.setFont(new Font("Lato", Font.PLAIN, 20));
         customerDetails.setEditable(false);
@@ -95,34 +91,22 @@ public class CustomerPanel extends JPanel {
 
         JScrollPane customerDetailsScrollPane = new JScrollPane(customerDetails);
 
-        // Create a split pane to hold the list and details
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, customerListScrollPane,
-                customerDetailsScrollPane);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, customerListScrollPane, customerDetailsScrollPane);
         splitPane.setDividerLocation(300);
         splitPane.setOneTouchExpandable(true);
 
-        // Create a panel to hold the split pane and add padding around it
         JPanel splitPanePanel = new JPanel(new BorderLayout());
-        splitPanePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the split pane
+        splitPanePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         splitPanePanel.add(splitPane, BorderLayout.CENTER);
 
-        // Add the split pane panel to the CustomerPanel
-        add(splitPanePanel, BorderLayout.CENTER);
-        // Add the buttons for creating, updating, and deleting customers
         JButton createButton = createButton("Add");
         createButton.addActionListener(e -> {
             createCustomer(this);
-            // Deselect any selected item in the list
             customerList.clearSelection();
-
-            // Clear the details panel
             customerDetails.setText("Select a customer to view details.");
-
-            // Optionally, refresh the list to ensure it's up to date
             populateListAndMap();
             revalidate();
             repaint();
-            // Refresh the customer list
         });
 
         JButton updateButton = createButton("Edit");
@@ -139,23 +123,15 @@ public class CustomerPanel extends JPanel {
         deleteButton.addActionListener(e -> {
             String selectedCustomer = customerList.getSelectedValue();
             if (selectedCustomer != null) {
-                int choice = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you want to delete the customer: " + selectedCustomer + "?", "Confirm Deletion",
-                        JOptionPane.YES_NO_OPTION);
+                int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the customer: " + selectedCustomer + "?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
                     int id = Integer.parseInt(customerIDMap.get(selectedCustomer));
                     Manager.delete("customer", "customer_id", id);
-                    // Deselect any selected item in the list
                     customerList.clearSelection();
-
-                    // Clear the details panel
                     customerDetails.setText("Select a customer to view details.");
-
-                    // Optionally, refresh the list to ensure it's up to date
                     populateListAndMap();
                     revalidate();
                     repaint();
-                    // Refresh the customer list
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a customer to delete.");
@@ -169,17 +145,13 @@ public class CustomerPanel extends JPanel {
 
         splitPanePanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add the split pane panel to the center of the CustomerPanel
         add(splitPanePanel, BorderLayout.CENTER);
-
-        // Initialize the customer list
-        updateCustomerList("");
+        updateCustomerList("", "Product ID");
         populateListAndMap();
         revalidate();
         repaint();
     }
 
-    // Method to create a button with specified text and style
     private JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(new Color(0xF4, 0x71, 0x30));
@@ -188,31 +160,21 @@ public class CustomerPanel extends JPanel {
         return button;
     }
 
-    // Method to update the customer list based on the search query
-    private void updateCustomerList(String searchQuery) {
+    private void updateCustomerList(String searchQuery, String filter) {
         DefaultListModel<String> model = (DefaultListModel<String>) customerList.getModel();
         model.clear();
 
         if (searchQuery.isEmpty()) {
-            // If a search query is empty, re-populate the list in ascending order of ID
             populateListAndMap();
         } else {
-            // Use a linked hash map to maintain the order of insertion
             Map<String, String> filteredMap = new LinkedHashMap<>();
-
-            // Filter the map based on the search query and maintain the order of IDs
             customerIDMap.entrySet().stream()
                     .filter(entry -> entry.getKey().toLowerCase().contains(searchQuery.toLowerCase()))
                     .forEach(entry -> filteredMap.put(entry.getKey(), entry.getValue()));
-
-            // Add the filtered and ordered names to the list model
             filteredMap.keySet().forEach(model::addElement);
         }
     }
 
-
-
-    // Method to display customer details
     private void showCustomerDetails(String customerName) {
         String customerID = customerIDMap.get(customerName);
         String details = Manager.getCustomerDetails(customerID);
