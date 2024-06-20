@@ -59,6 +59,11 @@ public class InventoryPanel extends JPanel {
                 }
                 return super.getColumnClass(columnIndex);
             }
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Disable all cells from being editable
+            }
         };
         tableModel.addColumn("Product Name");
         tableModel.addColumn("Stocks");
@@ -101,6 +106,9 @@ public class InventoryPanel extends JPanel {
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
         renderer.setHorizontalAlignment(SwingConstants.LEFT); // Set left alignment
         table.getColumnModel().getColumn(1).setCellRenderer(renderer); // Assuming "Stocks" is at index 1
+
+        // Disable row selection
+        table.setRowSelectionAllowed(false);
 
         // Create a scroll pane and add the table to it
         JScrollPane scrollPane = new JScrollPane(table);
