@@ -72,14 +72,14 @@ public class InventoryPanel extends JPanel {
 
         // Populate a table model with data from the database
         try (Connection connection = getConnection()) {
-            String query = "SELECT product_name, stock_level, low_stock_alert, supplier FROM product_inventory";
+            String query = "SELECT product_name, stock_level, supplier FROM product_inventory";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         String productName = resultSet.getString("product_name");
                         int stockLevel = resultSet.getInt("stock_level");
-                        String lowStockAlert = resultSet.getBoolean("low_stock_alert") ? "No" : "Yes";
                         String supplier = resultSet.getString("supplier");
+                        String lowStockAlert = stockLevel <= 10 ? "Yes" : "No"; // Check condition for low stock
                         tableModel.addRow(new Object[]{productName, stockLevel, lowStockAlert, supplier});
                     }
                 }
