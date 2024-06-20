@@ -1,13 +1,13 @@
 package com.example.panels;
 
-import javax.imageio.ImageIO;
+//import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+//import java.awt.image.BufferedImage;
+//import java.io.File;
+//import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
