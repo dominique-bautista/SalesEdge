@@ -72,25 +72,6 @@ public class SalesPanel extends JPanel {
             }
         };
 
-        transactionTableModel
-                .addRow(new Object[] { "T001", "C001", "2023-05-01", "10:30 AM", "S001", "Click to view", "$600.00" });
-        transactionProductDetails.put("T001", new String[][] {
-                { "P001", "Product A", "2", "$300.00" },
-                { "P002", "Product B", "1", "$300.00" }
-        });
-
-        transactionTableModel
-                .addRow(new Object[] { "T002", "C002", "2023-05-02", "11:00 AM", "S002", "Click to view", "$45.00" });
-        transactionProductDetails.put("T002", new String[][] {
-                { "P003", "Product C", "1", "$45.00" }
-        });
-
-        transactionTableModel
-                .addRow(new Object[] { "T003", "C003", "2023-05-03", "01:45 PM", "S003", "Click to view", "$150.00" });
-        transactionProductDetails.put("T003", new String[][] {
-                { "P004", "Product D", "1", "$150.00" }
-        });
-
         JTable transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30);
         transactionTable.setFont(new Font("Lato", Font.PLAIN, 16));
