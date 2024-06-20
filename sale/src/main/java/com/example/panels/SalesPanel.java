@@ -1,5 +1,7 @@
 package com.example.panels;
 
+import com.example.DashBoard;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -277,7 +279,7 @@ public class SalesPanel extends JPanel {
         int option = JOptionPane.showConfirmDialog(this, panel, "Create New Sales Transaction",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
-            insertTransaction(customerIdField.getText(), dateField.getText(), timeField.getText(), "1",
+            insertTransaction(customerIdField.getText(), dateField.getText(), timeField.getText(), DashBoard.getCurrentUserId(),
                     productsQuantities); 
 
             String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
@@ -286,7 +288,7 @@ public class SalesPanel extends JPanel {
                     customerIdField.getText(),
                     dateField.getText(),
                     timeField.getText(),
-                    currentSalespersonId,
+                    DashBoard.getCurrentUserId(),
                     "Click to view",
                     "$" + totalAmount.get()
             });

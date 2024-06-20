@@ -63,7 +63,7 @@ public class InventoryReport extends JPanel {
 
     private JFreeChart createLowStockAlertChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int threshold = 100;// input low stock alerts
+        int threshold = 10;// input low stock alerts
         // Fetch product names and stock levels from the database
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
             String query = "SELECT product_name, stock_level FROM product_inventory where stock_level < " + threshold;

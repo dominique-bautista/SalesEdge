@@ -64,7 +64,7 @@ public class InventoryPanel extends JPanel {
                     while (resultSet.next()) {
                         String productName = resultSet.getString("product_name");
                         int stockLevel = resultSet.getInt("stock_level");
-                        String lowStockAlert = resultSet.getBoolean("low_stock_alert") ? "Yes" : "No";
+                        String lowStockAlert = resultSet.getBoolean("low_stock_alert") ? "No" : "Yes";
                         String supplier = resultSet.getString("supplier");
                         tableModel.addRow(new Object[]{productName, stockLevel, lowStockAlert, supplier});
                     }
