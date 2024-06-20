@@ -65,7 +65,19 @@ public class ProductPanel extends JPanel {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 4) { // Price column
+                    return BigDecimal.class;
+                } else if (columnIndex == 0) { // Product ID column
+                    return Integer.class; // Assuming Product ID is numeric
+                } else {
+                    return String.class;
+                }
+            }
         };
+
         tableModel.setColumnIdentifiers(new String[]{"Product ID", "Product Name", "Description", "Category", "Price"});
 
         try (Connection connection = getConnection()) {
@@ -74,7 +86,7 @@ public class ProductPanel extends JPanel {
                  ResultSet resultSet = statement.executeQuery(query)) {
                 while (resultSet.next()) {
                     Object[] rowData = {
-                            resultSet.getString("product_id"),
+                            resultSet.getInt("product_id"), // Convert to Integer
                             resultSet.getString("product_name"),
                             resultSet.getString("description"),
                             resultSet.getString("category"),
