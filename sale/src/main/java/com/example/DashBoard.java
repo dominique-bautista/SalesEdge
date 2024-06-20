@@ -17,8 +17,7 @@ public class DashBoard {
     static final JFrame mainFrame = dashboardFrame.getMainFrame();
     private static String currentId;
 
-    public static void UI()
-    {
+    public static void UI(String staffName) {
         // Create the sidebar panel
         JPanel sidebar = new JPanel();
         sidebar.setBackground(new Color(0xF5F5F5)); // Light gray background
@@ -74,14 +73,14 @@ public class DashBoard {
             // Select the Home button by default
             if (i == 0) {
                 selectButton(button, buttons);
-                showPanel(new HomePanel()); // Initially show the HomePanel
+                showPanel(new HomePanel(staffName)); // Initially show the HomePanel with the staff name
             }
 
             // Add action listener to each button
             int index = i;
             button.addActionListener(e -> {
                 selectButton(button, buttons);
-                showPanel(getPanelForIndex(index));
+                showPanel(getPanelForIndex(index, staffName)); // Pass staff name to getPanelForIndex
             });
 
             sidebar.add(button);
@@ -99,16 +98,20 @@ public class DashBoard {
         loginFrame.dispose();
         // Set the ID
         currentId = id;
-        UI();
+        // Fetch the staff name using the ID (implement this method as needed)
+        String staffName = fetchStaffNameById(id);
+        UI(staffName);
         // Create the main dashboard frame
         dashboardFrame.showMainFrame();
     }
+
     public static String getCurrentUserId() {
         return currentId;
     }
+
     // for testing without logging in
     public static void initializeDashboard() {
-        UI();
+        UI("Default User");
 
         dashboardFrame.showMainFrame();
     }
@@ -161,7 +164,7 @@ public class DashBoard {
     }
 
     // Method to get the panel for the given index
-    private static JPanel getPanelForIndex(int index) {
+    private static JPanel getPanelForIndex(int index, String staffName) {
         return switch (index) {
             case 1 -> new CustomerPanel();
             case 2 -> new ProductPanel();
@@ -169,7 +172,7 @@ public class DashBoard {
             case 4 -> new InventoryPanel();
             case 5 -> new ReportPanel();
             case 6 -> new SettingsPanel(getCurrentUserId()); // Added SettingsPanel
-            default -> new HomePanel(); // Default HomePanel
+            default -> new HomePanel(staffName); // Default HomePanel with staff name
         };
     }
 
@@ -178,6 +181,12 @@ public class DashBoard {
             mainFrame.getContentPane().removeAll();
             mainFrame.repaint();
         }
+    }
+
+    // Mock method to fetch staff name by ID (replace with actual implementation)
+    private static String fetchStaffNameById(String id) {
+        // Implement your logic to fetch the staff name from the database or other data source
+        return "John Doe"; // Placeholder
     }
 
     public static void main(String[] args) {
