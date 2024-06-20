@@ -2,7 +2,9 @@ package com.example.panels;
 
 //import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 //import java.awt.image.BufferedImage;
@@ -111,6 +113,30 @@ public class ProductPanel extends JPanel {
         table.setShowGrid(true);
         table.setSelectionBackground(ACCENT_COLOR);
         table.setSelectionForeground(Color.WHITE);
+
+        // Custom cell renderer to align numeric columns to the right
+        TableCellRenderer rightAlignRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(column == 0 || column == 4 ? SwingConstants.RIGHT : SwingConstants.LEFT);
+                return cellComponent;
+            }
+        };
+
+        // Custom cell renderer to align numeric columns to the left
+        TableCellRenderer leftAlignRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(column == 0 || column == 4 ? SwingConstants.LEFT : SwingConstants.LEFT);
+                return cellComponent;
+            }
+        };
+
+        // Apply the custom renderer to the numeric columns
+        table.getColumnModel().getColumn(0).setCellRenderer(leftAlignRenderer); // Product ID column
+        table.getColumnModel().getColumn(4).setCellRenderer(rightAlignRenderer); // Price column
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
