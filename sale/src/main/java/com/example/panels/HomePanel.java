@@ -3,8 +3,10 @@ package com.example.panels;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class HomePanel extends JPanel {
 
@@ -32,7 +34,7 @@ public class HomePanel extends JPanel {
         middlePanel.setBackground(BACKGROUND_COLOR);
         middlePanel.setBorder(new EmptyBorder(0, 0, 0, 0)); // Remove padding around the inner panel
         middlePanel.add(createRoundedPanel("Customers", getCustomerCount(), new Font("Roboto", Font.BOLD, 24)));
-        middlePanel.add(createRoundedPanel("Low Stocks", getLowStockCount(), new Font("Roboto", Font.BOLD, 24)));
+        middlePanel.add(createRoundedPanel("Products", getLowStockCount(), new Font("Roboto", Font.BOLD, 24)));
         middleWrapperPanel.add(middlePanel, BorderLayout.CENTER);
         add(middleWrapperPanel, BorderLayout.CENTER);
 
@@ -40,12 +42,7 @@ public class HomePanel extends JPanel {
         JPanel bottomWrapperPanel = new JPanel(new BorderLayout());
         bottomWrapperPanel.setBackground(BACKGROUND_COLOR);
         bottomWrapperPanel.setBorder(new EmptyBorder(0, 20, 20, 20)); // Add padding around the wrapper panel
-        JLabel transactionsLabel = new JLabel("Recent Sales Transactions", SwingConstants.LEFT);
-        transactionsLabel.setFont(new Font("Roboto", Font.BOLD, 18));
-        transactionsLabel.setForeground(TEXT_COLOR);
-        transactionsLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, ACCENT_COLOR)); // Add a bottom border
-        bottomWrapperPanel.add(transactionsLabel, BorderLayout.NORTH);
-        bottomWrapperPanel.add(createTransactionsTable(getRecentTransactions()), BorderLayout.CENTER);
+
         add(bottomWrapperPanel, BorderLayout.SOUTH);
     }
 
@@ -88,49 +85,72 @@ public class HomePanel extends JPanel {
         return panel;
     }
 
-    // Method to create a table for recent transactions
-    private JScrollPane createTransactionsTable(List<String[]> transactions) {
-        String[] columnNames = {"Date", "Customer", "Amount"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        for (String[] transaction : transactions) {
-            model.addRow(transaction);
-        }
-        JTable table = new JTable(model);
-        table.setRowHeight(30); // Set the height of each row
-        table.setFont(new Font("Lato", Font.PLAIN, 16));
-        table.getTableHeader().setFont(new Font("Lato", Font.PLAIN, 16));
-        table.getTableHeader().setBackground(ACCENT_COLOR);
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.setFillsViewportHeight(true);
-        table.setGridColor(ACCENT_COLOR);
-        table.setShowGrid(true);
-        table.setSelectionBackground(ACCENT_COLOR);
-        table.setSelectionForeground(Color.WHITE);
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2)); // Add border to the scroll pane
-        return scrollPane;
-    }
 
     // Mock methods to get data (replace with actual data fetching logic)
     private int getTotalSales() {
-        return 1000; // Example value
+        int totalAmount = 0;
+        try (Connection connection = Manager.getConnection()) {
+            int maxCount = 0;
+            String count = "SELECT count(*) FROM TransactionItems";
+            PreparedStatement pStmt = connection.prepareStatement(count);
+            ResultSet max = pStmt.executeQuery();
+
+            if (max.next()) {
+                maxCount = max.getInt(1);
+            }
+
+            String totalQuery = "SELECT * FROM TransactionItems WHERE TransactionID = ?";
+
+            for (int i = 1; i <= maxCount; i++) {
+                PreparedStatement tStmt = connection.prepareStatement(totalQuery);
+                tStmt.setInt(1, i);
+                ResultSet RS = tStmt.executeQuery();
+
+                while (RS.next()) {
+                    int price = RS.getInt("Price");
+                    int qty = RS.getInt("Quantity");
+                    totalAmount += price * qty;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return totalAmount;
     }
 
     private int getCustomerCount() {
-        return 58; // Example value
+        int maxCount = 0;
+        try (Connection connection = Manager.getConnection()) {
+            String count = "SELECT count(*) FROM customer";
+            PreparedStatement pStmt = connection.prepareStatement(count);
+            ResultSet max = pStmt.executeQuery();
+
+            if (max.next()) {
+                maxCount = max.getInt(1);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return maxCount;
     }
 
     private int getLowStockCount() {
-        return 10; // Example value
-    }
+        int maxCount = 0;
+        try (Connection connection = Manager.getConnection()) {
+            String count = "SELECT count(*) FROM product_inventory";
+            PreparedStatement pStmt = connection.prepareStatement(count);
+            ResultSet max = pStmt.executeQuery();
 
-    private List<String[]> getRecentTransactions() {
-        return List.of(
-                new String[]{"2024-06-01", "Alice", "$100"},
-                new String[]{"2024-06-02", "Bob", "$200"}
-                // Add more transactions as needed
-        );
+            if (max.next()) {
+                maxCount = max.getInt(1);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return maxCount;
     }
 
     public static void main(String[] args) {

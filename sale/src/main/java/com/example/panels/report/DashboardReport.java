@@ -2,6 +2,8 @@ package com.example.panels.report;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.*;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -18,7 +20,7 @@ public class DashboardReport extends JPanel {
         add(createChartPanel(createCustomerDemographicChart()));
         add(createChartPanel(createProductsByCategoryChart()));
         add(createChartPanel(createSalesByStaffChart()));
-        add(createChartPanel(createInventoryLevelsChart()));
+        add(createChartPanel(createCurrentStockLevelsChart()));
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -74,20 +76,34 @@ public class DashboardReport extends JPanel {
         );
     }
 
-    private JFreeChart createInventoryLevelsChart() {
+    private JFreeChart createCurrentStockLevelsChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(50, "Inventory Level", "Warehouse 1");
-        dataset.addValue(30, "Inventory Level", "Warehouse 2");
-        dataset.addValue(40, "Inventory Level", "Warehouse 3");
+
+        // Fetch product names and stock levels from the database
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
+            String query = "SELECT product_name, stock_level FROM product_inventory";
+            try (PreparedStatement preparedStatement = con.prepareStatement(query);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    String productName = resultSet.getString("product_name");
+                    int stockLevel = resultSet.getInt("stock_level");
+                    dataset.addValue(stockLevel, "Current Stock", productName);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                // Handle SQL exception appropriately
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle connection exception appropriately
+        }
+
         return ChartFactory.createBarChart(
-                "Inventory Levels",
-                "Warehouse",
-                "Inventory Level",
-                dataset,
-                PlotOrientation.HORIZONTAL,
-                false,
-                true,
-                false
+                "Current Stock Levels",
+                "Product",
+                "Stock Level",
+                dataset
         );
     }
 }

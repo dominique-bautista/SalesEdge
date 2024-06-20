@@ -54,7 +54,7 @@ public class InventoryPanel extends JPanel {
         tableModel.addColumn("Product Name");
         tableModel.addColumn("Stock Levels");
         tableModel.addColumn("Low Stock Alert");
-        tableModel.addColumn("Supplier Information");
+        tableModel.addColumn("Supplier Name");
 
         // Populate a table model with data from the database
         try (Connection connection = getConnection()) {
