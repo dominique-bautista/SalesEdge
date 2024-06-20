@@ -1,6 +1,7 @@
 package com.example.panels;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -95,6 +96,11 @@ public class InventoryPanel extends JPanel {
         table.setShowGrid(true);
         table.setSelectionBackground(ACCENT_COLOR);
         table.setSelectionForeground(Color.WHITE);
+
+        // Customize alignment for "Stocks" column
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setHorizontalAlignment(SwingConstants.LEFT); // Set left alignment
+        table.getColumnModel().getColumn(1).setCellRenderer(renderer); // Assuming "Stocks" is at index 1
 
         // Create a scroll pane and add the table to it
         JScrollPane scrollPane = new JScrollPane(table);
