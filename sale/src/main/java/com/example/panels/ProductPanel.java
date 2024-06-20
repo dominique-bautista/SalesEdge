@@ -194,36 +194,36 @@ public class ProductPanel extends JPanel {
         JTextField supplier = createLabeledTextField("Supplier:", panel, labelFont, textFieldFont);
         JTextField stock = createLabeledTextField("Stock:", panel, labelFont, textFieldFont);
 
-        JLabel imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(240, 240));
-        imageLabel.setMaximumSize(new Dimension(240, 240));
-        imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        panel.add(new JLabel("Image Preview:"));
-        panel.add(imageLabel);
-
-        JButton uploadButton = new JButton("Upload Image");
-        uploadButton.setBackground(new Color(0xF47130));
-        uploadButton.setForeground(Color.WHITE);
-        panel.add(new JLabel());
-        panel.add(uploadButton);
-
-        uploadButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(createFrame);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                try {
-                    BufferedImage img = ImageIO.read(selectedFile);
-                    Image scaledImg = img.getScaledInstance(240, 240, Image.SCALE_SMOOTH);
-                    ImageIcon icon = new ImageIcon(scaledImg);
-                    imageLabel.setIcon(icon);
-                    imageLabel.setText(selectedFile.getAbsolutePath());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(createFrame, "Error loading image: " + ex.getMessage());
-                }
-            }
-        });
+//        JLabel imageLabel = new JLabel();
+//        imageLabel.setPreferredSize(new Dimension(240, 240));
+//        imageLabel.setMaximumSize(new Dimension(240, 240));
+//        imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+//        panel.add(new JLabel("Image Preview:"));
+//        panel.add(imageLabel);
+//
+//        JButton uploadButton = new JButton("Upload Image");
+//        uploadButton.setBackground(new Color(0xF47130));
+//        uploadButton.setForeground(Color.WHITE);
+//        panel.add(new JLabel());
+//        panel.add(uploadButton);
+//
+//        uploadButton.addActionListener(e -> {
+//            JFileChooser fileChooser = new JFileChooser();
+//            int result = fileChooser.showOpenDialog(createFrame);
+//            if (result == JFileChooser.APPROVE_OPTION) {
+//                File selectedFile = fileChooser.getSelectedFile();
+//                try {
+//                    BufferedImage img = ImageIO.read(selectedFile);
+//                    Image scaledImg = img.getScaledInstance(240, 240, Image.SCALE_SMOOTH);
+//                    ImageIcon icon = new ImageIcon(scaledImg);
+//                    imageLabel.setIcon(icon);
+//                    imageLabel.setText(selectedFile.getAbsolutePath());
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                    JOptionPane.showMessageDialog(createFrame, "Error loading image: " + ex.getMessage());
+//                }
+//            }
+//        });
 
         JButton saveButton = new JButton("Save");
         saveButton.setBackground(ACCENT_COLOR);
@@ -234,10 +234,10 @@ public class ProductPanel extends JPanel {
             boolean allFieldsFilled = Arrays.stream(new JTextField[]{productName, desc, category, price, supplier, stock})
                     .noneMatch(field -> field.getText().trim().isEmpty());
 
-            if (!allFieldsFilled || imageLabel.getIcon() == null) {
-                JOptionPane.showMessageDialog(createFrame, "All fields and image must be filled out.");
-                return;
-            }
+//            if (!allFieldsFilled || imageLabel.getIcon() == null) {
+//                JOptionPane.showMessageDialog(createFrame, "All fields and image must be filled out.");
+//                return;
+//            }
 
             try (Connection connection = getConnection()) {
                 String sqlInsert = "INSERT INTO product_inventory (product_name, description, category, price, supplier, stock_level, image_url, low_stock_alert) VALUES (?,?,?,?,?,?,?,?)";
@@ -248,7 +248,7 @@ public class ProductPanel extends JPanel {
                 preparedStatement.setBigDecimal(4, new BigDecimal(price.getText()));
                 preparedStatement.setString(5, supplier.getText());
                 preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
-                preparedStatement.setString(7, imageLabel.getText());
+//                preparedStatement.setString(7, imageLabel.getText());
 
                 int lowStockAlert = Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
                 preparedStatement.setInt(8, lowStockAlert);
@@ -313,7 +313,7 @@ public class ProductPanel extends JPanel {
                 return;
             }
             try (Connection connection = getConnection()) {
-                String sqlUpdate = "UPDATE product_inventory SET product_name = ?, description = ?, category = ?, price = ?, supplier = ?, stock_level = ?, image_url = ?, low_stock_alert = ? WHERE product_id = ?";
+                String sqlUpdate = "UPDATE product_inventory SET product_name = ?, description = ?, category = ?, price = ?, supplier = ?, stock_level = ?, low_stock_alert = ? WHERE product_id = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate);
                 preparedStatement.setString(1, productName.getText());
                 preparedStatement.setString(2, desc.getText());
@@ -321,12 +321,12 @@ public class ProductPanel extends JPanel {
                 preparedStatement.setBigDecimal(4, new BigDecimal(price.getText()));
                 preparedStatement.setString(5, supplier.getText());
                 preparedStatement.setInt(6, Integer.parseInt(stock.getText()));
-                preparedStatement.setString(7, imageUrl.getText());
+//                preparedStatement.setString(7, imageUrl.getText());
 
                 int lowStockAlert = Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
                 preparedStatement.setInt(8, lowStockAlert);
 
-                preparedStatement.setString(9, productId);
+//                preparedStatement.setString(9, productId);
                 preparedStatement.executeUpdate();
                 createFrame.dispose();
 
