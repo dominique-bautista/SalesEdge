@@ -66,9 +66,6 @@ public class CreateDatabaseAndTables {
                                         "supplier VARCHAR(100) NOT NULL, " +
                                         "stock_level INT NOT NULL, " +
                                         "image_url VARCHAR(255), " +
-                                        "brand VARCHAR(50), " +
-                                        "color VARCHAR(30), " +
-                                        "size VARCHAR(30), " +
                                         "low_stock_alert BOOLEAN NOT NULL" +
                                         ");";
                         statement.executeUpdate(createProductInventoryTable);
