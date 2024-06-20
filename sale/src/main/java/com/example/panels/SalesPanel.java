@@ -139,21 +139,17 @@ public class SalesPanel extends JPanel {
 
         JButton addButton = new JButton("Add");
         JButton deleteButton = new JButton("Delete");
-        JButton editButton = new JButton("Update");
         JButton exportButton = new JButton("Export");
 
         addButton.setBackground(ACCENT_COLOR);
         addButton.setForeground(Color.WHITE);
         deleteButton.setBackground(ACCENT_COLOR);
         deleteButton.setForeground(Color.WHITE);
-        editButton.setBackground(ACCENT_COLOR);
-        editButton.setForeground(Color.WHITE);
         exportButton.setBackground(ACCENT_COLOR);
         exportButton.setForeground(Color.WHITE);
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
-        buttonPanel.add(editButton);
         buttonPanel.add(exportButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
@@ -170,13 +166,6 @@ public class SalesPanel extends JPanel {
                 String transactionId = (String) transactionTable.getValueAt(selectedRow, 0);
                 transactionTableModel.removeRow(selectedRow);
                 transactionProductDetails.remove(transactionId);
-            }
-        });
-
-        editButton.addActionListener(e -> {
-            int selectedRow = transactionTable.getSelectedRow();
-            if (selectedRow != -1) {
-                transactionTableModel.setValueAt("EditedValue", selectedRow, transactionTable.getSelectedColumn());
             }
         });
     }
