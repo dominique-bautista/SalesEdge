@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class CustomerPanel extends JPanel {
     private final JTextField searchBar;
-    private JComboBox<String> searchFilter = null;
     private final JList<String> customerList;
     private final JTextArea customerDetails;
     private final Map<String, String> customerIDMap;
@@ -24,7 +23,7 @@ public class CustomerPanel extends JPanel {
         customerIDMap = Manager.getCustomerNames();
 
         searchBar = new JTextField("Search...");
-        searchBar.setPreferredSize(new Dimension(750, 30));
+        searchBar.setPreferredSize(new Dimension(980, 30));
         searchBar.setFont(new Font("Lato", Font.PLAIN, 18));
         searchBar.setForeground(Color.GRAY);
 
@@ -46,19 +45,12 @@ public class CustomerPanel extends JPanel {
             }
         });
 
-        searchBar.addActionListener(e -> updateCustomerList(searchBar.getText(), (String) searchFilter.getSelectedItem()));
-        searchFilter = new JComboBox<>(new String[]{"First Name", "Last Name", "Age", "Gender", "Phone", "Email","Street Address","City","Province","Postal Code","Country"});
-        searchFilter.setFont(new Font("Lato", Font.PLAIN, 18));
-
-        searchFilter.setPreferredSize(new Dimension(200, searchFilter.getPreferredSize().height));
 
         JPanel searchPanel = new JPanel();
         searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchBar);
-        searchPanel.add(new JLabel(" in "));
-        searchPanel.add(searchFilter);
 
         add(searchPanel, BorderLayout.NORTH);
 
