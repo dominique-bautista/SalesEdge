@@ -147,7 +147,7 @@ public class ProductPanel extends JPanel {
 
         // Apply the custom renderer to the numeric columns
         table.getColumnModel().getColumn(0).setCellRenderer(leftAlignRenderer); // Product ID column
-        table.getColumnModel().getColumn(4).setCellRenderer(rightAlignRenderer); // Price column
+        table.getColumnModel().getColumn(4).setCellRenderer(leftAlignRenderer); // Price column
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
