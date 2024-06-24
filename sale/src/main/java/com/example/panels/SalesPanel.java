@@ -3,6 +3,7 @@ package com.example.panels;
 import com.example.DashBoard;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -151,7 +152,12 @@ public class SalesPanel extends JPanel {
         });
 
         JScrollPane transactionScrollPane = new JScrollPane(transactionTable);
-        transactionScrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2));
+        transactionScrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(0xF47130); // Set the color of the scrollbar thumb
+            }
+        });
 
         add(transactionScrollPane, BorderLayout.CENTER);
 
