@@ -70,9 +70,11 @@ public class SalesPanel extends JPanel {
         DefaultTableModel transactionTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column != 0 && column != 4;
+                // Make all cells not editable
+                return false;
             }
         };
+
 
         try (Connection connection = Manager.getConnection()) {
             String staffName = "";
