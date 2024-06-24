@@ -138,33 +138,6 @@ public class InventoryPanel extends JPanel {
                 sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, columnIndex));
             }
         });
-
-        // Add a MouseListener to the table to handle clicks on the supplier column
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                int column = table.columnAtPoint(evt.getPoint());
-                int row = table.rowAtPoint(evt.getPoint());
-                if (column == 3) { // Check if the clicked column is the Supplier Information column
-                    String supplier = tableModel.getValueAt(row, column).toString();
-                    showSupplierDetails(supplier);
-                }
-            }
-        });
-    }
-
-    // Method to show supplier details
-    private void showSupplierDetails(String supplier) {
-        // Sample supplier information
-        String supplierInfo = switch (supplier) {
-            case "Supplier A" -> "Name: Supplier A\nProducts Supplied: Product 1\nContact Information: supplierA@example.com, 123-456-7890\nAddress: 123 Main St, City A, State A, 12345, Country A";
-            case "Supplier B" -> "Name: Supplier B\nProducts Supplied: Product 2\nContact Information: supplierB@example.com, 234-567-8901\nAddress: 234 Oak St, City B, State B, 23456, Country B";
-            case "Supplier C" -> "Name: Supplier C\nProducts Supplied: Product 3\nContact Information: supplierC@example.com, 345-678-9012\nAddress: 345 Pine St, City C, State C, 34567, Country C";
-            case "Supplier D" -> "Name: Supplier D\nProducts Supplied: Product 4\nContact Information: supplierD@example.com, 456-789-0123\nAddress: 456 Elm St, City D, State D, 45678, Country D";
-            default -> "Supplier information not available";
-        };
-
-        // Display the supplier information in a dialog
-        JOptionPane.showMessageDialog(this, supplierInfo, "Supplier Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Method to establish a database connection
