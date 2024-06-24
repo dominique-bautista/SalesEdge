@@ -7,30 +7,53 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class SalesReport extends JPanel {
 
     public SalesReport() {
-        setLayout(new GridLayout(0, 2, 10, 10)); // 0 rows, 2 columns
+        setLayout(new BorderLayout()); // Use BorderLayout to center the chart
 
-        // Create and add charts to the sales report panel
-        add(createChartPanel(createSalesByCategoryChart()));
-        add(createChartPanel(createSalesByStaffChart()));
-    }
-
-    private ChartPanel createChartPanel(JFreeChart chart) {
-        ChartPanel chartPanel = new ChartPanel(chart);
+        // Create the chart panel
+        ChartPanel chartPanel = new ChartPanel(createSalesByCategoryChart());
         chartPanel.setMouseWheelEnabled(true); // Enable zooming
-        chartPanel.setPreferredSize(new Dimension(300, 300)); // Larger chart size
-        return chartPanel;
+
+        // Add chart panel to the center of this panel
+        add(chartPanel, BorderLayout.CENTER);
     }
 
     private JFreeChart createSalesByCategoryChart() {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("Category A", 40);
-        dataset.setValue("Category B", 30);
-        dataset.setValue("Category C", 20);
-        dataset.setValue("Category D", 10);
+        Connection connection = null;
+
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "");
+
+            String query = "SELECT category, COUNT(*) AS count FROM product_inventory GROUP BY category";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                String category = resultSet.getString("category");
+                int count = resultSet.getInt("count");
+                dataset.setValue(category, count);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return ChartFactory.createPieChart(
                 "Sales by Category",
                 dataset,
@@ -40,17 +63,17 @@ public class SalesReport extends JPanel {
         );
     }
 
-    private JFreeChart createSalesByStaffChart() {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("Staff A", 50);
-        dataset.setValue("Staff B", 30);
-        dataset.setValue("Staff C", 20);
-        return ChartFactory.createPieChart(
-                "Sales by Staff",
-                dataset,
-                true,
-                true,
-                false
-        );
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Sales Report");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            SalesReport salesReport = new SalesReport();
+            frame.add(salesReport);
+
+            frame.pack(); // Adjusts frame size to fit its contents
+            frame.setLocationRelativeTo(null); // Centers frame on screen
+            frame.setVisible(true);
+        });
     }
 }
