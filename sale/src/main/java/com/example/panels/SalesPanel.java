@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SalesPanel extends JPanel {
     private static final Color ACCENT_COLOR = new Color(0xF47130);
     private static final AtomicInteger transactionIdCounter = new AtomicInteger(1);
-    private static final String currentSalespersonId = "S001";
-    private static final Map<String, String[][]> transactionProductDetails = new HashMap<>();
 
     String productView;
     String total;
@@ -197,10 +195,10 @@ public class SalesPanel extends JPanel {
             // Code to export sales reports (to be implemented)
         });
 
-        addButton.addActionListener(e -> createSales(transactionTableModel));
+        addButton.addActionListener(e -> createSales());
     }
 
-    private void createSales(DefaultTableModel tableModel) {
+    private void createSales() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
         panel.setPreferredSize(new Dimension(500, 400));
@@ -231,7 +229,6 @@ public class SalesPanel extends JPanel {
         AtomicInteger totalAmount = new AtomicInteger(0);
         String[][] productDetails = new String[10][4]; // temporary storage for products
         Map<String, String> productsQuantities = new HashMap<>();
-        double totAmount = 0;
         cartButton.addActionListener(e -> {
             JPanel cartPanel = new JPanel(new BorderLayout(10, 10));
             DefaultTableModel cartTableModel = new DefaultTableModel(
@@ -277,9 +274,9 @@ public class SalesPanel extends JPanel {
                     String productId = productIdField.getText();
                     String quantityStr = quantityField.getText();
                     int quantity = Integer.parseInt(quantityStr);
-                    String productName = "";
-                    int price = 0;
-                    int stock = 0;
+                    String productName;
+                    int price;
+                    int stock;
                     try (Connection conn = Manager.getConnection()) {
                         String sql = "SELECT * FROM product_inventory WHERE product_id =?";
                         PreparedStatement stmt = conn.prepareStatement(sql);
@@ -294,7 +291,7 @@ public class SalesPanel extends JPanel {
                                 JOptionPane.showMessageDialog(this, "Not enough stock", "Error",
                                         JOptionPane.ERROR_MESSAGE);
                             }else {
-                                totalAmount.addAndGet((int)(price * quantity));
+                                totalAmount.addAndGet(price * quantity);
                                 String tot = "₱" + price; // Correctly concatenates dollar sign with total
                                 cartTableModel.addRow(new Object[]{productId, productName, quantityStr, tot});
                             }
@@ -327,18 +324,7 @@ public class SalesPanel extends JPanel {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (option == JOptionPane.OK_OPTION) {
             insertTransaction(customerIdField.getText(), dateField.getText(), timeField.getText(), DashBoard.getCurrentUserId(),
-                    productsQuantities); 
-
-//            String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
-//            tableModel.addRow(new Object[] {
-//                    transactionId,
-//                    customerIdField.getText(),
-//                    dateField.getText(),
-//                    timeField.getText(),
-//                    DashBoard.getCurrentUserId(),
-//                    "Click to view",
-//                    "$" + totalAmount.get()
-//            });
+                    productsQuantities);
 
         }
     }
