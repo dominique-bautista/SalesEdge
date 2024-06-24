@@ -74,6 +74,7 @@ public class SalesPanel extends JPanel {
         };
 
         try (Connection connection = Manager.getConnection()) {
+            String staffName = "";
             String query = "SELECT * FROM Transactions";
             String productQuery = "SELECT * FROM TransactionItems WHERE TransactionID = ?";
             try (Statement statement = connection.createStatement();
@@ -89,13 +90,31 @@ public class SalesPanel extends JPanel {
                         int qty = Rs.getInt("Quantity");
                         totalAmount += price * qty;
                     }
+                    PreparedStatement staff = connection.prepareStatement("SELECT first_name from staff where staff_id = ?");
+                    staff.setInt(1,resultSet.getInt("SalespersonID"));
+                    ResultSet staffRs = staff.executeQuery();
+
+                    if(staffRs.next()){
+                        staffName = staffRs.getString(1);
+                    }
+                    PreparedStatement cus = connection.prepareStatement(" SELECT first_name from customer where customer_id = ?");
+                    cus.setInt(1,resultSet.getInt("CustomerID"));
+                    ResultSet cusRs = cus.executeQuery();
+                    String cusName = "";
+                    if(cusRs.next())
+                    {
+                        cusName = cusRs.getString(1);
+                    }
+
 
                     Object[] rowData = {
                             resultSet.getString("TransactionID"),
-                            resultSet.getString("CustomerID"),
+//                            resultSet.getString("CustomerID"),
+                            cusName,
                             resultSet.getString("Date"),
                             resultSet.getString("Time"),
-                            resultSet.getBigDecimal("SalespersonID"),
+//                            resultSet.getInt("SalespersonID"),
+                            staffName,
                             productView = "See products",
                             totalAmount,
                     };
@@ -315,16 +334,16 @@ public class SalesPanel extends JPanel {
             insertTransaction(customerIdField.getText(), dateField.getText(), timeField.getText(), DashBoard.getCurrentUserId(),
                     productsQuantities); 
 
-            String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
-            tableModel.addRow(new Object[] {
-                    transactionId,
-                    customerIdField.getText(),
-                    dateField.getText(),
-                    timeField.getText(),
-                    DashBoard.getCurrentUserId(),
-                    "Click to view",
-                    "$" + totalAmount.get()
-            });
+//            String transactionId = String.format("T%03d", transactionIdCounter.getAndIncrement());
+//            tableModel.addRow(new Object[] {
+//                    transactionId,
+//                    customerIdField.getText(),
+//                    dateField.getText(),
+//                    timeField.getText(),
+//                    DashBoard.getCurrentUserId(),
+//                    "Click to view",
+//                    "$" + totalAmount.get()
+//            });
 
         }
     }

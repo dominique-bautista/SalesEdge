@@ -12,8 +12,8 @@ import java.awt.Toolkit;
 public class MainFrame  {
     private final Toolkit tk = Toolkit.getDefaultToolkit();
     private final Dimension screenSize = tk.getScreenSize(); // screen size getter
-    private final int maxWidth = (int) (screenSize.width * .75);
-    private final int maxHeight = (int) (screenSize.height * .75);
+    private final int maxWidth = (int) (screenSize.width);
+    private final int maxHeight = (int) (screenSize.height);
     public ImageIcon getLogo() {
         return logo;
     }

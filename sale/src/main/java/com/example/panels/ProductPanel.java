@@ -129,7 +129,7 @@ public class ProductPanel extends JPanel {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setHorizontalAlignment(column == 0 || column == 4 ? SwingConstants.LEFT : SwingConstants.LEFT);
+                setHorizontalAlignment(SwingConstants.LEFT);
                 return cellComponent;
             }
         };
@@ -181,7 +181,7 @@ public class ProductPanel extends JPanel {
         editButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                String productId = (String) table.getValueAt(selectedRow, 0);
+                int productId = (int) table.getValueAt(selectedRow, 0);
                 updateProduct(this, productId);
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a product to edit.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -311,7 +311,7 @@ public class ProductPanel extends JPanel {
         createFrame.setVisible(true);
     }
 
-    public void updateProduct(JComponent pan, String productId) {
+    public void updateProduct(JComponent pan, int productId) {
         JFrame createFrame = new JFrame("Update Product");
         createFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         createFrame.setSize(500, 600);
@@ -329,7 +329,7 @@ public class ProductPanel extends JPanel {
         JTextField category = updateLabeledTextField("Category:", panel, labelFont, textFieldFont, "category", productId);
         JTextField price = updateLabeledTextField("Price:", panel, labelFont, textFieldFont, "price", productId);
         JTextField supplier = updateLabeledTextField("Supplier:", panel, labelFont, textFieldFont, "supplier", productId);
-        JTextField imageUrl = updateLabeledTextField("Image URL:", panel, labelFont, textFieldFont, "image_url", productId);
+ //       JTextField imageUrl = updateLabeledTextField("Image URL:", panel, labelFont, textFieldFont, "image_url", productId);
         JTextField stock = updateLabeledTextField("Stock:", panel, labelFont, textFieldFont, "stock_level", productId);
 
         JButton saveButton = new JButton("Save");
@@ -339,7 +339,7 @@ public class ProductPanel extends JPanel {
 
         saveButton.addActionListener(e -> {
             boolean allFieldsFilled = true;
-            JTextField[] textFields = {productName, desc, category, price, supplier, imageUrl, stock};
+            JTextField[] textFields = {productName, desc, category, price, supplier, stock};
             for (JTextField textField : textFields) {
                 if (textField.getText().trim().isEmpty()) {
                     allFieldsFilled = false;
@@ -362,9 +362,9 @@ public class ProductPanel extends JPanel {
 //                preparedStatement.setString(7, imageUrl.getText());
 
                 int lowStockAlert = Integer.parseInt(stock.getText()) <= 10 ? 0 : 1;
-                preparedStatement.setInt(8, lowStockAlert);
+                preparedStatement.setInt(7, lowStockAlert);
 
-//                preparedStatement.setString(9, productId);
+                preparedStatement.setInt(8, productId);
                 preparedStatement.executeUpdate();
                 createFrame.dispose();
 
@@ -408,7 +408,7 @@ public class ProductPanel extends JPanel {
         return textField;
     }
 
-    private static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, String keyValue) {
+    private static JTextField updateLabeledTextField(String labelText, JPanel panel, Font labelFont, Font textFieldFont, String columnName, int keyValue) {
         JLabel label = new JLabel(labelText);
         label.setFont(labelFont);
         JTextField textField = new JTextField();
@@ -417,7 +417,7 @@ public class ProductPanel extends JPanel {
         try (Connection connection = getConnection()) {
             String query = String.format("SELECT %s FROM %s WHERE %s = ?", columnName, "product_inventory", "product_id");
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setString(1, keyValue);
+                preparedStatement.setInt(1, keyValue);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         textField.setText(resultSet.getString(columnName));

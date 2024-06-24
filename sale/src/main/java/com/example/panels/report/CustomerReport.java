@@ -96,8 +96,8 @@ public class CustomerReport extends JPanel {
     private JFreeChart createAgeDistributionChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         dataset.addValue(countAgeOfRange(18, 24), "Age Group", "18-24");
-        dataset.addValue(countAgeOfRange(25, 24), "Age Group", "25-34");
-        dataset.addValue(countAgeOfRange(35, 24), "Age Group", "35-44");
+        dataset.addValue(countAgeOfRange(25, 34), "Age Group", "25-34");
+        dataset.addValue(countAgeOfRange(35, 44), "Age Group", "35-44");
         dataset.addValue(countAgeOfRange(45, 200), "Age Group", "45+");
 
         JFreeChart chart = ChartFactory.createBarChart(

@@ -4,6 +4,10 @@ import com.example.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,6 +167,7 @@ public class DashBoard {
         mainContentPanel.repaint();
     }
 
+
     // Method to get the panel for the given index
     private static JPanel getPanelForIndex(int index, String staffName) {
         return switch (index) {
@@ -186,7 +191,22 @@ public class DashBoard {
     // Mock method to fetch staff name by ID (replace with actual implementation)
     private static String fetchStaffNameById(String id) {
         // Implement your logic to fetch the staff name from the database or other data source
-        return "John Doe"; // Placeholder
+        String staffName = "";
+        try(Connection con = Manager.getConnection())
+        {
+            String staffQuery = "Select first_name From staff where staff_id = ?";
+            PreparedStatement sStmt = con.prepareStatement(staffQuery);
+            sStmt.setString(1,id);
+            ResultSet rs = sStmt.executeQuery();
+            if(rs.next())
+            {
+                staffName = rs.getString(1);
+            }
+        }
+        catch (SQLException a){
+             a.printStackTrace();
+        }
+        return staffName; // Placeholder
     }
 
     public static void main(String[] args) {

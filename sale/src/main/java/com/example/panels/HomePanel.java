@@ -89,7 +89,7 @@ public class HomePanel extends JPanel {
                 + "<b>Headquarters:</b> Bonifacio Global Center, Philippines<br>"
                 + "<b>Number of Employees:</b> 1,200<br>"
                 + "<b>Annual Revenue:</b> $500M<br>"
-                + "<b>Business Hours:</b> Mon-Fri, 9am - 6pm<br>"
+                + "<b>Business Hours:</b> Mon-Thur, 9am - 4pm<br>"
                 + "<b>Social Media:</b> @christianandfriends on all platforms</p></html>");
         additionalDetailsContent.setFont(new Font("Roboto", Font.PLAIN, 20));
         additionalDetailsContent.setForeground(TEXT_COLOR);
