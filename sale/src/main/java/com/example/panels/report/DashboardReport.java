@@ -114,7 +114,7 @@ public class DashboardReport extends JPanel {
             e.printStackTrace();
         }
 
-        return ChartFactory.createBarChart(
+        JFreeChart chart = ChartFactory.createBarChart(
                 "Products by Category",
                 "Category",
                 "Number of Products",
@@ -124,10 +124,14 @@ public class DashboardReport extends JPanel {
                 true,
                 false
         );
+
+        // Customizing plot colors
+        chart.getCategoryPlot().getRenderer().setSeriesPaint(0, new Color(0xFF8753));
+
+        return chart;
     }
 
     private JFreeChart createGenderDistributionChart() {
-        //noinspection rawtypes
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("Male", genderPercentage("Male"));
         dataset.setValue("Female", genderPercentage("Female"));
@@ -141,7 +145,6 @@ public class DashboardReport extends JPanel {
         );
 
         // Customizing colors for the Pie Chart
-        //noinspection rawtypes
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionPaint("Male", Color.BLUE); // Set color for a Male section
         plot.setSectionPaint("Female", Color.PINK); // Set color for a Female section
@@ -152,7 +155,7 @@ public class DashboardReport extends JPanel {
     private int genderPercentage(String gender) {
         int totalCount = 0;
         int genderCount = 0;
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) {
             // Query to get the total count of records
             String totalCountQuery = "SELECT COUNT(*) FROM customer";
             try (PreparedStatement totalCountStatement = con.prepareStatement(totalCountQuery);
@@ -174,24 +177,22 @@ public class DashboardReport extends JPanel {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1; // Return -1 or another error indicator on failure
+            return -1;
         }
 
         // Calculate the percentage
         if (totalCount > 0) {
             double percentage = ((double) genderCount / totalCount) * 100;
-            return (int) percentage; // Truncates to int. Consider returning double for precision.
+            return (int) percentage;
         } else {
-            return 0; // Avoid division by zero
+            return 0;
         }
     }
-
 
     private JFreeChart createCurrentStockLevelsChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-        // Fetch product names and stock levels from the database
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) {
             String query = "SELECT product_name, stock_level FROM product_inventory";
             try (PreparedStatement preparedStatement = con.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -203,19 +204,22 @@ public class DashboardReport extends JPanel {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                // Handle SQL exception appropriately
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Handle connection exception appropriately
         }
 
-        return ChartFactory.createBarChart(
+        JFreeChart chart = ChartFactory.createBarChart(
                 "Current Stock Levels",
                 "Product",
                 "Stock Level",
                 dataset
         );
+
+        // Customizing plot colors
+        chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.MAGENTA);
+
+        return chart;
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {

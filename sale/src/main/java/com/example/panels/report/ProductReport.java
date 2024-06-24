@@ -3,7 +3,12 @@ package com.example.panels.report;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,12 +51,24 @@ public class ProductReport extends JPanel {
 
         dataset.addSeries("Product Prices", priceArray, numBins);
 
-        return ChartFactory.createHistogram(
+        // Create histogram chart with specific color
+        JFreeChart chart = ChartFactory.createHistogram(
                 "Product Price Distribution",
                 "Price",
                 "Frequency",
-                dataset
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, // Include legend
+                true, // Include tooltips
+                false // Suppress URLs
         );
+
+        // Set custom color and shiny appearance for the bars (histogram bins)
+        XYPlot plot = (XYPlot) chart.getPlot();
+        XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, new Color(0, 128, 128)); // Teal color for bars
+
+        return chart;
     }
 
     private List<Double> fetchProductPricesFromDatabase() {

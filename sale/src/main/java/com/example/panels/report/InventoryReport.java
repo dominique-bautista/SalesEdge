@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 public class InventoryReport extends JPanel {
@@ -53,20 +54,27 @@ public class InventoryReport extends JPanel {
             // Handle connection exception appropriately
         }
 
-        return ChartFactory.createBarChart(
+        JFreeChart chart = ChartFactory.createBarChart(
                 "Current Stock Levels",
                 "Product",
                 "Stock Level",
                 dataset
         );
+
+        // Customizing plot colors
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.getRenderer().setSeriesPaint(0, new Color(0xF4, 0x71, 0x30)); // Orange color
+
+        return chart;
     }
 
     private JFreeChart createLowStockAlertChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int threshold = 10;// input low stock alerts
+        int threshold = 10; // Example threshold for low stock alerts
+
         // Fetch product names and stock levels from the database
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salesedge", "root", "")) { // Adjust connection details as necessary
-            String query = "SELECT product_name, stock_level FROM product_inventory where stock_level <= " + threshold;
+            String query = "SELECT product_name, stock_level FROM product_inventory WHERE stock_level <= " + threshold;
             try (PreparedStatement preparedStatement = con.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
 
