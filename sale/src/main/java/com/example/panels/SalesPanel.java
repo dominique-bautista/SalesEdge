@@ -53,7 +53,7 @@ public class SalesPanel extends JPanel {
             }
         });
 
-        String[] columns = { "Transaction ID", "Customer ID", "Date", "Time", "Salesperson ID", "Product",
+        String[] columns = { "Transaction ID", "Customer Name", "Date", "Time", "Salesperson Name", "Product",
                 "Total Amount" };
         JComboBox<String> columnSelector = new JComboBox<>(columns);
 
