@@ -1,6 +1,7 @@
 package com.example.panels;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -112,7 +113,15 @@ public class InventoryPanel extends JPanel {
 
         // Create a scroll pane and add the table to it
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 2)); // Add border
+
+        // Customize the scroll bar
+        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(0xF47130); // Set the color of the scrollbar thumb
+            }
+        });
+
         add(scrollPane, BorderLayout.CENTER); // Add the scroll pane to the center of the panel
 
         // Create a row sorter for the table
