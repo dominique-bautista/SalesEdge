@@ -300,7 +300,7 @@ public class SalesPanel extends JPanel {
                                         JOptionPane.ERROR_MESSAGE);
                             }else {
                                 totalAmount.addAndGet((int)(price * quantity));
-                                String tot = "$" + price; // Correctly concatenates dollar sign with total
+                                String tot = "₱" + price; // Correctly concatenates dollar sign with total
                                 cartTableModel.addRow(new Object[]{productId, productName, quantityStr, tot});
                             }
                         } else {
@@ -462,27 +462,51 @@ public class SalesPanel extends JPanel {
     }
 
     private void showProductDetails(String transactionId) {
-        String[][] products = transactionProductDetails.get(transactionId);
-        if (products != null) {
-            String[] columnNames = { "Product ID", "Product Name", "Quantity", "Price" };
-            JTable productTable = new JTable(products, columnNames);
-            productTable.setFont(new Font("Serif", Font.PLAIN, 16));
-            productTable.getTableHeader().setFont(new Font("Serif", Font.BOLD, 16));
-            productTable.getTableHeader().setBackground(ACCENT_COLOR);
-            productTable.getTableHeader().setForeground(Color.WHITE);
-            productTable.setFillsViewportHeight(true);
-            productTable.setGridColor(ACCENT_COLOR);
-            productTable.setShowGrid(true);
-            productTable.setSelectionBackground(ACCENT_COLOR);
-            productTable.setSelectionForeground(Color.WHITE);
+        try (Connection connection = Manager.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT ProductID, ProductName, Quantity, Price FROM TransactionItems WHERE TransactionID = ?")) {
+            statement.setString(1, transactionId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                DefaultTableModel model = new DefaultTableModel(new Object[]{"Product ID", "Product Name", "Quantity", "Price"}, 0);
+                while (resultSet.next()) {
+                    String productId = resultSet.getString("ProductID");
+                    String productName = resultSet.getString("ProductName");
+                    int quantity = resultSet.getInt("Quantity");
+                    double price = resultSet.getDouble("Price");
+                    model.addRow(new Object[]{productId, productName, quantity, price});
+                }
 
-            JScrollPane scrollPane = new JScrollPane(productTable);
-            scrollPane.setPreferredSize(new Dimension(600, 400));
-            productTable.setPreferredScrollableViewportSize(new Dimension(500, 300));
+                SwingUtilities.invokeLater(() -> {
+                    JTable productTable = new JTable(model);
+                    productTable.setRowHeight(30);
+                    productTable.setFont(new Font("Lato", Font.PLAIN, 16));
+                    productTable.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
+                    productTable.getTableHeader().setBackground(new Color(0xF47130));
+                    productTable.getTableHeader().setForeground(Color.WHITE);
+                    productTable.setFillsViewportHeight(true);
+                    productTable.setGridColor(new Color(0xF47130));
+                    productTable.setShowGrid(true);
+                    productTable.setSelectionBackground(new Color(0xF47130));
+                    productTable.setSelectionForeground(Color.WHITE);
 
-            JOptionPane.showMessageDialog(this, scrollPane, "Product Details", JOptionPane.INFORMATION_MESSAGE);
+                    JScrollPane scrollPane = new JScrollPane(productTable);
+                    scrollPane.setBorder(BorderFactory.createLineBorder(new Color(0xF47130), 2));
+
+                    // Increase the size of the dialog window
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    int width = (int) (screenSize.width * 0.6); // 40% of screen width
+                    int height = (int) (screenSize.height * 0.4); // 40% of screen height
+                    scrollPane.setPreferredSize(new Dimension(width, height));
+
+                    JOptionPane.showMessageDialog(this, scrollPane, "Product Details", JOptionPane.INFORMATION_MESSAGE);
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
