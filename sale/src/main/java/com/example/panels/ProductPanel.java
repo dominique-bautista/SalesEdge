@@ -2,6 +2,7 @@ package com.example.panels;
 
 //import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -28,7 +29,17 @@ public class ProductPanel extends JPanel {
 
         // Create a table and populate it with data from the database
         JTable table = createTable();
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Customize the scroll bar
+        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(0xF47130); // Set the color of the scrollbar thumb
+            }
+        });
+
+        add(scrollPane, BorderLayout.CENTER);
 
         // Create button panel for Add, Edit, and Delete operations
         JPanel buttonPanel = createButtonPanel(table);
