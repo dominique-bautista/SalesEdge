@@ -1,6 +1,11 @@
 package com.example.panels;
 
 import com.example.DashBoard;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
@@ -11,6 +16,10 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SalesPanel extends JPanel {
     private static final Color ACCENT_COLOR = new Color(0xF47130);
-    private static final AtomicInteger transactionIdCounter = new AtomicInteger(1);
+
+    private JTable transactionTable; // Declare transactionTable as a class-level field
 
     String productView;
     String total;
+
     public SalesPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
@@ -73,7 +84,6 @@ public class SalesPanel extends JPanel {
             }
         };
 
-
         try (Connection connection = Manager.getConnection()) {
             String staffName = "";
             String query = "SELECT * FROM Transactions";
@@ -110,11 +120,9 @@ public class SalesPanel extends JPanel {
 
                     Object[] rowData = {
                             resultSet.getString("TransactionID"),
-//                            resultSet.getString("CustomerID"),
                             cusName,
                             resultSet.getString("Date"),
                             resultSet.getString("Time"),
-//                            resultSet.getInt("SalespersonID"),
                             staffName,
                             productView = "See products",
                             totalAmount,
@@ -127,7 +135,7 @@ public class SalesPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        JTable transactionTable = new JTable(transactionTableModel);
+        transactionTable = new JTable(transactionTableModel);
         transactionTable.setRowHeight(30);
         transactionTable.setFont(new Font("Lato", Font.PLAIN, 16));
         transactionTable.getTableHeader().setFont(new Font("Roboto", Font.BOLD, 16));
@@ -191,9 +199,7 @@ public class SalesPanel extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        exportButton.addActionListener(e -> {
-            // Code to export sales reports (to be implemented)
-        });
+        exportButton.addActionListener(e -> exportToExcel());
 
         addButton.addActionListener(e -> createSales());
     }
@@ -487,7 +493,66 @@ public class SalesPanel extends JPanel {
         }
     }
 
+    private void exportToExcel() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify a file to save");
 
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            try {
+                Path filePath = fileChooser.getSelectedFile().toPath();
+                if (!filePath.toString().endsWith(".xlsx")) {
+                    filePath = Paths.get(filePath + ".xlsx");
+                }
+
+                Workbook workbook = new XSSFWorkbook();
+                Sheet sheet = workbook.createSheet("Sales Transactions");
+
+                DefaultTableModel model = (DefaultTableModel) transactionTable.getModel();
+                int rowCount = model.getRowCount();
+                int columnCount = model.getColumnCount();
+
+                // Create header row
+                Row headerRow = sheet.createRow(0);
+                for (int col = 0; col < columnCount; col++) {
+                    Cell cell = headerRow.createCell(col);
+                    cell.setCellValue(model.getColumnName(col));
+                }
+
+                // Create data rows
+                for (int row = 0; row < rowCount; row++) {
+                    Row excelRow = sheet.createRow(row + 1); // Start from row 1 (row 0 is a header)
+                    for (int col = 0; col < columnCount; col++) {
+                        Object value = model.getValueAt(row, col);
+                        Cell cell = excelRow.createCell(col);
+                        if (value instanceof String) {
+                            cell.setCellValue((String) value);
+                        } else if (value instanceof Integer) {
+                            cell.setCellValue((Integer) value);
+                        } else if (value instanceof Double) {
+                            cell.setCellValue((Double) value);
+                        }
+                    }
+                }
+
+                // Write the workbook to the file
+                try (FileOutputStream fileOut = new FileOutputStream(filePath.toString())) {
+                    workbook.write(fileOut);
+                    JOptionPane.showMessageDialog(this, "Data exported successfully to " + filePath, "Export Successful", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Error exporting data: " + e.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    workbook.close();
+                }
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
