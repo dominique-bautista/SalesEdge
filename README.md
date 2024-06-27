@@ -30,7 +30,6 @@ SalesEdge is a comprehensive retail management system designed to streamline ope
 - **Price**: Price of the product.
 - **Supplier**: Supplier of the product.
 - **Stock Level**: Quantity available of the product.
-- **Image URL**: URL or file reference for the product image.
 
 ### 4. Sales Transaction Table
 - **Transaction ID**: Unique identifier for each transaction.
@@ -46,13 +45,6 @@ SalesEdge is a comprehensive retail management system designed to streamline ope
 - **Low Stock Alert**: Indicator for low stock levels.
 - **Product Name**: Name of the product.
 - **Supplier Information**: Reference to the Supplier Information Table.
-
-### 6. Supplier Information Table
-- **Supplier ID**: Unique identifier for each supplier.
-- **Name**: Supplier's name.
-- **Products Supplied**: List of products supplied by the supplier.
-- **Contact Information**: Supplier's email address and phone number.
-- **Address**: Supplier's business address.
 
 ## Technologies Used
 - **Database**: MySQL
